@@ -49,6 +49,14 @@ class SettingsScreen extends ConsumerWidget {
                               ref.read(settingsProvider.notifier).toggleSounds();
                             },
                           ),
+                          MenuVerticalGap(maxHeight: constraints.maxHeight),
+                          _SettingsLine(
+                            'Skip Intro',
+                            settings.skipIntro ? Icons.speaker_notes_off : Icons.speaker_notes,
+                            onSelected: () {
+                              ref.read(settingsProvider.notifier).toggleSkipIntro();
+                            },
+                          ),
                         ],
                       ),
                     ),
@@ -63,7 +71,7 @@ class SettingsScreen extends ConsumerWidget {
                           text: 'QUIT GAME',
                           buttonType: ButtonType.quit,
                           onPressed: () {
-                            context.go('/');
+                            context.go('/mainMenu');
                           }),
                     MenuButton(
                         text: 'BACK',

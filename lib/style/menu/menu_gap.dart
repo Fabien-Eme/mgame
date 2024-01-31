@@ -8,7 +8,7 @@ class MenuVerticalGap extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-      height: maxHeight * 0.05,
+      height: maxHeight * 0.03,
     );
   }
 }
@@ -21,7 +21,7 @@ class MenuVerticalGapLarge extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-      height: maxHeight * 0.08,
+      height: maxHeight * 0.05,
     );
   }
 }

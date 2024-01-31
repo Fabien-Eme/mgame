@@ -30,7 +30,7 @@ class AudioController extends _$AudioController {
 
   final Random _random = Random();
 
-  SettingsValues _settings = SettingsValues(audioOn: true, playerName: "Player", soundsOn: true, musicOn: true);
+  late SettingsValues _settings;
 
   @override
   void build() {
@@ -45,12 +45,16 @@ class AudioController extends _$AudioController {
       onStateChange: (appLifecycleState) => _handleAppLifecycle(appLifecycleState),
     );
 
-    ref.listen(settingsProvider, (_, settings) {
-      _settings = settings;
-      _audioOnHandler();
-      _musicOnHandler();
-      _soundsOnHandler();
-    });
+    ref.listen(
+      settingsProvider,
+      (_, settings) {
+        _settings = settings;
+        _audioOnHandler();
+        _musicOnHandler();
+        _soundsOnHandler();
+      },
+      fireImmediately: true,
+    );
 
     if (_settings.audioOn && _settings.musicOn) {
       if (kIsWeb) {
@@ -59,7 +63,6 @@ class AudioController extends _$AudioController {
         _playCurrentSongInPlaylist();
       }
     }
-
     return;
   }
 
@@ -170,7 +173,7 @@ class AudioController extends _$AudioController {
     // If there are hundreds of long sound effect files, it's better
     // to be more selective when preloading.
 
-    await AudioCache.instance.loadAll(SfxType.values.expand(soundTypeToFilename).map((path) => 'sfx/$path').toList());
+    ///await AudioCache.instance.loadAll(SfxType.values.expand(soundTypeToFilename).map((path) => 'sfx/$path').toList());
   }
 
   void _soundsOnHandler() {

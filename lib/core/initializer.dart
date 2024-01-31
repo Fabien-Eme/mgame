@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:mgame/audio/audio_controller.dart';
+import 'package:mgame/core/shared_preferences.dart';
 
 class Initializer extends ConsumerWidget {
   const Initializer({super.key, required this.child});
@@ -10,29 +10,25 @@ class Initializer extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     return FutureBuilder(
-      future: performInitialization(ref),
-      builder: (BuildContext context, AsyncSnapshot<bool> asyncSnapshot) {
-        if (asyncSnapshot.hasData) {
-          ref.watch(audioControllerProvider);
+        future: performInitialization(ref),
+        builder: (context, snapshot) {
+          if (snapshot.hasError) {
+            return somethingWentWrong();
+          } else if (snapshot.hasData) {
+            // ref.watch(audioControllerProvider);
 
-          FlutterNativeSplash.remove();
-          return child;
-        } else if (asyncSnapshot.hasError) {
-          return somethingWentWrong();
-        } else {
-          return loading();
-        }
-      },
-    );
+            FlutterNativeSplash.remove();
+            return child;
+          } else {
+            return loading();
+          }
+        });
   }
 }
 
 Future<bool> performInitialization(WidgetRef ref) async {
-  try {
-    return true;
-  } catch (e) {
-    rethrow;
-  }
+  await ref.watch(sharedPreferencesProvider.future);
+  return true;
 }
 
 Widget somethingWentWrong() {

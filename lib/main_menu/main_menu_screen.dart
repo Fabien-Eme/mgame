@@ -6,9 +6,12 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:mgame/audio/audio_controller.dart';
 import 'package:mgame/audio/sounds.dart';
+import 'package:mgame/settings/settings.dart';
 import 'package:mgame/style/menu/menu_text.dart';
 import 'package:mgame/style/palette.dart';
 
+import '../game/game_ui_controller.dart';
+import '../narrative/narrative_controller.dart';
 import '../style/menu/menu_gap.dart';
 
 class MainMenuScreen extends ConsumerWidget {
@@ -34,10 +37,19 @@ class MainMenuScreen extends ConsumerWidget {
                       child: Column(
                         children: [
                           _MenuLine('PLAY', onSelected: () {
-                            ref.read(audioControllerProvider.notifier).stopAllSound();
-                            ref.read(audioControllerProvider.notifier).playSfx(SfxType.clickPlay);
-                            context.go('/introNarrative');
-                            Future.delayed(const Duration(seconds: 7)).then((_) => ref.read(audioControllerProvider.notifier).resetMusic());
+                            if (ref.read(settingsProvider).skipIntro) {
+                              ref.read(gameUiControllerProvider.notifier).load(gameUiType: GameUiType.game);
+
+                              context.go('/game');
+                            } else {
+                              ref.read(audioControllerProvider.notifier).stopAllSound();
+                              ref.read(audioControllerProvider.notifier).playSfx(SfxType.clickPlay);
+
+                              ref.read(narrativeControllerProvider.notifier).load(title: 'intro');
+                              ref.read(gameUiControllerProvider.notifier).load(gameUiType: GameUiType.narrative);
+
+                              context.go('/narrative');
+                            }
                           }),
                           _MenuLine('SETTINGS', onSelected: () {
                             ref.read(audioControllerProvider.notifier).playSfx(SfxType.buttonTap);

@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
-class MyCustomFadeTransitionPage extends CustomTransitionPage<void> {
-  MyCustomFadeTransitionPage({super.key, required super.child})
+class CustomFadeTransitionPage extends CustomTransitionPage<void> {
+  CustomFadeTransitionPage({super.key, required super.child})
       : super(
           transitionsBuilder: (context, animation, secondaryAnimation, child) => FadeTransition(
             opacity: animation,
