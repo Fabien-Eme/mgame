@@ -9,6 +9,7 @@ import 'package:mgame/flame_game/bloc/game_bloc.dart';
 
 import '../../gen/assets.gen.dart';
 import '../game.dart';
+import '../tile.dart';
 
 class UIBottomBarButton extends SpriteButtonComponent with HasGameRef<MGame> {
   UIBottomBarButton({required this.buttonType, required super.size, super.position});
@@ -73,11 +74,11 @@ class UIBottomBarButton extends SpriteButtonComponent with HasGameRef<MGame> {
       case GameStatus.initial:
         break;
       case GameStatus.construct:
-        if (newState.buildingType!.name.contains(buttonType.name) && !isActive) {
+        if (newState.tileType!.name.contains(buttonType.name) && !isActive) {
           isActive = true;
           updateButtonsSprite();
         }
-        if (!newState.buildingType!.name.contains(buttonType.name) && isActive) {
+        if (!newState.tileType!.name.contains(buttonType.name) && isActive) {
           isActive = false;
           updateButtonsSprite();
         }
@@ -116,7 +117,7 @@ enum ButtonType {
   Function get functionActivate {
     return switch (this) {
       ButtonType.road => (GameBloc gameBloc) {
-          gameBloc.add(const ConstructionModePressed(buildingType: BuildingType.roadSN));
+          gameBloc.add(const ConstructionModePressed(tileType: TileType.roadSN));
         },
       ButtonType.trash => (GameBloc gameBloc) {
           gameBloc.add(const DestructionModePressed());

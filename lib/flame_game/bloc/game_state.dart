@@ -10,25 +10,25 @@ enum GameStatus {
 class GameState extends Equatable {
   const GameState({
     this.status = GameStatus.initial,
-    this.buildingType,
+    this.tileType,
   });
 
   final GameStatus status;
-  final BuildingType? buildingType;
+  final TileType? tileType;
 
   GameState copyWith({
     GameStatus? status,
-    BuildingType? buildingType,
+    TileType? tileType,
   }) {
     return GameState(
       status: status ?? this.status,
-      buildingType: buildingType,
+      tileType: tileType,
     );
   }
 
   @override
   List<Object?> get props => [
         status,
-        buildingType,
+        tileType,
       ];
 }

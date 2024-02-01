@@ -55,6 +55,16 @@ class GameWorld extends World with HasGameRef<MGame>, TapCallbacks {
     return super.onLoad();
   }
 
+  Map<Directions, TileType> getNeigbhors(Point<int> coordinates) {
+    ///TODO Implement this
+    return {
+      Directions.S: TileType.grass,
+      Directions.W: TileType.grass,
+      Directions.N: TileType.grass,
+      Directions.E: TileType.grass,
+    };
+  }
+
   ///
   ///
   ///
@@ -63,7 +73,7 @@ class GameWorld extends World with HasGameRef<MGame>, TapCallbacks {
 
   void onPrimaryTapDown() {
     if (gameBloc.state.status == GameStatus.construct) {
-      construct(posDimetric: game.currentMouseTilePos, buildingType: gameBloc.state.buildingType!);
+      construct(posDimetric: game.currentMouseTilePos, tileType: gameBloc.state.tileType!);
     } else if (gameBloc.state.status == GameStatus.destruct) {
       destroy(posDimetric: game.currentMouseTilePos);
     }
@@ -91,13 +101,11 @@ class GameWorld extends World with HasGameRef<MGame>, TapCallbacks {
   }
 
   void onTertiaryTapDown(TapDownInfo info) async {
-    /// TODO implement rotating building before construct, also with keyboard and repress button
-
-    if (gameBloc.state.buildingType == BuildingType.roadSN) {
-      gameBloc.add(const ConstructionModePressed(buildingType: BuildingType.roadWE));
+    if (gameBloc.state.tileType == TileType.roadSN) {
+      gameBloc.add(const ConstructionModePressed(tileType: TileType.roadWE));
     }
-    if (gameBloc.state.buildingType == BuildingType.roadWE) {
-      gameBloc.add(const ConstructionModePressed(buildingType: BuildingType.roadSN));
+    if (gameBloc.state.tileType == TileType.roadWE) {
+      gameBloc.add(const ConstructionModePressed(tileType: TileType.roadSN));
     }
     await Future.delayed(const Duration(milliseconds: 10));
     mouseIsMovingOnNewTile(game.currentMouseTilePos);
@@ -109,10 +117,10 @@ class GameWorld extends World with HasGameRef<MGame>, TapCallbacks {
   ///
   /// Handle Construction
 
-  void construct({required Vector2 posDimetric, required BuildingType buildingType, bool isMouseDragging = false}) {
+  void construct({required Vector2 posDimetric, required TileType tileType, bool isMouseDragging = false}) {
     Point<int> posGrid = convertDimetricToGridCoordinates(posDimetric);
     if (checkIfWithinGridBoundaries(posGrid)) {
-      grid![posGrid.x][posGrid.y].construct(buildingType: buildingType, isMouseDragging: isMouseDragging);
+      grid![posGrid.x][posGrid.y].construct(tileType: tileType, isMouseDragging: isMouseDragging);
     }
   }
 
@@ -159,7 +167,7 @@ class GameWorld extends World with HasGameRef<MGame>, TapCallbacks {
   }
 
   void projectConstructionOnTile(Point<int> posGrid) {
-    grid![posGrid.x][posGrid.y].changeTileTo(gameBloc.state.buildingType!);
+    grid![posGrid.x][posGrid.y].changeTileTo(gameBloc.state.tileType!);
   }
 
   void projectDestructionOnTile(Point<int> posGrid) {
@@ -204,7 +212,7 @@ class GameWorld extends World with HasGameRef<MGame>, TapCallbacks {
     if (checkIfWithinGridBoundaries(posGrid)) {
       if (game.isMouseDragging) {
         if (gameBloc.state.status == GameStatus.construct) {
-          construct(posDimetric: game.currentMouseTilePos, buildingType: gameBloc.state.buildingType!, isMouseDragging: true);
+          construct(posDimetric: game.currentMouseTilePos, tileType: gameBloc.state.tileType!, isMouseDragging: true);
         } else if (gameBloc.state.status == GameStatus.destruct) {
           destroy(posDimetric: game.currentMouseTilePos, isMouseDragging: true);
         }

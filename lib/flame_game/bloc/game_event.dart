@@ -1,7 +1,5 @@
 part of 'game_bloc.dart';
 
-enum BuildingType { roadSN, roadWE, factory }
-
 sealed class GameEvent extends Equatable {
   const GameEvent();
 
@@ -10,11 +8,11 @@ sealed class GameEvent extends Equatable {
 }
 
 final class ConstructionModePressed extends GameEvent {
-  const ConstructionModePressed({required this.buildingType});
-  final BuildingType buildingType;
+  const ConstructionModePressed({required this.tileType});
+  final TileType tileType;
 
   @override
-  List<Object> get props => [buildingType];
+  List<Object> get props => [tileType];
 }
 
 final class ConstructionModeExited extends GameEvent {

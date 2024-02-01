@@ -5,11 +5,12 @@ import 'dart:ui';
 import 'package:flame/components.dart';
 import 'package:flame/effects.dart';
 import 'package:mgame/flame_game/bloc/game_bloc.dart';
+import 'package:mgame/flame_game/game_world.dart';
 
 import '../gen/assets.gen.dart';
 import 'game.dart';
 
-class Tile extends SpriteComponent with HasGameRef<MGame> {
+class Tile extends SpriteComponent with HasGameRef<MGame>, HasWorldReference<GameWorld> {
   TileType tileType;
   Point<int> coordinates;
   bool isDebugMode;
@@ -17,7 +18,6 @@ class Tile extends SpriteComponent with HasGameRef<MGame> {
 
   bool isConstructible = true;
   bool isDestructible = false;
-  BuildingType? buildingType;
   ColorEffect? colorEffect;
 
   @override
@@ -28,8 +28,8 @@ class Tile extends SpriteComponent with HasGameRef<MGame> {
     return super.onLoad();
   }
 
-  void determineRoadType() {
-    ///
+  void determineMyRoadType() {
+    Map<Directions, TileType> mapNeighbors = world.getNeigbhors(coordinates);
   }
 
   void highlight() {
@@ -40,19 +40,18 @@ class Tile extends SpriteComponent with HasGameRef<MGame> {
     paint.colorFilter = null;
   }
 
-  void changeTileTo(BuildingType buildingType) {
+  void changeTileTo(TileType tileType) {
     if (isConstructible) {
-      sprite = Sprite(game.images.fromCache(TileType.values.firstWhere((element) => element.name == buildingType.name).path));
+      sprite = Sprite(game.images.fromCache(tileType.path));
       paint.colorFilter = ColorFilter.mode((isConstructible) ? const Color.fromARGB(98, 0, 255, 38) : const Color.fromARGB(97, 250, 40, 40), BlendMode.srcATop);
     } else {
       highlight();
     }
   }
 
-  void construct({required BuildingType buildingType, bool isMouseDragging = false}) {
+  void construct({required TileType tileType, bool isMouseDragging = false}) {
     if (isConstructible) {
-      buildingType = buildingType;
-      tileType = TileType.values.firstWhere((element) => element.name == buildingType.name);
+      tileType = tileType;
       sprite = Sprite(game.images.fromCache(tileType.path));
       isConstructible = false;
       isDestructible = true;
@@ -72,7 +71,6 @@ class Tile extends SpriteComponent with HasGameRef<MGame> {
     if (!isConstructible && isDestructible) {
       isConstructible = true;
       isDestructible = false;
-      buildingType = null;
       tileType = TileType.grass;
       sprite = Sprite(game.images.fromCache(tileType.path));
       if (!isMouseDragging) highlight();
@@ -106,3 +104,5 @@ enum TileType {
     };
   }
 }
+
+enum Directions { S, W, N, E }
