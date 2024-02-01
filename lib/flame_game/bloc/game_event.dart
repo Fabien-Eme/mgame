@@ -1,6 +1,6 @@
 part of 'game_bloc.dart';
 
-enum BuildingType { road, factory }
+enum BuildingType { roadSN, roadWE, factory }
 
 sealed class GameEvent extends Equatable {
   const GameEvent();

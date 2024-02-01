@@ -3,7 +3,9 @@ import 'dart:async';
 import 'package:flame/camera.dart';
 import 'package:flame/components.dart';
 import 'package:flame/events.dart';
+import 'package:flame/extensions.dart';
 import 'package:flame/game.dart';
+import 'package:flame_bloc/flame_bloc.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/services.dart';
 import 'package:mgame/flame_game/bloc/game_bloc.dart';
@@ -11,9 +13,9 @@ import 'package:mgame/flame_game/game_assets.dart';
 import 'package:mgame/flame_game/ui/ui_bottom_bar.dart';
 
 import 'game_world.dart';
-import 'mouse_cursor.dart';
+import 'ui/mouse_cursor.dart';
 
-class MGame extends FlameGame<GameWorld> with MouseMovementDetector, ScrollDetector, MultiTouchDragDetector, TapDetector, SecondaryTapDetector {
+class MGame extends FlameGame<GameWorld> with MouseMovementDetector, ScrollDetector, MultiTouchDragDetector, TapDetector, SecondaryTapDetector, TertiaryTapDetector {
   static const double gameWidth = 2000;
   static const double gameHeight = 900;
   final Vector2 viewfinderInitialPosition = Vector2(gameWidth / 2, gameHeight / 2);
@@ -34,10 +36,12 @@ class MGame extends FlameGame<GameWorld> with MouseMovementDetector, ScrollDetec
           camera: CameraComponent.withFixedResolution(width: gameWidth, height: gameHeight, viewfinder: Viewfinder()..position = Vector2(gameWidth / 2, gameHeight / 2)),
         );
 
-  Vector2? currentHighlightedTilePos;
-  Vector2? mousePosition;
+  Vector2 currentMouseTilePos = Vector2.zero();
+  Vector2 mousePosition = Vector2.zero();
   late MyMouseCursor myMouseCursor;
   bool hasConstructed = false;
+  bool isMouseDragging = false;
+  bool isMouseHoveringUI = false;
 
   @override
   FutureOr<void> onLoad() async {
@@ -55,9 +59,13 @@ class MGame extends FlameGame<GameWorld> with MouseMovementDetector, ScrollDetec
     UIBottomBar uiComponent = UIBottomBar();
     myMouseCursor = MyMouseCursor();
 
-    await camera.viewport.addAll(
-      [uiComponent, myMouseCursor],
-    );
+    await camera.viewport.add(FlameMultiBlocProvider(
+      providers: [
+        FlameBlocProvider<GameBloc, GameState>.value(value: gameBloc),
+      ],
+      children: [uiComponent, myMouseCursor],
+    ));
+
     super.onMount();
   }
 
@@ -72,60 +80,91 @@ class MGame extends FlameGame<GameWorld> with MouseMovementDetector, ScrollDetec
   ///
   ///
   ///
-  ///
-  ///
-  ///
-  ///
-  ///
+  /// Handle Taps
 
   @override
-  Color backgroundColor() {
-    return const Color(0x0ff00000);
-    // return const Color(0xFFa9da6a);
+  void onTertiaryTapDown(TapDownInfo info) {
+    world.onTertiaryTapDown(info);
+    super.onTertiaryTapDown(info);
   }
 
   @override
   void onSecondaryTapUp(TapUpInfo info) {
-    gameBloc.add(const ConstructionModeExited());
+    world.onSecondaryTapUp();
     super.onSecondaryTapUp(info);
   }
 
   @override
   void onTapDown(TapDownInfo info) {
-    world.primaryTapDown();
+    if (!isMouseHoveringUI) world.onPrimaryTapDown();
     super.onTapDown(info);
   }
 
+  ///
+  ///
+  ///
+  ///
+  ///
+  ///
+  ///
+  /// Handle Mouse movement
+
   @override
   void onMouseMove(PointerHoverInfo info) {
-    Vector2 mouseCursorXY = camera.globalToLocal(info.eventPosition.global);
-    mousePosition = mouseCursorXY;
+    if (isDesktop) moveMouseCursor(info.eventPosition.global);
 
-    myMouseCursor.position = camera.globalToLocal(info.eventPosition.global) * camera.viewfinder.zoom + (viewfinderInitialPosition - camera.viewfinder.position * camera.viewfinder.zoom);
+    mousePosition = camera.globalToLocal(info.eventPosition.global);
 
-    double cursorX = mouseCursorXY.x;
-    double cursorY = mouseCursorXY.y;
+    double cursorX = mousePosition.x;
+    double cursorY = mousePosition.y;
 
-    if (mouseCursorXY.x >= 0 && mouseCursorXY.x <= gameWidth && mouseCursorXY.y >= 0 && mouseCursorXY.y <= gameHeight) {
+    if (cursorX >= 0 && cursorX <= gameWidth && cursorY >= 0 && cursorY <= gameHeight) {
       double dimetricX = (cursorX + 2 * cursorY) / tileWidth - 0.5;
       double dimetricY = (cursorX - 2 * cursorY) / tileWidth + 0.5;
 
       int tileX = dimetricX.floor();
       int tileY = dimetricY.floor();
-      Vector2 currentTilePos = Vector2(tileX.toDouble(), tileY.toDouble());
-      if (currentHighlightedTilePos == null || currentHighlightedTilePos != currentTilePos) {
-        if (hasConstructed) {
-          hasConstructed = false;
-          world.removeHighlight(currentHighlightedTilePos);
-        } else {
-          world.resetTile(currentHighlightedTilePos);
-        }
-        world.moveTileCursor(currentTilePos);
+      Vector2 newMouseTilePos = Vector2(tileX.toDouble(), tileY.toDouble());
 
-        currentHighlightedTilePos = currentTilePos;
+      if (currentMouseTilePos != newMouseTilePos) {
+        world.mouseIsMovingOnNewTile(newMouseTilePos);
       }
     }
     super.onMouseMove(info);
+  }
+
+  ///
+  ///
+  ///
+  ///
+  ///
+  ///
+  ///
+  /// Handle Mouse Cursor
+
+  void moveMouseCursor(Vector2 pos) {
+    Vector2 futureMouseCursorPosition = camera.globalToLocal(pos) * camera.viewfinder.zoom + (viewfinderInitialPosition - camera.viewfinder.position * camera.viewfinder.zoom);
+    if (futureMouseCursorPosition.x < 0) futureMouseCursorPosition.x = 0;
+    if (futureMouseCursorPosition.x > gameWidth) futureMouseCursorPosition.x = gameWidth;
+    if (futureMouseCursorPosition.y < 0) futureMouseCursorPosition.y = 0;
+    if (futureMouseCursorPosition.y > gameHeight) futureMouseCursorPosition.y = gameHeight;
+
+    myMouseCursor.position = futureMouseCursorPosition;
+  }
+
+  ///
+  ///
+  ///
+  ///
+  ///
+  ///
+  ///
+  ///
+  /// Game Background
+  @override
+  Color backgroundColor() {
+    return const Color(0x0ff00000);
+    // return const Color(0xFFa9da6a);
   }
 
   ///
@@ -157,20 +196,20 @@ class MGame extends FlameGame<GameWorld> with MouseMovementDetector, ScrollDetec
     if (camera.viewfinder.zoom <= minZoom) {
       camera.viewfinder.position = viewfinderInitialPosition;
     } else {
-      if (mousePosition!.x < viewfinderInitialPosition.x / camera.viewfinder.zoom) {
-        mousePosition = Vector2(viewfinderInitialPosition.x / camera.viewfinder.zoom, mousePosition!.y);
+      if (mousePosition.x < viewfinderInitialPosition.x / camera.viewfinder.zoom) {
+        mousePosition = Vector2(viewfinderInitialPosition.x / camera.viewfinder.zoom, mousePosition.y);
       }
-      if (mousePosition!.x > (gameWidth - viewfinderInitialPosition.x / camera.viewfinder.zoom)) {
-        mousePosition = Vector2(gameWidth - viewfinderInitialPosition.x / camera.viewfinder.zoom, mousePosition!.y);
+      if (mousePosition.x > (gameWidth - viewfinderInitialPosition.x / camera.viewfinder.zoom)) {
+        mousePosition = Vector2(gameWidth - viewfinderInitialPosition.x / camera.viewfinder.zoom, mousePosition.y);
       }
-      if (mousePosition!.y < viewfinderInitialPosition.y / camera.viewfinder.zoom) {
-        mousePosition = Vector2(mousePosition!.x, viewfinderInitialPosition.y / camera.viewfinder.zoom);
+      if (mousePosition.y < viewfinderInitialPosition.y / camera.viewfinder.zoom) {
+        mousePosition = Vector2(mousePosition.x, viewfinderInitialPosition.y / camera.viewfinder.zoom);
       }
-      if (mousePosition!.y > (gameHeight - viewfinderInitialPosition.y / camera.viewfinder.zoom)) {
-        mousePosition = Vector2(mousePosition!.x, gameHeight - viewfinderInitialPosition.y / camera.viewfinder.zoom);
+      if (mousePosition.y > (gameHeight - viewfinderInitialPosition.y / camera.viewfinder.zoom)) {
+        mousePosition = Vector2(mousePosition.x, gameHeight - viewfinderInitialPosition.y / camera.viewfinder.zoom);
       }
 
-      camera.viewfinder.position = mousePosition!;
+      camera.viewfinder.position = mousePosition;
     }
   }
 
@@ -222,14 +261,37 @@ class MGame extends FlameGame<GameWorld> with MouseMovementDetector, ScrollDetec
         camera.globalToLocal(info.eventPosition.global) * camera.viewfinder.zoom + (viewfinderInitialPosition / camera.viewfinder.zoom - camera.viewfinder.position) * camera.viewfinder.zoom;
     _drags[pointerId]?.updatePosition(info.eventPosition.global);
     _updateGesture();
-    if (_drags.length == 1 && !isDesktop) {
-      Vector2 projectedViewfinderPosition = camera.viewfinder.position - Vector2(info.delta.global.x / camera.viewfinder.zoom, info.delta.global.y / camera.viewfinder.zoom);
-      if (projectedViewfinderPosition.x < viewfinderInitialPosition.x / camera.viewfinder.zoom ||
-          projectedViewfinderPosition.x > (gameWidth - viewfinderInitialPosition.x / camera.viewfinder.zoom) ||
-          projectedViewfinderPosition.y < viewfinderInitialPosition.y / camera.viewfinder.zoom ||
-          projectedViewfinderPosition.y > (gameHeight - viewfinderInitialPosition.y / camera.viewfinder.zoom)) {
+    if (_drags.length == 1) {
+      if (!isDesktop) {
+        Vector2 projectedViewfinderPosition = camera.viewfinder.position - Vector2(info.delta.global.x / camera.viewfinder.zoom, info.delta.global.y / camera.viewfinder.zoom);
+        if (projectedViewfinderPosition.x < viewfinderInitialPosition.x / camera.viewfinder.zoom ||
+            projectedViewfinderPosition.x > (gameWidth - viewfinderInitialPosition.x / camera.viewfinder.zoom) ||
+            projectedViewfinderPosition.y < viewfinderInitialPosition.y / camera.viewfinder.zoom ||
+            projectedViewfinderPosition.y > (gameHeight - viewfinderInitialPosition.y / camera.viewfinder.zoom)) {
+        } else {
+          camera.viewfinder.position = projectedViewfinderPosition;
+        }
       } else {
-        camera.viewfinder.position = projectedViewfinderPosition;
+        isMouseDragging = true;
+        if (isDesktop) moveMouseCursor(info.eventPosition.global);
+
+        mousePosition = camera.globalToLocal(info.eventPosition.global);
+
+        double cursorX = mousePosition.x;
+        double cursorY = mousePosition.y;
+
+        if (cursorX >= 0 && cursorX <= gameWidth && cursorY >= 0 && cursorY <= gameHeight) {
+          double dimetricX = (cursorX + 2 * cursorY) / tileWidth - 0.5;
+          double dimetricY = (cursorX - 2 * cursorY) / tileWidth + 0.5;
+
+          int tileX = dimetricX.floor();
+          int tileY = dimetricY.floor();
+          Vector2 newMouseTilePos = Vector2(tileX.toDouble(), tileY.toDouble());
+
+          if (currentMouseTilePos != newMouseTilePos) {
+            world.mouseIsMovingOnNewTile(newMouseTilePos);
+          }
+        }
       }
     }
   }
@@ -252,12 +314,16 @@ class MGame extends FlameGame<GameWorld> with MouseMovementDetector, ScrollDetec
   void onDragEnd(int pointerId, DragEndInfo info) {
     _drags.remove(pointerId);
     _updateGesture();
+    world.mouseIsMovingOnNewTile(currentMouseTilePos);
+    isMouseDragging = false;
   }
 
   @override
   void onDragCancel(int pointerId) {
     _drags.remove(pointerId);
     _updateGesture();
+    world.mouseIsMovingOnNewTile(currentMouseTilePos);
+    isMouseDragging = false;
   }
 
   void _updateGesture() {

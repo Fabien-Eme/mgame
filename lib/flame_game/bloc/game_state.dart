@@ -1,10 +1,15 @@
 part of 'game_bloc.dart';
 
-enum GameStatus { idle, construct, destruct }
+enum GameStatus {
+  initial,
+  idle,
+  construct,
+  destruct,
+}
 
 class GameState extends Equatable {
   const GameState({
-    this.status = GameStatus.idle,
+    this.status = GameStatus.initial,
     this.buildingType,
   });
 

@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:math';
 
 import 'package:flame/components.dart';
 import 'package:flame/events.dart';
@@ -36,7 +37,12 @@ class GameWorld extends World with HasGameRef<MGame>, TapCallbacks {
         return List.generate(
           (i.isEven) ? gridWidth : gridWidth - 1,
           (j) {
-            return Tile(tileType: TileType.grass, position: Vector2(j * 100 + ((i.isEven) ? 0 : 50), i * 25));
+            return Tile(
+              tileType: TileType.grass,
+              coordinates: convertGridCoordinatesToDimetric(i, j),
+              position: Vector2(j * MGame.tileWidth + ((i.isEven) ? 0 : MGame.tileHeight), i * (MGame.tileHeight / 2)),
+              isDebugMode: true,
+            );
           },
         );
       },
@@ -44,81 +50,133 @@ class GameWorld extends World with HasGameRef<MGame>, TapCallbacks {
 
     await addAll([for (List<Tile> row in grid!) ...row]);
 
-    if (isDebugGridNumbersOn) addDebugGridNumbers();
+    if (isDebugGridNumbersOn) await addDebugGridNumbers();
 
     return super.onLoad();
   }
 
-  void primaryTapDown() {
+  ///
+  ///
+  ///
+  ///
+  /// Handle Taps
+
+  void onPrimaryTapDown() {
     if (gameBloc.state.status == GameStatus.construct) {
-      construct(game.currentHighlightedTilePos);
-      game.hasConstructed = true;
-      removeHighlight(game.currentHighlightedTilePos);
+      construct(posDimetric: game.currentMouseTilePos, buildingType: gameBloc.state.buildingType!);
+    } else if (gameBloc.state.status == GameStatus.destruct) {
+      destroy(posDimetric: game.currentMouseTilePos);
     }
   }
 
-  void highlightTile(int gridX, int gridY) {
-    grid![gridX][gridY].highlight();
-  }
+  void onSecondaryTapUp() {
+    switch (gameBloc.state.status) {
+      case GameStatus.initial:
+        gameBloc.add(const DestructionModePressed());
 
-  void removeHighlightOfTile(int gridX, int gridY) {
-    grid![gridX][gridY].removeHighlight();
-  }
+        break;
+      case GameStatus.construct:
+        gameBloc.add(const ConstructionModeExited());
 
-  void projectConstructionOnTile(int gridX, int gridY) {
-    grid![gridX][gridY].changeTileTo(TileType.roadSN);
-  }
+        break;
+      case GameStatus.destruct:
+        gameBloc.add(const DestructionModeExited());
 
-  void resetTile(Vector2? posDimetric) {
-    if (posDimetric != null) {
-      Vector2 posGrid = convertDimetricToGridCoordinates(posDimetric);
-      if (checkIfWithinGridBoundaries(posGrid)) {
-        int gridX = posGrid.x.toInt();
-        int gridY = posGrid.y.toInt();
-        grid![gridX][gridY].removeHighlight();
-        grid![gridX][gridY].resetTile();
-      }
+        break;
+      case GameStatus.idle:
+        gameBloc.add(const DestructionModePressed());
+
+        break;
     }
   }
 
-  void removeHighlight(Vector2? posDimetric) {
-    if (posDimetric != null) {
-      Vector2 posGrid = convertDimetricToGridCoordinates(posDimetric);
-      if (checkIfWithinGridBoundaries(posGrid)) {
-        removeHighlightOfTile(posGrid.x.toInt(), posGrid.y.toInt());
-      }
+  void onTertiaryTapDown(TapDownInfo info) async {
+    /// TODO implement rotating building before construct, also with keyboard and repress button
+
+    if (gameBloc.state.buildingType == BuildingType.roadSN) {
+      gameBloc.add(const ConstructionModePressed(buildingType: BuildingType.roadWE));
+    }
+    if (gameBloc.state.buildingType == BuildingType.roadWE) {
+      gameBloc.add(const ConstructionModePressed(buildingType: BuildingType.roadSN));
+    }
+    await Future.delayed(const Duration(milliseconds: 10));
+    mouseIsMovingOnNewTile(game.currentMouseTilePos);
+  }
+
+  ///
+  ///
+  ///
+  ///
+  /// Handle Construction
+
+  void construct({required Vector2 posDimetric, required BuildingType buildingType, bool isMouseDragging = false}) {
+    Point<int> posGrid = convertDimetricToGridCoordinates(posDimetric);
+    if (checkIfWithinGridBoundaries(posGrid)) {
+      grid![posGrid.x][posGrid.y].construct(buildingType: buildingType, isMouseDragging: isMouseDragging);
     }
   }
 
-  void construct(Vector2? posDimetric) {
-    if (posDimetric != null) {
-      Vector2 posGrid = convertDimetricToGridCoordinates(posDimetric);
-      if (checkIfWithinGridBoundaries(posGrid)) {
-        grid![posGrid.x.toInt()][posGrid.y.toInt()].highlight();
-      }
+  void destroy({required Vector2 posDimetric, bool isMouseDragging = false}) {
+    Point<int> posGrid = convertDimetricToGridCoordinates(posDimetric);
+    if (checkIfWithinGridBoundaries(posGrid)) {
+      grid![posGrid.x][posGrid.y].destroy(isMouseDragging: isMouseDragging);
     }
   }
 
-  void moveTileCursor(Vector2? posDimetric) async {
-    if (posDimetric != null) {
-      Vector2 posGrid = convertDimetricToGridCoordinates(posDimetric);
-      if (checkIfWithinGridBoundaries(posGrid)) {
-        if (gameBloc.state.status == GameStatus.construct) {
-          projectConstructionOnTile(posGrid.x.toInt(), posGrid.y.toInt());
-        } else {
-          highlightTile(posGrid.x.toInt(), posGrid.y.toInt());
-        }
-        if (cursorAdded) {
-          cursor!.position = convertDimetricWorldCoordinates(posDimetric);
-        }
-        if (cursor == null && !(cursor?.isRemoving ?? false)) {
-          cursor = Cursor(position: convertDimetricWorldCoordinates(posDimetric));
-          await add(cursor!);
-          cursorAdded = true;
-        }
-      } else {
-        hideCursor();
-      }
+  void _handleConstructionState(GameState newState) {
+    switch (newState.status) {
+      case GameStatus.initial:
+        resetTile(game.currentMouseTilePos);
+        mouseIsMovingOnNewTile(game.currentMouseTilePos);
+        break;
+      case GameStatus.construct:
+        resetTile(game.currentMouseTilePos);
+        mouseIsMovingOnNewTile(game.currentMouseTilePos);
+        break;
+      case GameStatus.destruct:
+        resetTile(game.currentMouseTilePos);
+        mouseIsMovingOnNewTile(game.currentMouseTilePos);
+        break;
+      case GameStatus.idle:
+        resetTile(game.currentMouseTilePos);
+        mouseIsMovingOnNewTile(game.currentMouseTilePos);
+        break;
+    }
+  }
+
+  ///
+  ///
+  ///
+  ///
+  /// Handle Tile operations
+
+  void highlightTile(Point<int> posGrid) {
+    grid![posGrid.x][posGrid.y].highlight();
+  }
+
+  void removeHighlightOfTile(Point<int> posGrid) {
+    grid![posGrid.x][posGrid.y].removeHighlight();
+  }
+
+  void projectConstructionOnTile(Point<int> posGrid) {
+    grid![posGrid.x][posGrid.y].changeTileTo(gameBloc.state.buildingType!);
+  }
+
+  void projectDestructionOnTile(Point<int> posGrid) {
+    grid![posGrid.x][posGrid.y].changeTileToWantToDestroy();
+  }
+
+  void resetTile(Vector2 posDimetric) {
+    Point<int> posGrid = convertDimetricToGridCoordinates(posDimetric);
+    if (checkIfWithinGridBoundaries(posGrid)) {
+      grid![posGrid.x][posGrid.y].resetTile();
+    }
+  }
+
+  void removeHighlight(Vector2 posDimetric) {
+    Point<int> posGrid = convertDimetricToGridCoordinates(posDimetric);
+    if (checkIfWithinGridBoundaries(posGrid)) {
+      removeHighlightOfTile(posGrid);
     }
   }
 
@@ -131,24 +189,46 @@ class GameWorld extends World with HasGameRef<MGame>, TapCallbacks {
     }
   }
 
-  void _handleConstructionState(GameState newState) {
-    switch (newState.status) {
-      case GameStatus.construct:
-        hideCursor();
-        removeHighlight(game.currentHighlightedTilePos);
-        break;
-      case GameStatus.destruct:
-        break;
-      case GameStatus.idle:
-        removeHighlight(game.currentHighlightedTilePos);
-        moveTileCursor(game.currentHighlightedTilePos);
-        if (game.hasConstructed) {
-          game.hasConstructed = false;
-        } else {
-          resetTile(game.currentHighlightedTilePos);
+  ///
+  ///
+  ///
+  ///
+  ///
+  ///
+  /// Handle Mouse Movement
+
+  void mouseIsMovingOnNewTile(Vector2 newMouseTilePos) async {
+    resetTile(game.currentMouseTilePos);
+
+    Point<int> posGrid = convertDimetricToGridCoordinates(newMouseTilePos);
+    if (checkIfWithinGridBoundaries(posGrid)) {
+      if (game.isMouseDragging) {
+        if (gameBloc.state.status == GameStatus.construct) {
+          construct(posDimetric: game.currentMouseTilePos, buildingType: gameBloc.state.buildingType!, isMouseDragging: true);
+        } else if (gameBloc.state.status == GameStatus.destruct) {
+          destroy(posDimetric: game.currentMouseTilePos, isMouseDragging: true);
         }
-        break;
+      }
+      if (gameBloc.state.status == GameStatus.construct) {
+        projectConstructionOnTile(posGrid);
+      } else if (gameBloc.state.status == GameStatus.destruct) {
+        projectDestructionOnTile(posGrid);
+      } else {
+        highlightTile(posGrid);
+      }
+
+      if (cursorAdded) {
+        cursor!.position = convertDimetricWorldCoordinates(newMouseTilePos);
+      }
+      if (cursor == null && !(cursor?.isRemoving ?? false)) {
+        cursor = Cursor(position: convertDimetricWorldCoordinates(newMouseTilePos));
+        await add(cursor!);
+        cursorAdded = true;
+      }
+    } else {
+      hideCursor();
     }
+    game.currentMouseTilePos = newMouseTilePos;
   }
 
   ///
@@ -158,8 +238,8 @@ class GameWorld extends World with HasGameRef<MGame>, TapCallbacks {
   ///
   ///
   ///Method to check if Vector2 is within grid boundaries
-  bool checkIfWithinGridBoundaries(Vector2 posGrid) {
-    if (posGrid.x >= 0 && posGrid.x < (grid?.length ?? 0) && posGrid.y >= 0 && posGrid.y < (grid?[posGrid.x.toInt()] ?? []).length) {
+  bool checkIfWithinGridBoundaries(Point<int> posGrid) {
+    if (posGrid.x >= 0 && posGrid.x < (grid?.length ?? 0) && posGrid.y >= 0 && posGrid.y < (grid?[posGrid.x] ?? []).length) {
       return true;
     } else {
       return false;
@@ -172,25 +252,27 @@ class GameWorld extends World with HasGameRef<MGame>, TapCallbacks {
   ///
   ///
   /// Method to add a text with the coordinates of the grid
-  void addDebugGridNumbers() {
-    List<List<TextBoxComponent>>? grid;
-    grid = List.generate(
+  Future<void> addDebugGridNumbers() async {
+    List<List<TextComponent>> grid = List.generate(
       gridHeight,
       (i) => List.generate(
         (i.isEven) ? gridWidth : gridWidth - 1,
         (j) {
-          Vector2 pos = convertGridCoordinatesToDimetric(i, j);
-          int x = pos.x.toInt();
-          int y = pos.y.toInt();
-          return TextBoxComponent(
-              text: '[$x,$y]',
-              position: Vector2(j * MGame.tileWidth + ((i.isEven) ? 0 : MGame.tileHeight) + MGame.tileWidth, i * (MGame.tileHeight / 2) + (MGame.tileHeight / 2)),
-              scale: Vector2(0.6, 0.6),
-              anchor: Anchor.center);
+          Point<int> pos = convertGridCoordinatesToDimetric(i, j);
+          int x = pos.x;
+          int y = pos.y;
+          return TextComponent(
+            text: '[$x,$y]',
+            position: Vector2(
+              j * MGame.tileWidth + ((i.isEven) ? 0 : MGame.tileHeight) + MGame.tileWidth / 2.6,
+              i * (MGame.tileHeight / 2) + (MGame.tileHeight / 2) - 5,
+            ),
+            scale: Vector2.all(0.5),
+          );
         },
       ),
     );
 
-    addAll([for (List<TextBoxComponent> row in grid) ...row]);
+    await addAll([for (List<TextComponent> row in grid) ...row]);
   }
 }
