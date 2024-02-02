@@ -43,7 +43,8 @@ class Tile extends SpriteComponent with HasGameRef<MGame>, HasWorldReference<Gam
   void changeTileTo(TileType tileType) {
     if (isConstructible) {
       sprite = Sprite(game.images.fromCache(tileType.path));
-      paint.colorFilter = ColorFilter.mode((isConstructible) ? const Color.fromARGB(98, 0, 255, 38) : const Color.fromARGB(97, 250, 40, 40), BlendMode.srcATop);
+      paint.colorFilter =
+          ColorFilter.mode((isConstructible) ? const Color.fromARGB(98, 0, 255, 38) : const Color.fromARGB(97, 250, 40, 40), BlendMode.srcATop);
     } else {
       highlight();
     }
@@ -51,7 +52,7 @@ class Tile extends SpriteComponent with HasGameRef<MGame>, HasWorldReference<Gam
 
   void construct({required TileType tileType, bool isMouseDragging = false}) {
     if (isConstructible) {
-      tileType = tileType;
+      this.tileType = tileType;
       sprite = Sprite(game.images.fromCache(tileType.path));
       isConstructible = false;
       isDestructible = true;

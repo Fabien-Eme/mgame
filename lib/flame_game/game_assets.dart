@@ -31,6 +31,11 @@ extension MGameAssets on MGame {
       () => images.load(Assets.images.ui.cursorAdd.path),
       () => images.load(Assets.images.ui.cursorTrash.path),
       () => images.load(Assets.images.ui.uiTrash.path),
+
+      ///
+      /// TRUCK
+      () => images.load(Assets.images.truckBR.path),
+      () => images.load(Assets.images.truckTL.path),
     ];
   }
 }

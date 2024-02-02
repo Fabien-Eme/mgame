@@ -8,8 +8,10 @@ import 'package:mgame/flame_game/ui/cursor.dart';
 import 'package:mgame/flame_game/game.dart';
 import 'package:mgame/flame_game/utils/convert_coordinates.dart';
 
+import '../gen/assets.gen.dart';
 import 'bloc/game_bloc.dart';
 import 'tile.dart';
+import 'truck.dart';
 
 class GameWorld extends World with HasGameRef<MGame>, TapCallbacks {
   GameBloc gameBloc;
@@ -41,7 +43,7 @@ class GameWorld extends World with HasGameRef<MGame>, TapCallbacks {
               tileType: TileType.grass,
               coordinates: convertGridCoordinatesToDimetric(i, j),
               position: Vector2(j * MGame.tileWidth + ((i.isEven) ? 0 : MGame.tileHeight), i * (MGame.tileHeight / 2)),
-              isDebugMode: true,
+              isDebugMode: false,
             );
           },
         );
@@ -50,6 +52,10 @@ class GameWorld extends World with HasGameRef<MGame>, TapCallbacks {
 
     await addAll([for (List<Tile> row in grid!) ...row]);
 
+    add(Truck(position: Vector2(1405, 783), asset: Assets.images.truckTL.path));
+    add(Truck(position: Vector2(225, 203), asset: Assets.images.truckBR.path));
+    add(Truck(position: Vector2(305, 243), asset: Assets.images.truckBR.path));
+    add(Truck(position: Vector2(185, 183), asset: Assets.images.truckBR.path));
     if (isDebugGridNumbersOn) await addDebugGridNumbers();
 
     return super.onLoad();

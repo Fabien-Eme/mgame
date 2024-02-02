@@ -74,8 +74,8 @@ flutter:
     - assets/images/
     - assets/images/tiles/
     - assets/images/ui/
-    - assets/audio/
-    - assets/music/
+    #- assets/audio/
+    #- assets/music/
     #- assets/music/ambiance/    
     - assets/sfx/
 
