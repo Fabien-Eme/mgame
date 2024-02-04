@@ -6,23 +6,23 @@ import 'package:flame/events.dart';
 import 'package:flame/extensions.dart';
 import 'package:flame/game.dart';
 import 'package:flame_bloc/flame_bloc.dart';
-import 'package:flutter/gestures.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:mgame/flame_game/bloc/game_bloc.dart';
-import 'package:mgame/flame_game/game_assets.dart';
+import 'package:mgame/flame_game/utils/game_assets.dart';
 import 'package:mgame/flame_game/ui/ui_bottom_bar.dart';
 
 import 'game_world.dart';
 import 'ui/mouse_cursor.dart';
 
-class MGame extends FlameGame<GameWorld> with MouseMovementDetector, ScrollDetector, MultiTouchDragDetector, TapDetector, SecondaryTapDetector, TertiaryTapDetector {
+class MGame extends FlameGame<GameWorld> with MouseMovementDetector, ScrollDetector, MultiTouchDragDetector, TapDetector, SecondaryTapDetector, TertiaryTapDetector, HasKeyboardHandlerComponents {
   static const double gameWidth = 2000;
   static const double gameHeight = 900;
   final Vector2 viewfinderInitialPosition = Vector2(gameWidth / 2, gameHeight / 2);
   static const double tileWidth = 100;
   static const double tileHeight = 50;
   static const double maxZoom = 3;
-  static const double minZoom = 1;
+  static const double minZoom = 1.06;
 
   final bool isMobile;
   final bool isDesktop;
@@ -33,7 +33,12 @@ class MGame extends FlameGame<GameWorld> with MouseMovementDetector, ScrollDetec
     required this.gameBloc,
   }) : super(
           world: GameWorld(gameBloc: gameBloc),
-          camera: CameraComponent.withFixedResolution(width: gameWidth, height: gameHeight, viewfinder: Viewfinder()..position = Vector2(gameWidth / 2, gameHeight / 2)),
+          camera: CameraComponent.withFixedResolution(
+              width: gameWidth,
+              height: gameHeight,
+              viewfinder: Viewfinder()
+                ..position = Vector2(gameWidth / 2, gameHeight / 2)
+                ..zoom = minZoom),
         );
 
   Vector2 currentMouseTilePos = Vector2.zero();
@@ -67,6 +72,24 @@ class MGame extends FlameGame<GameWorld> with MouseMovementDetector, ScrollDetec
     ));
 
     super.onMount();
+  }
+
+  ///
+  ///
+  ///
+  ///
+  ///
+  ///
+  ///
+  ///
+  /// Handle Keyboard
+
+  @override
+  KeyEventResult onKeyEvent(RawKeyEvent event, Set<LogicalKeyboardKey> keysPressed) {
+    super.onKeyEvent(event, keysPressed);
+
+    // Return handled to prevent macOS noises.
+    return KeyEventResult.handled;
   }
 
   ///
@@ -196,20 +219,24 @@ class MGame extends FlameGame<GameWorld> with MouseMovementDetector, ScrollDetec
     if (camera.viewfinder.zoom <= minZoom) {
       camera.viewfinder.position = viewfinderInitialPosition;
     } else {
-      if (mousePosition.x < viewfinderInitialPosition.x / camera.viewfinder.zoom) {
-        mousePosition = Vector2(viewfinderInitialPosition.x / camera.viewfinder.zoom, mousePosition.y);
-      }
-      if (mousePosition.x > (gameWidth - viewfinderInitialPosition.x / camera.viewfinder.zoom)) {
-        mousePosition = Vector2(gameWidth - viewfinderInitialPosition.x / camera.viewfinder.zoom, mousePosition.y);
-      }
-      if (mousePosition.y < viewfinderInitialPosition.y / camera.viewfinder.zoom) {
-        mousePosition = Vector2(mousePosition.x, viewfinderInitialPosition.y / camera.viewfinder.zoom);
-      }
-      if (mousePosition.y > (gameHeight - viewfinderInitialPosition.y / camera.viewfinder.zoom)) {
-        mousePosition = Vector2(mousePosition.x, gameHeight - viewfinderInitialPosition.y / camera.viewfinder.zoom);
-      }
-
       camera.viewfinder.position = mousePosition;
+
+      if (mousePosition.x < (viewfinderInitialPosition.x / camera.viewfinder.zoom + tileWidth / 2)) {
+        camera.viewfinder.position = Vector2((viewfinderInitialPosition.x / camera.viewfinder.zoom + tileWidth / 2), mousePosition.y);
+        mousePosition = camera.viewfinder.position;
+      }
+      if (mousePosition.x > (gameWidth - viewfinderInitialPosition.x / camera.viewfinder.zoom - tileWidth / 2)) {
+        camera.viewfinder.position = Vector2((gameWidth - viewfinderInitialPosition.x / camera.viewfinder.zoom - tileWidth / 2), mousePosition.y);
+        mousePosition = camera.viewfinder.position;
+      }
+      if (mousePosition.y < (viewfinderInitialPosition.y / camera.viewfinder.zoom + tileHeight / 2)) {
+        camera.viewfinder.position = Vector2(mousePosition.x, (viewfinderInitialPosition.y / camera.viewfinder.zoom + tileHeight / 2));
+        mousePosition = camera.viewfinder.position;
+      }
+      if (mousePosition.y > (gameHeight - viewfinderInitialPosition.y / camera.viewfinder.zoom - tileHeight / 2)) {
+        camera.viewfinder.position = Vector2(mousePosition.x, (gameHeight - viewfinderInitialPosition.y / camera.viewfinder.zoom - tileHeight / 2));
+        mousePosition = camera.viewfinder.position;
+      }
     }
   }
 
@@ -220,17 +247,17 @@ class MGame extends FlameGame<GameWorld> with MouseMovementDetector, ScrollDetec
     if (camera.viewfinder.zoom <= minZoom) {
       camera.viewfinder.position = viewfinderInitialPosition;
     } else {
-      if (middlePointPosition.x < viewfinderInitialPosition.x / camera.viewfinder.zoom) {
-        middlePointPosition = Vector2(viewfinderInitialPosition.x / camera.viewfinder.zoom, middlePointPosition.y);
+      if (middlePointPosition.x < (viewfinderInitialPosition.x / camera.viewfinder.zoom + tileWidth / 2)) {
+        middlePointPosition = Vector2((viewfinderInitialPosition.x / camera.viewfinder.zoom + tileWidth / 2), middlePointPosition.y);
       }
-      if (middlePointPosition.x > (gameWidth - viewfinderInitialPosition.x / camera.viewfinder.zoom)) {
-        middlePointPosition = Vector2(gameWidth - viewfinderInitialPosition.x / camera.viewfinder.zoom, middlePointPosition.y);
+      if (middlePointPosition.x > (gameWidth - viewfinderInitialPosition.x / camera.viewfinder.zoom - tileWidth / 2)) {
+        middlePointPosition = Vector2((gameWidth - viewfinderInitialPosition.x / camera.viewfinder.zoom - tileWidth / 2), middlePointPosition.y);
       }
-      if (middlePointPosition.y < viewfinderInitialPosition.y / camera.viewfinder.zoom) {
-        middlePointPosition = Vector2(middlePointPosition.x, viewfinderInitialPosition.y / camera.viewfinder.zoom);
+      if (middlePointPosition.y < (viewfinderInitialPosition.y / camera.viewfinder.zoom + tileHeight / 2)) {
+        middlePointPosition = Vector2(middlePointPosition.x, (viewfinderInitialPosition.y / camera.viewfinder.zoom + tileHeight / 2));
       }
       if (middlePointPosition.y > (gameHeight - viewfinderInitialPosition.y / camera.viewfinder.zoom)) {
-        middlePointPosition = Vector2(middlePointPosition.x, gameHeight - viewfinderInitialPosition.y / camera.viewfinder.zoom);
+        middlePointPosition = Vector2(middlePointPosition.x, (gameHeight - viewfinderInitialPosition.y / camera.viewfinder.zoom - tileHeight / 2));
       }
 
       camera.viewfinder.position = middlePointPosition;
@@ -264,10 +291,11 @@ class MGame extends FlameGame<GameWorld> with MouseMovementDetector, ScrollDetec
     if (_drags.length == 1) {
       if (!isDesktop) {
         Vector2 projectedViewfinderPosition = camera.viewfinder.position - Vector2(info.delta.global.x / camera.viewfinder.zoom, info.delta.global.y / camera.viewfinder.zoom);
-        if (projectedViewfinderPosition.x < viewfinderInitialPosition.x / camera.viewfinder.zoom ||
-            projectedViewfinderPosition.x > (gameWidth - viewfinderInitialPosition.x / camera.viewfinder.zoom) ||
-            projectedViewfinderPosition.y < viewfinderInitialPosition.y / camera.viewfinder.zoom ||
-            projectedViewfinderPosition.y > (gameHeight - viewfinderInitialPosition.y / camera.viewfinder.zoom)) {
+        if (projectedViewfinderPosition.x < (viewfinderInitialPosition.x / camera.viewfinder.zoom + tileWidth / 2) ||
+            projectedViewfinderPosition.x > (gameWidth - viewfinderInitialPosition.x / camera.viewfinder.zoom - tileWidth / 2) ||
+            projectedViewfinderPosition.y < (viewfinderInitialPosition.y / camera.viewfinder.zoom + tileHeight / 2) ||
+            projectedViewfinderPosition.y > (gameHeight - viewfinderInitialPosition.y / camera.viewfinder.zoom - tileHeight / 2) ||
+            camera.viewfinder.zoom == minZoom) {
         } else {
           camera.viewfinder.position = projectedViewfinderPosition;
         }
@@ -301,10 +329,11 @@ class MGame extends FlameGame<GameWorld> with MouseMovementDetector, ScrollDetec
         (viewfinderInitialPosition / camera.viewfinder.zoom - camera.viewfinder.position) * camera.viewfinder.zoom;
 
     Vector2 projectedViewfinderPosition = camera.viewfinder.position - Vector2(details.delta.dx / camera.viewfinder.zoom, details.delta.dy / camera.viewfinder.zoom);
-    if (projectedViewfinderPosition.x < viewfinderInitialPosition.x / camera.viewfinder.zoom ||
-        projectedViewfinderPosition.x > (gameWidth - viewfinderInitialPosition.x / camera.viewfinder.zoom) ||
-        projectedViewfinderPosition.y < viewfinderInitialPosition.y / camera.viewfinder.zoom ||
-        projectedViewfinderPosition.y > (gameHeight - viewfinderInitialPosition.y / camera.viewfinder.zoom)) {
+    if (projectedViewfinderPosition.x < (viewfinderInitialPosition.x / camera.viewfinder.zoom + tileWidth / 2) ||
+        projectedViewfinderPosition.x > (gameWidth - viewfinderInitialPosition.x / camera.viewfinder.zoom - tileWidth / 2) ||
+        projectedViewfinderPosition.y < (viewfinderInitialPosition.y / camera.viewfinder.zoom + tileHeight / 2) ||
+        projectedViewfinderPosition.y > (gameHeight - viewfinderInitialPosition.y / camera.viewfinder.zoom - tileHeight / 2) ||
+        camera.viewfinder.zoom == minZoom) {
     } else {
       camera.viewfinder.position = projectedViewfinderPosition;
     }

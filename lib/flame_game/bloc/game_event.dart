@@ -1,18 +1,13 @@
 part of 'game_bloc.dart';
 
-sealed class GameEvent extends Equatable {
+sealed class GameEvent {
   const GameEvent();
-
-  @override
-  List<Object> get props => [];
 }
 
 final class ConstructionModePressed extends GameEvent {
-  const ConstructionModePressed({required this.tileType});
-  final TileType tileType;
-
-  @override
-  List<Object> get props => [tileType];
+  const ConstructionModePressed({this.tileType, this.buildingType});
+  final TileType? tileType;
+  final BuildingType? buildingType;
 }
 
 final class ConstructionModeExited extends GameEvent {

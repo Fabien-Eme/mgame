@@ -2,10 +2,10 @@ import 'dart:async';
 import 'dart:ui';
 
 import 'package:flame/components.dart' hide ButtonState;
-import 'package:flame/events.dart';
 import 'package:flame/input.dart';
 import 'package:flame_bloc/flame_bloc.dart';
 import 'package:mgame/flame_game/bloc/game_bloc.dart';
+import 'package:mgame/flame_game/building.dart';
 
 import '../../gen/assets.gen.dart';
 import '../game.dart';
@@ -74,11 +74,11 @@ class UIBottomBarButton extends SpriteButtonComponent with HasGameRef<MGame> {
       case GameStatus.initial:
         break;
       case GameStatus.construct:
-        if (newState.tileType!.name.contains(buttonType.name) && !isActive) {
+        if ((newState.tileType?.name.contains(buttonType.name) ?? false) && !isActive) {
           isActive = true;
           updateButtonsSprite();
         }
-        if (!newState.tileType!.name.contains(buttonType.name) && isActive) {
+        if (!(newState.tileType?.name.contains(buttonType.name) ?? false) && isActive) {
           isActive = false;
           updateButtonsSprite();
         }
@@ -105,22 +105,27 @@ class UIBottomBarButton extends SpriteButtonComponent with HasGameRef<MGame> {
 
 enum ButtonType {
   road,
-  trash;
+  trash,
+  garbageLoader;
 
   String get path {
     return switch (this) {
       ButtonType.road => Assets.images.ui.uiRoadSN.path,
       ButtonType.trash => Assets.images.ui.uiTrash.path,
+      ButtonType.garbageLoader => Assets.images.ui.uiGarbageLoader.path,
     };
   }
 
   Function get functionActivate {
     return switch (this) {
       ButtonType.road => (GameBloc gameBloc) {
-          gameBloc.add(const ConstructionModePressed(tileType: TileType.roadSN));
+          gameBloc.add(const ConstructionModePressed(tileType: TileType.road));
         },
       ButtonType.trash => (GameBloc gameBloc) {
           gameBloc.add(const DestructionModePressed());
+        },
+      ButtonType.garbageLoader => (GameBloc gameBloc) {
+          gameBloc.add(const ConstructionModePressed(buildingType: BuildingType.garbageLoader));
         },
     };
   }
@@ -132,6 +137,9 @@ enum ButtonType {
         },
       ButtonType.trash => (GameBloc gameBloc) {
           gameBloc.add(const DestructionModeExited());
+        },
+      ButtonType.garbageLoader => (GameBloc gameBloc) {
+          gameBloc.add(const ConstructionModeExited());
         },
     };
   }

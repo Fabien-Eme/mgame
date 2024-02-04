@@ -17,6 +17,7 @@ class UIBottomBar extends PositionComponent with HasGameRef<MGame>, HoverCallbac
     addAll([
       UIBottomBarButton(buttonType: ButtonType.trash, size: Vector2.all(100), position: Vector2(100 * 0, 0)),
       UIBottomBarButton(buttonType: ButtonType.road, size: Vector2.all(100), position: Vector2(100 * 1, 0)),
+      UIBottomBarButton(buttonType: ButtonType.garbageLoader, size: Vector2.all(100), position: Vector2(100 * 2, 0)),
     ]);
     super.onMount();
   }

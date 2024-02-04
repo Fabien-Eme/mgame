@@ -2,6 +2,8 @@ import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
 import 'package:mgame/flame_game/tile.dart';
 
+import '../building.dart';
+
 part 'game_event.dart';
 part 'game_state.dart';
 

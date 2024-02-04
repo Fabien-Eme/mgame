@@ -74,6 +74,9 @@ flutter:
     - assets/images/
     - assets/images/tiles/
     - assets/images/ui/
+    - assets/images/buildings/
+    - assets/images/buildings/garbage_conveyor/
+    - assets/images/buildings/garbage_loader/
     #- assets/audio/
     #- assets/music/
     #- assets/music/ambiance/    
