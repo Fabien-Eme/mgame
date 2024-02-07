@@ -33,25 +33,16 @@ class Tile extends SpriteComponent with HasGameRef<MGame>, HasWorldReference<Gam
     return super.onLoad();
   }
 
-  void highlight() {
-    paint.colorFilter = const ColorFilter.mode(Color.fromARGB(100, 255, 255, 255), BlendMode.srcATop);
-  }
-
-  void removeHighlight() {
-    paint.colorFilter = null;
-  }
-
   void projectConstruction(TileType? tileType) {
     if (isConstructible && tileType != null) {
       if (tileType == TileType.road) {
         tileType = determineMyRoadType();
         projectedTileType = tileType;
       }
-
       sprite = Sprite(game.images.fromCache(tileType.path));
-      paint.colorFilter = ColorFilter.mode((isConstructible) ? const Color.fromARGB(98, 0, 255, 38) : const Color.fromARGB(97, 250, 40, 40), BlendMode.srcATop);
+      world.tileCursor.highlightGreen();
     } else {
-      highlight();
+      world.tileCursor.highlightDefault();
     }
   }
 
@@ -84,16 +75,16 @@ class Tile extends SpriteComponent with HasGameRef<MGame>, HasWorldReference<Gam
       sprite = Sprite(game.images.fromCache(tileType.path));
       isConstructible = false;
       isDestructible = true;
-      if (!isMouseDragging) highlight();
       projectedTileType = null;
+      world.tileCursor.highlightDefault();
     }
   }
 
   void changeTileToWantToDestroy() {
     if (!isConstructible && isDestructible) {
-      paint.colorFilter = const ColorFilter.mode(Color.fromARGB(97, 250, 40, 40), BlendMode.srcATop);
+      world.tileCursor.highlightRed();
     } else {
-      highlight();
+      world.tileCursor.highlightDefault();
     }
   }
 
@@ -104,18 +95,17 @@ class Tile extends SpriteComponent with HasGameRef<MGame>, HasWorldReference<Gam
       tileType = TileType.grass;
       previousTileType = TileType.grass;
       sprite = Sprite(game.images.fromCache(tileType.path));
-      if (!isMouseDragging) highlight();
+      world.tileCursor.highlightDefault();
     }
   }
 
-  void resetTile() {
+  void resetTileAfterProjection() {
     projectedTileType = null;
     sprite = Sprite(game.images.fromCache(tileType.path));
-    paint.colorFilter = null;
   }
 
   TileType determineMyRoadType() {
-    Map<Directions, TileType?> mapNeighbors = world.getAllNeigbhorsTileType(dimetricGridCoordinates: dimetricGridCoordinates);
+    Map<Directions, TileType?> mapNeighbors = game.gridController.getAllNeigbhorsTileType(dimetricGridPoint: dimetricGridCoordinates);
 
     int numberOfConnections = 0;
     for (TileType? value in mapNeighbors.values) {

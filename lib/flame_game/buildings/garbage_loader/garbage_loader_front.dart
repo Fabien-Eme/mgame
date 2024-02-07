@@ -7,15 +7,14 @@ import '../../../gen/assets.gen.dart';
 import '../../utils/manage_coordinates.dart';
 
 class GarbageLoaderFront extends SpriteAnimationComponent with HasGameRef {
-  GarbageLoaderFront({required this.garbageLoaderDirection, required this.garbageLoaderFlow, super.position});
-  final GarbageLoaderDirections garbageLoaderDirection;
+  GarbageLoaderFront({required this.direction, required this.garbageLoaderFlow, super.position});
+  final Directions direction;
   final GarbageLoaderFlow garbageLoaderFlow;
-  final Vector2 offset = convertDimetricWorldCoordinates(Vector2(2, 0)) + Vector2(10, 5);
 
   @override
   FutureOr<void> onLoad() {
     String asset;
-    if (garbageLoaderDirection == GarbageLoaderDirections.E) {
+    if (direction == Directions.E) {
       if (garbageLoaderFlow == GarbageLoaderFlow.flowIn) {
         asset = Assets.images.buildings.garbageLoader.garbageLoaderEINSpritesheet.path;
       } else {
@@ -28,8 +27,6 @@ class GarbageLoaderFront extends SpriteAnimationComponent with HasGameRef {
         asset = Assets.images.buildings.garbageLoader.garbageLoaderSOUTSpritesheet.path;
       }
     }
-
-    position = position + offset;
 
     size = Vector2(120, 129);
     priority = 110;
@@ -54,7 +51,5 @@ class GarbageLoaderFront extends SpriteAnimationComponent with HasGameRef {
     return super.onLoad();
   }
 }
-
-enum GarbageLoaderDirections { E, S }
 
 enum GarbageLoaderFlow { flowIn, flowOut }

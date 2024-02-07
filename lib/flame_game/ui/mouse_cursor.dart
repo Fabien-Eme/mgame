@@ -51,9 +51,9 @@ enum MouseCursorType {
 
   String get path {
     return switch (this) {
-      MouseCursorType.base => Assets.images.ui.cursor.path,
-      MouseCursorType.add => Assets.images.ui.cursorAdd.path,
-      MouseCursorType.trash => Assets.images.ui.cursorTrash.path,
+      MouseCursorType.base => Assets.images.ui.mouseCursor.path,
+      MouseCursorType.add => Assets.images.ui.mouseCursorAdd.path,
+      MouseCursorType.trash => Assets.images.ui.mouseCursorTrash.path,
     };
   }
 }

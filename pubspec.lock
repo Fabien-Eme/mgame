@@ -401,6 +401,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.10.9"
+  flame_riverpod:
+    dependency: "direct main"
+    description:
+      name: flame_riverpod
+      sha256: cce5751d542855483c30b527f998e6723ba13a3259ea6e88c4192e94b500e135
+      url: "https://pub.dev"
+    source: hosted
+    version: "5.1.5"
   flutter:
     dependency: "direct main"
     description: flutter

@@ -5,7 +5,7 @@ import 'package:flame/components.dart' hide ButtonState;
 import 'package:flame/input.dart';
 import 'package:flame_bloc/flame_bloc.dart';
 import 'package:mgame/flame_game/bloc/game_bloc.dart';
-import 'package:mgame/flame_game/building.dart';
+import 'package:mgame/flame_game/buildings/building.dart';
 
 import '../../gen/assets.gen.dart';
 import '../game.dart';
@@ -75,30 +75,56 @@ class UIBottomBarButton extends SpriteButtonComponent with HasGameRef<MGame> {
         break;
       case GameStatus.construct:
         if ((newState.tileType?.name.contains(buttonType.name) ?? false) && !isActive) {
-          isActive = true;
-          updateButtonsSprite();
+          toggleActivation();
+          break;
         }
         if (!(newState.tileType?.name.contains(buttonType.name) ?? false) && isActive) {
-          isActive = false;
-          updateButtonsSprite();
+          toggleActivation();
+          break;
+        }
+        if ((newState.buildingType?.name.contains(buttonType.name) ?? false) && !isActive) {
+          toggleActivation();
+          break;
+        }
+        if (!(newState.buildingType?.name.contains(buttonType.name) ?? false) && isActive) {
+          toggleActivation();
+          break;
         }
         break;
       case GameStatus.destruct:
         if (buttonType == ButtonType.trash && !isActive) {
-          isActive = true;
-          updateButtonsSprite();
+          toggleActivation();
+          break;
         }
         if (buttonType != ButtonType.trash && isActive) {
-          isActive = false;
-          updateButtonsSprite();
+          toggleActivation();
+          break;
         }
         break;
       case GameStatus.idle:
         if (isActive) {
-          isActive = false;
-          updateButtonsSprite();
+          toggleActivation();
+          break;
         }
         break;
+    }
+  }
+
+  void activate() {
+    isActive = true;
+    updateButtonsSprite();
+  }
+
+  void disactivate() {
+    isActive = false;
+    updateButtonsSprite();
+  }
+
+  void toggleActivation() {
+    if (isActive) {
+      disactivate();
+    } else {
+      activate();
     }
   }
 }
@@ -106,13 +132,17 @@ class UIBottomBarButton extends SpriteButtonComponent with HasGameRef<MGame> {
 enum ButtonType {
   road,
   trash,
-  garbageLoader;
+  garbageLoader,
+  recycler,
+  incinerator;
 
   String get path {
     return switch (this) {
       ButtonType.road => Assets.images.ui.uiRoadSN.path,
       ButtonType.trash => Assets.images.ui.uiTrash.path,
       ButtonType.garbageLoader => Assets.images.ui.uiGarbageLoader.path,
+      ButtonType.recycler => Assets.images.ui.uiRecycler.path,
+      ButtonType.incinerator => Assets.images.ui.uiIncinerator.path,
     };
   }
 
@@ -127,6 +157,12 @@ enum ButtonType {
       ButtonType.garbageLoader => (GameBloc gameBloc) {
           gameBloc.add(const ConstructionModePressed(buildingType: BuildingType.garbageLoader));
         },
+      ButtonType.recycler => (GameBloc gameBloc) {
+          gameBloc.add(const ConstructionModePressed(buildingType: BuildingType.recycler));
+        },
+      ButtonType.incinerator => (GameBloc gameBloc) {
+          gameBloc.add(const ConstructionModePressed(buildingType: BuildingType.incinerator));
+        },
     };
   }
 
@@ -139,6 +175,12 @@ enum ButtonType {
           gameBloc.add(const DestructionModeExited());
         },
       ButtonType.garbageLoader => (GameBloc gameBloc) {
+          gameBloc.add(const ConstructionModeExited());
+        },
+      ButtonType.recycler => (GameBloc gameBloc) {
+          gameBloc.add(const ConstructionModeExited());
+        },
+      ButtonType.incinerator => (GameBloc gameBloc) {
           gameBloc.add(const ConstructionModeExited());
         },
     };

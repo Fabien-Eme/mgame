@@ -6,16 +6,25 @@ import 'package:flame/events.dart';
 import 'package:flame/extensions.dart';
 import 'package:flame/game.dart';
 import 'package:flame_bloc/flame_bloc.dart';
+import 'package:flame_riverpod/flame_riverpod.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:mgame/flame_game/bloc/game_bloc.dart';
+import 'package:mgame/flame_game/controller/gamebloc_consumer.dart';
+import 'package:mgame/flame_game/controller/grid_controller.dart';
+import 'package:mgame/flame_game/controller/mouse_controller.dart';
 import 'package:mgame/flame_game/utils/game_assets.dart';
 import 'package:mgame/flame_game/ui/ui_bottom_bar.dart';
 
+import 'controller/construction_controller.dart';
+import 'controller/cursor_controller.dart';
+import 'controller/drag_zoom_controller.dart';
+import 'controller/tap_controller.dart';
 import 'game_world.dart';
 import 'ui/mouse_cursor.dart';
 
-class MGame extends FlameGame<GameWorld> with MouseMovementDetector, ScrollDetector, MultiTouchDragDetector, TapDetector, SecondaryTapDetector, TertiaryTapDetector, HasKeyboardHandlerComponents {
+class MGame extends FlameGame
+    with MouseMovementDetector, ScrollDetector, MultiTouchDragDetector, TapDetector, SecondaryTapDetector, TertiaryTapDetector, HasKeyboardHandlerComponents, RiverpodGameMixin {
   static const double gameWidth = 2000;
   static const double gameHeight = 900;
   final Vector2 viewfinderInitialPosition = Vector2(gameWidth / 2, gameHeight / 2);
@@ -43,32 +52,71 @@ class MGame extends FlameGame<GameWorld> with MouseMovementDetector, ScrollDetec
 
   Vector2 currentMouseTilePos = Vector2.zero();
   Vector2 mousePosition = Vector2.zero();
-  late MyMouseCursor myMouseCursor;
+
   bool hasConstructed = false;
   bool isMouseDragging = false;
   bool isMouseHoveringUI = false;
 
+  late final UIBottomBar uiComponent;
+  late final MyMouseCursor myMouseCursor;
+  late final MouseController mouseController;
+  late final DragZoomController dragZoomController;
+  final TapController tapController = TapController();
+  late final GridController gridController;
+  late final ConstructionController constructionController;
+  late final CursorController cursorController;
+
+  ///
+  ///
+  /// Game Load
+  ///
   @override
   FutureOr<void> onLoad() async {
+    /// Preload all images
     images.prefix = '';
     final futures = preLoadAssets().map((loadableBuilder) => loadableBuilder());
     await Future.wait<void>(futures);
 
+    /// Hide system mouse cursor before adding custom one
     mouseCursor = SystemMouseCursors.none;
+
+    uiComponent = UIBottomBar();
+    myMouseCursor = MyMouseCursor();
+
+    ///Adding Controllers
+    mouseController = MouseController();
+    dragZoomController = DragZoomController();
+    // tapController = TapController();
+    gridController = GridController();
+    constructionController = ConstructionController();
+    cursorController = CursorController();
+    world.addAll([
+      mouseController,
+      dragZoomController,
+      tapController,
+      gridController,
+      constructionController,
+      cursorController,
+    ]);
 
     return super.onLoad();
   }
 
+  ///
+  ///
+  /// Game Mount
+  ///
   @override
   void onMount() async {
-    UIBottomBar uiComponent = UIBottomBar();
-    myMouseCursor = MyMouseCursor();
+    /// Adding UI
 
     await camera.viewport.add(FlameMultiBlocProvider(
-      providers: [
-        FlameBlocProvider<GameBloc, GameState>.value(value: gameBloc),
+      providers: [FlameBlocProvider<GameBloc, GameState>.value(value: gameBloc)],
+      children: [
+        uiComponent,
+        myMouseCursor,
+        GameBlocConsumer(),
       ],
-      children: [uiComponent, myMouseCursor],
     ));
 
     super.onMount();
@@ -76,316 +124,91 @@ class MGame extends FlameGame<GameWorld> with MouseMovementDetector, ScrollDetec
 
   ///
   ///
-  ///
-  ///
-  ///
-  ///
-  ///
-  ///
   /// Handle Keyboard
 
   @override
   KeyEventResult onKeyEvent(RawKeyEvent event, Set<LogicalKeyboardKey> keysPressed) {
     super.onKeyEvent(event, keysPressed);
-
     // Return handled to prevent macOS noises.
     return KeyEventResult.handled;
   }
 
   ///
   ///
-  ///
-  ///
-  ///
-  ///
-  ///
-  ///
-  ///
-  ///
-  ///
   /// Handle Taps
 
   @override
   void onTertiaryTapDown(TapDownInfo info) {
-    world.onTertiaryTapDown(info);
+    tapController.onTertiaryTapDown(info);
     super.onTertiaryTapDown(info);
   }
 
   @override
   void onSecondaryTapUp(TapUpInfo info) {
-    world.onSecondaryTapUp();
+    tapController.onSecondaryTapUp(info);
     super.onSecondaryTapUp(info);
   }
 
   @override
   void onTapDown(TapDownInfo info) {
-    if (!isMouseHoveringUI) world.onPrimaryTapDown();
+    tapController.onTapDown(info);
     super.onTapDown(info);
   }
 
   ///
   ///
+  /// Forward Mouse movement to Controller
   ///
-  ///
-  ///
-  ///
-  ///
-  /// Handle Mouse movement
 
   @override
   void onMouseMove(PointerHoverInfo info) {
-    if (isDesktop) moveMouseCursor(info.eventPosition.global);
-
-    mousePosition = camera.globalToLocal(info.eventPosition.global);
-
-    double cursorX = mousePosition.x;
-    double cursorY = mousePosition.y;
-
-    if (cursorX >= 0 && cursorX <= gameWidth && cursorY >= 0 && cursorY <= gameHeight) {
-      double dimetricX = (cursorX + 2 * cursorY) / tileWidth - 0.5;
-      double dimetricY = (cursorX - 2 * cursorY) / tileWidth + 0.5;
-
-      int tileX = dimetricX.floor();
-      int tileY = dimetricY.floor();
-      Vector2 newMouseTilePos = Vector2(tileX.toDouble(), tileY.toDouble());
-
-      if (currentMouseTilePos != newMouseTilePos) {
-        world.mouseIsMovingOnNewTile(newMouseTilePos);
-      }
-    }
+    mouseController.onMouseMove(info);
     super.onMouseMove(info);
   }
 
   ///
   ///
-  ///
-  ///
-  ///
-  ///
-  ///
-  /// Handle Mouse Cursor
+  /// Forward Scroll to Controller
 
-  void moveMouseCursor(Vector2 pos) {
-    Vector2 futureMouseCursorPosition = camera.globalToLocal(pos) * camera.viewfinder.zoom + (viewfinderInitialPosition - camera.viewfinder.position * camera.viewfinder.zoom);
-    if (futureMouseCursorPosition.x < 0) futureMouseCursorPosition.x = 0;
-    if (futureMouseCursorPosition.x > gameWidth) futureMouseCursorPosition.x = gameWidth;
-    if (futureMouseCursorPosition.y < 0) futureMouseCursorPosition.y = 0;
-    if (futureMouseCursorPosition.y > gameHeight) futureMouseCursorPosition.y = gameHeight;
-
-    myMouseCursor.position = futureMouseCursorPosition;
+  @override
+  void onScroll(PointerScrollInfo info) {
+    dragZoomController.onScroll(info);
+    super.onScroll(info);
   }
 
   ///
   ///
-  ///
-  ///
-  ///
-  ///
+  /// Forward Drag to Controller
+
+  @override
+  void onDragStart(int pointerId, DragStartInfo info) {
+    dragZoomController.onDragStart(pointerId, info);
+  }
+
+  @override
+  void onDragUpdate(int pointerId, DragUpdateInfo info) {
+    dragZoomController.onDragUpdate(pointerId, info);
+  }
+
+  @override
+  void onDragEnd(int pointerId, DragEndInfo info) {
+    dragZoomController.onDragEnd(pointerId, info);
+  }
+
+  @override
+  void onDragCancel(int pointerId) {
+    dragZoomController.onDragCancel(pointerId);
+  }
+
+  void onSecondaryButtonDragUpdate(DragUpdateDetails details) {
+    dragZoomController.onSecondaryButtonDragUpdate(details);
+  }
+
   ///
   ///
   /// Game Background
   @override
   Color backgroundColor() {
     return const Color(0x0ff00000);
-    // return const Color(0xFFa9da6a);
-  }
-
-  ///
-  ///
-  ///
-  ///
-  ///
-  ///
-  ///
-  ///
-  /// Handle Zoom
-
-  @override
-  void onScroll(PointerScrollInfo info) {
-    super.onScroll(info);
-    if (info.scrollDelta.global.y < 0) {
-      if (camera.viewfinder.zoom < maxZoom) {
-        zoomWithMouse(0.5);
-      }
-    } else {
-      if (camera.viewfinder.zoom > minZoom) {
-        zoomWithMouse(-0.5);
-      }
-    }
-  }
-
-  void zoomWithMouse(double amount) {
-    camera.viewfinder.zoom += amount;
-    if (camera.viewfinder.zoom <= minZoom) {
-      camera.viewfinder.position = viewfinderInitialPosition;
-    } else {
-      camera.viewfinder.position = mousePosition;
-
-      if (mousePosition.x < (viewfinderInitialPosition.x / camera.viewfinder.zoom + tileWidth / 2)) {
-        camera.viewfinder.position = Vector2((viewfinderInitialPosition.x / camera.viewfinder.zoom + tileWidth / 2), mousePosition.y);
-        mousePosition = camera.viewfinder.position;
-      }
-      if (mousePosition.x > (gameWidth - viewfinderInitialPosition.x / camera.viewfinder.zoom - tileWidth / 2)) {
-        camera.viewfinder.position = Vector2((gameWidth - viewfinderInitialPosition.x / camera.viewfinder.zoom - tileWidth / 2), mousePosition.y);
-        mousePosition = camera.viewfinder.position;
-      }
-      if (mousePosition.y < (viewfinderInitialPosition.y / camera.viewfinder.zoom + tileHeight / 2)) {
-        camera.viewfinder.position = Vector2(mousePosition.x, (viewfinderInitialPosition.y / camera.viewfinder.zoom + tileHeight / 2));
-        mousePosition = camera.viewfinder.position;
-      }
-      if (mousePosition.y > (gameHeight - viewfinderInitialPosition.y / camera.viewfinder.zoom - tileHeight / 2)) {
-        camera.viewfinder.position = Vector2(mousePosition.x, (gameHeight - viewfinderInitialPosition.y / camera.viewfinder.zoom - tileHeight / 2));
-        mousePosition = camera.viewfinder.position;
-      }
-    }
-  }
-
-  void zoomWithFingers(double amount) {
-    List<DragInfo> dragPoints = _drags.values.toList();
-    Vector2 middlePointPosition = Vector2((dragPoints[0].startPosition.x + dragPoints[1].startPosition.x), (dragPoints[0].startPosition.y + dragPoints[1].startPosition.y));
-    camera.viewfinder.zoom += amount;
-    if (camera.viewfinder.zoom <= minZoom) {
-      camera.viewfinder.position = viewfinderInitialPosition;
-    } else {
-      if (middlePointPosition.x < (viewfinderInitialPosition.x / camera.viewfinder.zoom + tileWidth / 2)) {
-        middlePointPosition = Vector2((viewfinderInitialPosition.x / camera.viewfinder.zoom + tileWidth / 2), middlePointPosition.y);
-      }
-      if (middlePointPosition.x > (gameWidth - viewfinderInitialPosition.x / camera.viewfinder.zoom - tileWidth / 2)) {
-        middlePointPosition = Vector2((gameWidth - viewfinderInitialPosition.x / camera.viewfinder.zoom - tileWidth / 2), middlePointPosition.y);
-      }
-      if (middlePointPosition.y < (viewfinderInitialPosition.y / camera.viewfinder.zoom + tileHeight / 2)) {
-        middlePointPosition = Vector2(middlePointPosition.x, (viewfinderInitialPosition.y / camera.viewfinder.zoom + tileHeight / 2));
-      }
-      if (middlePointPosition.y > (gameHeight - viewfinderInitialPosition.y / camera.viewfinder.zoom)) {
-        middlePointPosition = Vector2(middlePointPosition.x, (gameHeight - viewfinderInitialPosition.y / camera.viewfinder.zoom - tileHeight / 2));
-      }
-
-      camera.viewfinder.position = middlePointPosition;
-    }
-  }
-
-  ///
-  ///
-  ///
-  ///
-  ///
-  ///
-  ///
-  /// Handle Drag
-
-  final Map<int, DragInfo> _drags = {};
-  double? _lastDistance;
-
-  @override
-  void onDragStart(int pointerId, DragStartInfo info) {
-    _drags[pointerId] = DragInfo(startPosition: info.eventPosition.global);
-    _updateGesture();
-  }
-
-  @override
-  void onDragUpdate(int pointerId, DragUpdateInfo info) {
-    myMouseCursor.position =
-        camera.globalToLocal(info.eventPosition.global) * camera.viewfinder.zoom + (viewfinderInitialPosition / camera.viewfinder.zoom - camera.viewfinder.position) * camera.viewfinder.zoom;
-    _drags[pointerId]?.updatePosition(info.eventPosition.global);
-    _updateGesture();
-    if (_drags.length == 1) {
-      if (!isDesktop) {
-        Vector2 projectedViewfinderPosition = camera.viewfinder.position - Vector2(info.delta.global.x / camera.viewfinder.zoom, info.delta.global.y / camera.viewfinder.zoom);
-        if (projectedViewfinderPosition.x < (viewfinderInitialPosition.x / camera.viewfinder.zoom + tileWidth / 2) ||
-            projectedViewfinderPosition.x > (gameWidth - viewfinderInitialPosition.x / camera.viewfinder.zoom - tileWidth / 2) ||
-            projectedViewfinderPosition.y < (viewfinderInitialPosition.y / camera.viewfinder.zoom + tileHeight / 2) ||
-            projectedViewfinderPosition.y > (gameHeight - viewfinderInitialPosition.y / camera.viewfinder.zoom - tileHeight / 2) ||
-            camera.viewfinder.zoom == minZoom) {
-        } else {
-          camera.viewfinder.position = projectedViewfinderPosition;
-        }
-      } else {
-        isMouseDragging = true;
-        if (isDesktop) moveMouseCursor(info.eventPosition.global);
-
-        mousePosition = camera.globalToLocal(info.eventPosition.global);
-
-        double cursorX = mousePosition.x;
-        double cursorY = mousePosition.y;
-
-        if (cursorX >= 0 && cursorX <= gameWidth && cursorY >= 0 && cursorY <= gameHeight) {
-          double dimetricX = (cursorX + 2 * cursorY) / tileWidth - 0.5;
-          double dimetricY = (cursorX - 2 * cursorY) / tileWidth + 0.5;
-
-          int tileX = dimetricX.floor();
-          int tileY = dimetricY.floor();
-          Vector2 newMouseTilePos = Vector2(tileX.toDouble(), tileY.toDouble());
-
-          if (currentMouseTilePos != newMouseTilePos) {
-            world.mouseIsMovingOnNewTile(newMouseTilePos);
-          }
-        }
-      }
-    }
-  }
-
-  void onSecondaryButtonDragUpdate(DragUpdateDetails details) {
-    myMouseCursor.position = camera.globalToLocal(Vector2(details.localPosition.dx, details.localPosition.dy)) * camera.viewfinder.zoom +
-        (viewfinderInitialPosition / camera.viewfinder.zoom - camera.viewfinder.position) * camera.viewfinder.zoom;
-
-    Vector2 projectedViewfinderPosition = camera.viewfinder.position - Vector2(details.delta.dx / camera.viewfinder.zoom, details.delta.dy / camera.viewfinder.zoom);
-    if (projectedViewfinderPosition.x < (viewfinderInitialPosition.x / camera.viewfinder.zoom + tileWidth / 2) ||
-        projectedViewfinderPosition.x > (gameWidth - viewfinderInitialPosition.x / camera.viewfinder.zoom - tileWidth / 2) ||
-        projectedViewfinderPosition.y < (viewfinderInitialPosition.y / camera.viewfinder.zoom + tileHeight / 2) ||
-        projectedViewfinderPosition.y > (gameHeight - viewfinderInitialPosition.y / camera.viewfinder.zoom - tileHeight / 2) ||
-        camera.viewfinder.zoom == minZoom) {
-    } else {
-      camera.viewfinder.position = projectedViewfinderPosition;
-    }
-  }
-
-  @override
-  void onDragEnd(int pointerId, DragEndInfo info) {
-    _drags.remove(pointerId);
-    _updateGesture();
-    world.mouseIsMovingOnNewTile(currentMouseTilePos);
-    isMouseDragging = false;
-  }
-
-  @override
-  void onDragCancel(int pointerId) {
-    _drags.remove(pointerId);
-    _updateGesture();
-    world.mouseIsMovingOnNewTile(currentMouseTilePos);
-    isMouseDragging = false;
-  }
-
-  void _updateGesture() {
-    if (_drags.length == 2) {
-      List<DragInfo> dragPoints = _drags.values.toList();
-      double currentDistance = (dragPoints[0].currentPosition - dragPoints[1].currentPosition).length;
-
-      if (_lastDistance != null) {
-        if (currentDistance > _lastDistance!) {
-          if (camera.viewfinder.zoom < maxZoom) {
-            zoomWithFingers(0.007);
-          }
-        } else if (currentDistance < _lastDistance!) {
-          if (camera.viewfinder.zoom > minZoom) {
-            zoomWithFingers(-0.007);
-          }
-        }
-      }
-
-      _lastDistance = currentDistance;
-    } else {
-      _lastDistance = null;
-    }
-  }
-}
-
-class DragInfo {
-  Vector2 startPosition;
-  Vector2 currentPosition;
-
-  DragInfo({required this.startPosition}) : currentPosition = startPosition;
-
-  void updatePosition(Vector2 newPosition) {
-    currentPosition = newPosition;
   }
 }

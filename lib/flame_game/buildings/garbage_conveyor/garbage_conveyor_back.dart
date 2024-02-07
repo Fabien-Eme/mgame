@@ -9,7 +9,7 @@ import '../../utils/manage_coordinates.dart';
 class GarbageConveyorBack extends SpriteComponent with HasGameRef {
   GarbageConveyorBack({super.position});
 
-  final Vector2 offset = convertDimetricWorldCoordinates(Vector2(2, 0)) + Vector2(-6, -3);
+  final Vector2 offset = convertDimetricToWorldCoordinates(Vector2(2, 0)) + Vector2(-6, -3);
 
   @override
   FutureOr<void> onLoad() {

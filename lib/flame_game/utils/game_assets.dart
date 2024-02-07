@@ -25,7 +25,6 @@ extension MGameAssets on MGame {
       () => images.load(Assets.images.tiles.roadWNE.path),
       () => images.load(Assets.images.tiles.roadSWNE.path),
       () => images.load(Assets.images.tiles.grass.path),
-      () => images.load(Assets.images.tiles.cursor.path),
 
       ///
       /// UI
@@ -37,11 +36,15 @@ extension MGameAssets on MGame {
       () => images.load(Assets.images.ui.uiButtonPressedRed.path),
       () => images.load(Assets.images.ui.uiRoadSN.path),
       () => images.load(Assets.images.ui.uiRoadWE.path),
-      () => images.load(Assets.images.ui.cursor.path),
-      () => images.load(Assets.images.ui.cursorAdd.path),
-      () => images.load(Assets.images.ui.cursorTrash.path),
+      () => images.load(Assets.images.ui.mouseCursor.path),
+      () => images.load(Assets.images.ui.mouseCursorAdd.path),
+      () => images.load(Assets.images.ui.mouseCursorTrash.path),
+      () => images.load(Assets.images.ui.tileCursor.path),
+      () => images.load(Assets.images.ui.tileCursorBackground.path),
       () => images.load(Assets.images.ui.uiTrash.path),
       () => images.load(Assets.images.ui.uiGarbageLoader.path),
+      () => images.load(Assets.images.ui.uiRecycler.path),
+      () => images.load(Assets.images.ui.uiIncinerator.path),
 
       ///
       /// TRUCK
@@ -52,12 +55,26 @@ extension MGameAssets on MGame {
       /// BUILDINGS
       () => images.load(Assets.images.buildings.garbageConveyor.garbageConveyorBack.path),
       () => images.load(Assets.images.buildings.garbageConveyor.garbageConveyorFront.path),
+
       () => images.load(Assets.images.buildings.garbageLoader.garbageLoaderEINSpritesheet.path),
       () => images.load(Assets.images.buildings.garbageLoader.garbageLoaderEOUTSpritesheet.path),
       () => images.load(Assets.images.buildings.garbageLoader.garbageLoaderSINSpritesheet.path),
       () => images.load(Assets.images.buildings.garbageLoader.garbageLoaderSOUTSpritesheet.path),
       () => images.load(Assets.images.buildings.garbageLoader.garbageLoaderEBack.path),
       () => images.load(Assets.images.buildings.garbageLoader.garbageLoaderSBack.path),
+
+      () => images.load(Assets.images.buildings.recycler.recyclerEFront.path),
+      () => images.load(Assets.images.buildings.recycler.recyclerEBack.path),
+      () => images.load(Assets.images.buildings.recycler.recyclerSFront.path),
+      () => images.load(Assets.images.buildings.recycler.recyclerSBack.path),
+
+      () => images.load(Assets.images.buildings.incinerator.incineratorEFront.path),
+      () => images.load(Assets.images.buildings.incinerator.incineratorEBack.path),
+      () => images.load(Assets.images.buildings.incinerator.incineratorSFront.path),
+      () => images.load(Assets.images.buildings.incinerator.incineratorSBack.path),
+      () => images.load(Assets.images.buildings.incinerator.doorESpritesheet.path),
+      () => images.load(Assets.images.buildings.incinerator.doorSSpritesheet.path),
+
       () => images.load(Assets.images.buildings.beltSN.path),
       () => images.load(Assets.images.buildings.beltWE.path),
     ];

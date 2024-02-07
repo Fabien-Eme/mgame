@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:flame/game.dart';
+import 'package:flame_riverpod/flame_riverpod.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
@@ -8,6 +9,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:mgame/flame_game/bloc/game_bloc.dart';
 
 import 'game.dart';
+
+final GlobalKey<RiverpodAwareGameWidgetState> gameWidgetKey = GlobalKey<RiverpodAwareGameWidgetState>();
 
 class FlameGameWidget extends StatelessWidget {
   const FlameGameWidget({super.key});
@@ -58,7 +61,8 @@ class FlameGameWidget extends StatelessWidget {
               },
             ),
           },
-          child: GameWidget(
+          child: RiverpodAwareGameWidget(
+            key: gameWidgetKey,
             game: game,
           ),
         );

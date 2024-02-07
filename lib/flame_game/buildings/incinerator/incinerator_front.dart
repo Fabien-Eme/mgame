@@ -6,21 +6,21 @@ import 'package:flame/components.dart';
 import '../../../gen/assets.gen.dart';
 import '../../utils/manage_coordinates.dart';
 
-class GarbageLoaderBack extends SpriteComponent with HasGameRef {
-  GarbageLoaderBack({required this.direction, super.position});
+class IncineratorFront extends SpriteComponent with HasGameRef {
+  IncineratorFront({required this.direction, super.position});
   final Directions direction;
 
   @override
   FutureOr<void> onLoad() {
     String asset;
     if (direction == Directions.E) {
-      asset = Assets.images.buildings.garbageLoader.garbageLoaderEBack.path;
+      asset = Assets.images.buildings.incinerator.incineratorEFront.path;
     } else {
-      asset = Assets.images.buildings.garbageLoader.garbageLoaderSBack.path;
+      asset = Assets.images.buildings.incinerator.incineratorSFront.path;
     }
 
-    size = Vector2(120, 129);
-    priority = 90;
+    size = Vector2(300, 312);
+    priority = 110;
     anchor = Anchor.bottomRight;
 
     sprite = Sprite(game.images.fromCache(asset));
