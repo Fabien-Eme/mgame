@@ -16,7 +16,7 @@ final _privateConstructorUsedError = UnsupportedError(
 
 /// @nodoc
 mixin _$ConstructionState {
-  ConstructionStatus get status => throw _privateConstructorUsedError;
+  ConstructionMode get status => throw _privateConstructorUsedError;
   TileType? get tileType => throw _privateConstructorUsedError;
   BuildingType? get buildingType => throw _privateConstructorUsedError;
 
@@ -32,7 +32,7 @@ abstract class $ConstructionStateCopyWith<$Res> {
       _$ConstructionStateCopyWithImpl<$Res, ConstructionState>;
   @useResult
   $Res call(
-      {ConstructionStatus status,
+      {ConstructionMode status,
       TileType? tileType,
       BuildingType? buildingType});
 }
@@ -58,7 +58,7 @@ class _$ConstructionStateCopyWithImpl<$Res, $Val extends ConstructionState>
       status: null == status
           ? _value.status
           : status // ignore: cast_nullable_to_non_nullable
-              as ConstructionStatus,
+              as ConstructionMode,
       tileType: freezed == tileType
           ? _value.tileType
           : tileType // ignore: cast_nullable_to_non_nullable
@@ -80,7 +80,7 @@ abstract class _$$ConstructionStateImplCopyWith<$Res>
   @override
   @useResult
   $Res call(
-      {ConstructionStatus status,
+      {ConstructionMode status,
       TileType? tileType,
       BuildingType? buildingType});
 }
@@ -104,7 +104,7 @@ class __$$ConstructionStateImplCopyWithImpl<$Res>
       status: null == status
           ? _value.status
           : status // ignore: cast_nullable_to_non_nullable
-              as ConstructionStatus,
+              as ConstructionMode,
       tileType: freezed == tileType
           ? _value.tileType
           : tileType // ignore: cast_nullable_to_non_nullable
@@ -124,7 +124,7 @@ class _$ConstructionStateImpl implements _ConstructionState {
       {required this.status, this.tileType, this.buildingType});
 
   @override
-  final ConstructionStatus status;
+  final ConstructionMode status;
   @override
   final TileType? tileType;
   @override
@@ -160,12 +160,12 @@ class _$ConstructionStateImpl implements _ConstructionState {
 
 abstract class _ConstructionState implements ConstructionState {
   factory _ConstructionState(
-      {required final ConstructionStatus status,
+      {required final ConstructionMode status,
       final TileType? tileType,
       final BuildingType? buildingType}) = _$ConstructionStateImpl;
 
   @override
-  ConstructionStatus get status;
+  ConstructionMode get status;
   @override
   TileType? get tileType;
   @override

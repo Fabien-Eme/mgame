@@ -3,8 +3,7 @@ import 'dart:async';
 import 'package:flame/components.dart';
 import 'package:flame/events.dart';
 import 'package:flame_riverpod/flame_riverpod.dart';
-import 'package:mgame/flame_game/bloc/game_bloc.dart';
-import 'package:mgame/flame_game/riverpod_controllers/construction_mode_controller.dart' hide ConstructionStatus;
+import 'package:mgame/flame_game/riverpod_controllers/construction_mode_controller.dart';
 import 'package:mgame/flame_game/riverpod_controllers/ui_controller.dart';
 
 import '../game.dart';
@@ -20,7 +19,6 @@ class TapController extends Component with HasGameReference<MGame>, RiverpodComp
   late final bool isDesktop;
   late Vector2 mousePosition;
   late Vector2 currentMouseTilePos;
-  late final GameBloc gameBloc;
 
   @override
   FutureOr<void> onLoad() {
@@ -30,27 +28,19 @@ class TapController extends Component with HasGameReference<MGame>, RiverpodComp
     isDesktop = game.isDesktop;
     mousePosition = game.mousePosition;
     currentMouseTilePos = game.currentMouseTilePos;
-    gameBloc = game.gameBloc;
 
     return super.onLoad();
   }
 
-  @override
-  void onMount() {
-    addToGameWidgetBuild(() {
-      //final gameState = ref.watch(gameControllerProvider);
-    });
-
-    super.onMount();
-  }
-
   void onTapDown(TapDownInfo info) {
-    if (gameBloc.state.status == GameStatus.construct) {
-      if (gameBloc.state.tileType != null) {
-        game.constructionController.construct(posDimetric: game.currentMouseTilePos, tileType: gameBloc.state.tileType!);
+    final constructionState = ref.read(constructionModeControllerProvider);
+
+    if (constructionState.status == ConstructionMode.construct) {
+      if (constructionState.tileType != null) {
+        game.constructionController.construct(posDimetric: game.currentMouseTilePos, tileType: constructionState.tileType!);
         game.hasConstructed = true;
       }
-    } else if (gameBloc.state.status == GameStatus.destruct) {
+    } else if (constructionState.status == ConstructionMode.destruct) {
       game.constructionController.destroy(posDimetric: game.currentMouseTilePos);
     }
   }

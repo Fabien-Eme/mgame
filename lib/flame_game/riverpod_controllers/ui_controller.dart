@@ -58,7 +58,11 @@ class ActiveUIButtonController extends _$ActiveUIButtonController {
   }
 
   void onSecondaryTapUp() {
-    gotTapped(ButtonType.trash);
+    if (state == null) {
+      gotTapped(ButtonType.trash);
+    } else {
+      gotTapped(state!);
+    }
   }
 }
 

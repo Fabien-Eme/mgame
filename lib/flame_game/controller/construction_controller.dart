@@ -1,13 +1,15 @@
 import 'dart:math';
 
 import 'package:flame/components.dart';
+import 'package:flame_riverpod/flame_riverpod.dart';
 import 'package:mgame/flame_game/game_world.dart';
+import 'package:mgame/flame_game/riverpod_controllers/construction_mode_controller.dart';
 
 import '../game.dart';
 import '../tile.dart';
 import '../utils/manage_coordinates.dart';
 
-class ConstructionController extends Component with HasGameRef<MGame>, HasWorldReference<GameWorld> {
+class ConstructionController extends Component with HasGameRef<MGame>, HasWorldReference<GameWorld>, RiverpodComponentMixin {
   void construct({required Vector2 posDimetric, required TileType tileType, bool isMouseDragging = false}) {
     Point<int> posGrid = convertDimetricToGridPoint(posDimetric);
     if (game.gridController.checkIfWithinGridBoundaries(posGrid)) {
@@ -35,7 +37,7 @@ class ConstructionController extends Component with HasGameRef<MGame>, HasWorldR
   }
 
   void projectConstructionOnTile(Point<int> posGrid) {
-    world.grid[posGrid.x][posGrid.y].projectConstruction(game.gameBloc.state.tileType);
+    world.grid[posGrid.x][posGrid.y].projectConstruction(ref.read(constructionModeControllerProvider).tileType);
   }
 
   void projectDestructionOnTile(Point<int> posGrid) {

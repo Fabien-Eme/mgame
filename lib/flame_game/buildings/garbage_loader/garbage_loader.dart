@@ -14,10 +14,13 @@ class GarbageLoader extends Building {
 
   final Vector2 offset = convertDimetricToWorldCoordinates(Vector2(2, 0)) + Vector2(10, 5);
 
+  late final GarbageLoaderFront garbageLoaderFront;
+  late final GarbageLoaderBack garbageLoaderBack;
+
   @override
   FutureOr<void> onLoad() {
-    GarbageLoaderFront garbageLoaderFront = GarbageLoaderFront(direction: direction, garbageLoaderFlow: garbageLoaderFlow, position: position + offset);
-    GarbageLoaderBack garbageLoaderBack = GarbageLoaderBack(direction: direction, position: position + offset);
+    garbageLoaderFront = GarbageLoaderFront(direction: direction, garbageLoaderFlow: garbageLoaderFlow, position: position + offset);
+    garbageLoaderBack = GarbageLoaderBack(direction: direction, position: position + offset);
     world.addAll([
       garbageLoaderFront,
       garbageLoaderBack,
@@ -28,6 +31,8 @@ class GarbageLoader extends Building {
 
   @override
   void changePosition(Vector2 newPosition) {
-    // TODO: implement changePosition
+    position = newPosition;
+    garbageLoaderFront.position = newPosition + offset;
+    garbageLoaderBack.position = newPosition + offset;
   }
 }

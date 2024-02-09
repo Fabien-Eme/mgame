@@ -11,36 +11,36 @@ part 'construction_mode_controller.freezed.dart';
 class ConstructionModeController extends _$ConstructionModeController {
   @override
   ConstructionState build() {
-    return ConstructionState(status: ConstructionStatus.initial);
+    return ConstructionState(status: ConstructionMode.initial);
   }
 
   void enterConstructionMode({BuildingType? buildingType, TileType? tileType}) {
-    state = state.copyWith(status: ConstructionStatus.construct, tileType: tileType, buildingType: buildingType);
+    state = state.copyWith(status: ConstructionMode.construct, tileType: tileType, buildingType: buildingType);
   }
 
   void exitConstructionMode() {
-    state = state.copyWith(status: ConstructionStatus.idle);
+    state = state.copyWith(status: ConstructionMode.idle);
   }
 
   void enterDestructionMode() {
-    state = state.copyWith(status: ConstructionStatus.destruct);
+    state = state.copyWith(status: ConstructionMode.destruct);
   }
 
   void exitDestructionMode() {
-    state = state.copyWith(status: ConstructionStatus.idle);
+    state = state.copyWith(status: ConstructionMode.idle);
   }
 }
 
 @freezed
 class ConstructionState with _$ConstructionState {
   factory ConstructionState({
-    required ConstructionStatus status,
+    required ConstructionMode status,
     TileType? tileType,
     BuildingType? buildingType,
   }) = _ConstructionState;
 }
 
-enum ConstructionStatus {
+enum ConstructionMode {
   initial,
   idle,
   construct,

@@ -7,13 +7,11 @@ import 'package:mgame/flame_game/buildings/incinerator/incinerator.dart';
 import 'package:mgame/flame_game/ui/tile_cursor.dart';
 import 'package:mgame/flame_game/game.dart';
 import 'package:mgame/flame_game/utils/manage_coordinates.dart';
-import 'bloc/game_bloc.dart';
 import 'list_debug_component.dart';
 import 'tile.dart';
 
 class GameWorld extends World with HasGameRef<MGame>, TapCallbacks {
-  GameBloc gameBloc;
-  GameWorld({required this.gameBloc});
+  GameWorld();
   static const int gridWidth = 20;
   static const int gridHeight = 35;
   List<List<Tile>> grid = [];

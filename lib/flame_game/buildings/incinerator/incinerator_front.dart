@@ -25,6 +25,7 @@ class IncineratorFront extends SpriteComponent with HasGameRef {
 
     sprite = Sprite(game.images.fromCache(asset));
     paint = Paint()..filterQuality = FilterQuality.low;
+    // paint.color = paint.color.withAlpha(100);
 
     return super.onLoad();
   }

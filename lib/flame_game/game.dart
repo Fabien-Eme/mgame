@@ -5,13 +5,10 @@ import 'package:flame/components.dart';
 import 'package:flame/events.dart';
 import 'package:flame/extensions.dart';
 import 'package:flame/game.dart';
-import 'package:flame_bloc/flame_bloc.dart';
 import 'package:flame_riverpod/flame_riverpod.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:mgame/flame_game/bloc/game_bloc.dart';
-import 'package:mgame/flame_game/controller/gamebloc_consumer.dart';
+import 'package:mgame/flame_game/controller/construction_mode_listener.dart';
 import 'package:mgame/flame_game/controller/grid_controller.dart';
 import 'package:mgame/flame_game/controller/mouse_controller.dart';
 import 'package:mgame/flame_game/utils/game_assets.dart';
@@ -36,13 +33,11 @@ class MGame extends FlameGame<GameWorld>
 
   final bool isMobile;
   final bool isDesktop;
-  final GameBloc gameBloc;
   MGame({
     required this.isMobile,
     required this.isDesktop,
-    required this.gameBloc,
   }) : super(
-          world: GameWorld(gameBloc: gameBloc),
+          world: GameWorld(),
           camera: CameraComponent.withFixedResolution(
               width: gameWidth,
               height: gameHeight,
@@ -100,7 +95,7 @@ class MGame extends FlameGame<GameWorld>
       cursorController,
     ]);
 
-    world.add(GameBlocConsumer());
+    world.add(ConstructionModeListener());
 
     return super.onLoad();
   }

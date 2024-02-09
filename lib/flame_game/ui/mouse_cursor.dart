@@ -2,41 +2,46 @@ import 'dart:async';
 import 'dart:ui';
 
 import 'package:flame/components.dart';
-import 'package:flame_bloc/flame_bloc.dart';
-import 'package:mgame/flame_game/bloc/game_bloc.dart';
+import 'package:flame_riverpod/flame_riverpod.dart';
+import 'package:mgame/flame_game/riverpod_controllers/construction_mode_controller.dart';
 
 import '../../gen/assets.gen.dart';
 import '../game.dart';
 
-class MyMouseCursor extends SpriteComponent with HasGameRef<MGame> {
+class MyMouseCursor extends SpriteComponent with HasGameRef<MGame>, RiverpodComponentMixin {
   MyMouseCursor({this.mouseCursorType = MouseCursorType.base, super.position, super.size});
 
   MouseCursorType mouseCursorType;
 
   @override
   FutureOr<void> onLoad() async {
-    // await add(
-    //   FlameBlocListener<GameBloc, GameState>(onNewState: _handleConstructionState),
-    // );
     priority = 1000;
     sprite = Sprite(game.images.fromCache(mouseCursorType.path));
     paint = Paint()..filterQuality = FilterQuality.low;
     return super.onLoad();
   }
 
-  void _handleConstructionState(GameState newState) {
-    switch (newState.status) {
-      case GameStatus.initial:
+  @override
+  void onMount() {
+    addToGameWidgetBuild(() => ref.listen(constructionModeControllerProvider, (previous, constructionState) {
+          _handleConstructionState(constructionState);
+        }));
+    super.onMount();
+  }
+
+  void _handleConstructionState(ConstructionState constructionState) {
+    switch (constructionState.status) {
+      case ConstructionMode.initial:
         mouseCursorType = MouseCursorType.base;
         break;
-      case GameStatus.construct:
+      case ConstructionMode.construct:
         mouseCursorType = MouseCursorType.add;
 
         break;
-      case GameStatus.destruct:
+      case ConstructionMode.destruct:
         mouseCursorType = MouseCursorType.trash;
         break;
-      case GameStatus.idle:
+      case ConstructionMode.idle:
         mouseCursorType = MouseCursorType.base;
         break;
     }
