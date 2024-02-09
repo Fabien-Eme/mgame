@@ -9,6 +9,7 @@ import 'package:flame_bloc/flame_bloc.dart';
 import 'package:flame_riverpod/flame_riverpod.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:mgame/flame_game/bloc/game_bloc.dart';
 import 'package:mgame/flame_game/controller/gamebloc_consumer.dart';
 import 'package:mgame/flame_game/controller/grid_controller.dart';
@@ -23,7 +24,7 @@ import 'controller/tap_controller.dart';
 import 'game_world.dart';
 import 'ui/mouse_cursor.dart';
 
-class MGame extends FlameGame
+class MGame extends FlameGame<GameWorld>
     with MouseMovementDetector, ScrollDetector, MultiTouchDragDetector, TapDetector, SecondaryTapDetector, TertiaryTapDetector, HasKeyboardHandlerComponents, RiverpodGameMixin {
   static const double gameWidth = 2000;
   static const double gameHeight = 900;
@@ -61,7 +62,7 @@ class MGame extends FlameGame
   late final MyMouseCursor myMouseCursor;
   late final MouseController mouseController;
   late final DragZoomController dragZoomController;
-  final TapController tapController = TapController();
+  late final TapController tapController;
   late final GridController gridController;
   late final ConstructionController constructionController;
   late final CursorController cursorController;
@@ -86,7 +87,7 @@ class MGame extends FlameGame
     ///Adding Controllers
     mouseController = MouseController();
     dragZoomController = DragZoomController();
-    // tapController = TapController();
+    tapController = TapController();
     gridController = GridController();
     constructionController = ConstructionController();
     cursorController = CursorController();
@@ -99,6 +100,8 @@ class MGame extends FlameGame
       cursorController,
     ]);
 
+    world.add(GameBlocConsumer());
+
     return super.onLoad();
   }
 
@@ -107,18 +110,15 @@ class MGame extends FlameGame
   /// Game Mount
   ///
   @override
-  void onMount() async {
+  void onMount() {
     /// Adding UI
 
-    await camera.viewport.add(FlameMultiBlocProvider(
-      providers: [FlameBlocProvider<GameBloc, GameState>.value(value: gameBloc)],
-      children: [
+    camera.viewport.addAll(
+      [
         uiComponent,
         myMouseCursor,
-        GameBlocConsumer(),
       ],
-    ));
-
+    );
     super.onMount();
   }
 

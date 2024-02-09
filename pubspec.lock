@@ -389,10 +389,10 @@ packages:
     dependency: "direct main"
     description:
       name: flame
-      sha256: "61c42b966a6b1f44ee093194e6701d45b14fdda1859c14fe68a39489454bfbd4"
+      sha256: "2a2352741500ce47823dcf212f06b23e9bdb622454eab90244ee6da58e23b488"
       url: "https://pub.dev"
     source: hosted
-    version: "1.14.0"
+    version: "1.15.0"
   flame_bloc:
     dependency: "direct main"
     description:
@@ -405,10 +405,10 @@ packages:
     dependency: "direct main"
     description:
       name: flame_riverpod
-      sha256: cce5751d542855483c30b527f998e6723ba13a3259ea6e88c4192e94b500e135
+      sha256: "79f57ac780c486039833bded97b08521c1b04b0ddd19cc61229340354baa9a44"
       url: "https://pub.dev"
     source: hosted
-    version: "5.1.5"
+    version: "5.2.0"
   flutter:
     dependency: "direct main"
     description: flutter

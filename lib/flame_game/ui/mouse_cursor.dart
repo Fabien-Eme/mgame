@@ -15,9 +15,9 @@ class MyMouseCursor extends SpriteComponent with HasGameRef<MGame> {
 
   @override
   FutureOr<void> onLoad() async {
-    await add(
-      FlameBlocListener<GameBloc, GameState>(onNewState: _handleConstructionState),
-    );
+    // await add(
+    //   FlameBlocListener<GameBloc, GameState>(onNewState: _handleConstructionState),
+    // );
     priority = 1000;
     sprite = Sprite(game.images.fromCache(mouseCursorType.path));
     paint = Paint()..filterQuality = FilterQuality.low;

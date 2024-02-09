@@ -3,7 +3,6 @@ import 'dart:math';
 
 import 'package:flame/components.dart';
 import 'package:flame/events.dart';
-import 'package:flame_bloc/flame_bloc.dart';
 import 'package:mgame/flame_game/buildings/incinerator/incinerator.dart';
 import 'package:mgame/flame_game/ui/tile_cursor.dart';
 import 'package:mgame/flame_game/game.dart';
@@ -24,20 +23,19 @@ class GameWorld extends World with HasGameRef<MGame>, TapCallbacks {
   Incinerator? temporaryBuilding;
 
   @override
-  FutureOr<void> onLoad() async {
+  FutureOr<void> onLoad() {
     /// Add grid
     grid = generateGrid();
-    await addAll([for (List<Tile> row in grid) ...row]);
+    addAll([for (List<Tile> row in grid) ...row]);
 
     /// Add debug components
-    await add(ListDebugComponent());
+    add(ListDebugComponent());
 
     /// Add Tile Cursor
-    await add(tileCursor);
+    add(tileCursor);
 
     /// Add debug grid
-    if (isDebugGridNumbersOn) await addDebugGridNumbers();
-
+    if (isDebugGridNumbersOn) addDebugGridNumbers();
     return super.onLoad();
   }
 

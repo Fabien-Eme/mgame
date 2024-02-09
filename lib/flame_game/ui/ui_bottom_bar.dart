@@ -2,6 +2,7 @@ import 'package:flame/components.dart';
 import 'package:flame/events.dart';
 import 'package:mgame/flame_game/game.dart';
 
+import '../riverpod_controllers/ui_controller.dart';
 import 'ui_bottom_bar_button.dart';
 
 class UIBottomBar extends PositionComponent with HasGameRef<MGame>, HoverCallbacks {

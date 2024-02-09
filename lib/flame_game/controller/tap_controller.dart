@@ -4,12 +4,13 @@ import 'package:flame/components.dart';
 import 'package:flame/events.dart';
 import 'package:flame_riverpod/flame_riverpod.dart';
 import 'package:mgame/flame_game/bloc/game_bloc.dart';
-import 'package:mgame/flame_game/controller/game_controller.dart' hide GameStatus;
+import 'package:mgame/flame_game/riverpod_controllers/construction_mode_controller.dart' hide ConstructionStatus;
+import 'package:mgame/flame_game/riverpod_controllers/ui_controller.dart';
 
 import '../game.dart';
 import '../ui/mouse_cursor.dart';
 
-class TapController extends Component with HasGameRef<MGame>, RiverpodComponentMixin {
+class TapController extends Component with HasGameReference<MGame>, RiverpodComponentMixin {
   final double gameWidth = MGame.gameWidth;
   final double gameHeight = MGame.gameHeight;
   final double tileWidth = MGame.tileWidth;
@@ -34,8 +35,16 @@ class TapController extends Component with HasGameRef<MGame>, RiverpodComponentM
     return super.onLoad();
   }
 
+  @override
+  void onMount() {
+    addToGameWidgetBuild(() {
+      //final gameState = ref.watch(gameControllerProvider);
+    });
+
+    super.onMount();
+  }
+
   void onTapDown(TapDownInfo info) {
-    // print(ref.read(gameControllerProvider));
     if (gameBloc.state.status == GameStatus.construct) {
       if (gameBloc.state.tileType != null) {
         game.constructionController.construct(posDimetric: game.currentMouseTilePos, tileType: gameBloc.state.tileType!);
@@ -47,24 +56,7 @@ class TapController extends Component with HasGameRef<MGame>, RiverpodComponentM
   }
 
   void onSecondaryTapUp(TapUpInfo info) {
-    switch (gameBloc.state.status) {
-      case GameStatus.initial:
-        gameBloc.add(const DestructionModePressed());
-
-        break;
-      case GameStatus.construct:
-        gameBloc.add(const ConstructionModeExited());
-
-        break;
-      case GameStatus.destruct:
-        gameBloc.add(const DestructionModeExited());
-
-        break;
-      case GameStatus.idle:
-        gameBloc.add(const DestructionModePressed());
-
-        break;
-    }
+    ref.read(activeUIButtonControllerProvider.notifier).onSecondaryTapUp();
   }
 
   void onTertiaryTapDown(TapDownInfo info) {
