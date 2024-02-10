@@ -18,9 +18,10 @@ class Tile extends SpriteComponent with HasGameRef<MGame>, HasWorldReference<Gam
   bool isDebugMode;
   Tile({required this.tileType, required this.dimetricGridCoordinates, required this.gridCoordinates, this.isDebugMode = false, required super.position, super.size});
 
-  bool isConstructible = true;
-  bool isDestructible = false;
-  bool isBuildable = true;
+  bool isTileConstructible = true;
+  bool isTileDestructible = false;
+  bool isBuildingConstructible = true;
+  bool isBuildingDestructible = false;
   ColorEffect? colorEffect;
   TileType? previousTileType;
   TileType? projectedTileType;
@@ -33,8 +34,12 @@ class Tile extends SpriteComponent with HasGameRef<MGame>, HasWorldReference<Gam
     return super.onLoad();
   }
 
-  void projectConstruction(TileType? tileType) {
-    if (isConstructible && tileType != null) {
+  ///
+  ///
+  /// Manage Tile
+  ///
+  void projectTileConstruction(TileType? tileType) {
+    if (isTileConstructible && tileType != null) {
       if (tileType == TileType.road) {
         tileType = determineMyRoadType();
         projectedTileType = tileType;
@@ -66,32 +71,33 @@ class Tile extends SpriteComponent with HasGameRef<MGame>, HasWorldReference<Gam
     sprite = Sprite(game.images.fromCache(tileType.path));
   }
 
-  void construct({required TileType tileType, bool isMouseDragging = false}) {
-    if (isConstructible) {
+  void constructTile({required TileType tileType, bool isMouseDragging = false}) {
+    if (isTileConstructible) {
       if (tileType == TileType.road) {
         tileType = determineMyRoadType();
       }
       this.tileType = tileType;
       sprite = Sprite(game.images.fromCache(tileType.path));
-      isConstructible = false;
-      isDestructible = true;
+      isTileConstructible = false;
+      isTileDestructible = true;
+      isBuildingConstructible = false;
       projectedTileType = null;
       world.tileCursor.highlightDefault();
     }
   }
 
   void changeTileToWantToDestroy() {
-    if (!isConstructible && isDestructible) {
+    if (!isTileConstructible && isTileDestructible) {
       world.tileCursor.highlightRed();
     } else {
       world.tileCursor.highlightDefault();
     }
   }
 
-  void destroy({bool isMouseDragging = false}) {
-    if (!isConstructible && isDestructible) {
-      isConstructible = true;
-      isDestructible = false;
+  void destroyTile({bool isMouseDragging = false}) {
+    if (!isTileConstructible && isTileDestructible) {
+      isTileConstructible = true;
+      isTileDestructible = false;
       tileType = TileType.grass;
       previousTileType = TileType.grass;
       sprite = Sprite(game.images.fromCache(tileType.path));
@@ -143,6 +149,13 @@ class Tile extends SpriteComponent with HasGameRef<MGame>, HasWorldReference<Gam
     }
 
     return TileType.road;
+  }
+
+  void markAsBuilt() {
+    isTileConstructible = false;
+    isTileDestructible = false;
+    isBuildingConstructible = false;
+    isBuildingDestructible = true;
   }
 }
 

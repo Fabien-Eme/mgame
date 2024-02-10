@@ -33,15 +33,20 @@ class TapController extends Component with HasGameReference<MGame>, RiverpodComp
   }
 
   void onTapDown(TapDownInfo info) {
-    final constructionState = ref.read(constructionModeControllerProvider);
+    if (!game.isMouseHoveringUI) {
+      final constructionState = ref.read(constructionModeControllerProvider);
 
-    if (constructionState.status == ConstructionMode.construct) {
-      if (constructionState.tileType != null) {
-        game.constructionController.construct(posDimetric: game.currentMouseTilePos, tileType: constructionState.tileType!);
-        game.hasConstructed = true;
+      if (constructionState.status == ConstructionMode.construct) {
+        if (constructionState.tileType != null) {
+          game.constructionController.construct(posDimetric: game.currentMouseTilePos, tileType: constructionState.tileType!);
+          game.hasConstructed = true;
+        }
+        if (constructionState.buildingType != null) {
+          game.buildingController.tryToBuildCurrentBuilding();
+        }
+      } else if (constructionState.status == ConstructionMode.destruct) {
+        game.constructionController.destroy(posDimetric: game.currentMouseTilePos);
       }
-    } else if (constructionState.status == ConstructionMode.destruct) {
-      game.constructionController.destroy(posDimetric: game.currentMouseTilePos);
     }
   }
 
@@ -50,6 +55,9 @@ class TapController extends Component with HasGameReference<MGame>, RiverpodComp
   }
 
   void onTertiaryTapDown(TapDownInfo info) {
+    if (ref.read(constructionModeControllerProvider).buildingType != null) {
+      ref.read(constructionModeControllerProvider.notifier).rotateBuilding();
+    }
     // if (gameBloc.state.tileType == TileType.roadSN) {
     //   gameBloc.add(const ConstructionModePressed(tileType: TileType.roadWE));
     // }

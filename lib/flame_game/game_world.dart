@@ -3,10 +3,10 @@ import 'dart:math';
 
 import 'package:flame/components.dart';
 import 'package:flame/events.dart';
-import 'package:mgame/flame_game/buildings/incinerator/incinerator.dart';
 import 'package:mgame/flame_game/ui/tile_cursor.dart';
 import 'package:mgame/flame_game/game.dart';
 import 'package:mgame/flame_game/utils/manage_coordinates.dart';
+import 'buildings/building.dart';
 import 'list_debug_component.dart';
 import 'tile.dart';
 
@@ -15,10 +15,11 @@ class GameWorld extends World with HasGameRef<MGame>, TapCallbacks {
   static const int gridWidth = 20;
   static const int gridHeight = 35;
   List<List<Tile>> grid = [];
+  List<Building> buildings = [];
 
   bool isDebugGridNumbersOn = false;
   TileCursor tileCursor = TileCursor();
-  Incinerator? temporaryBuilding;
+  Building? temporaryBuilding;
 
   @override
   FutureOr<void> onLoad() {
@@ -35,6 +36,12 @@ class GameWorld extends World with HasGameRef<MGame>, TapCallbacks {
     /// Add debug grid
     if (isDebugGridNumbersOn) addDebugGridNumbers();
     return super.onLoad();
+  }
+
+  void removeTemporaryBuilding() {
+    if (temporaryBuilding != null) {
+      remove(temporaryBuilding!);
+    }
   }
 
   ///
@@ -89,3 +96,25 @@ class GameWorld extends World with HasGameRef<MGame>, TapCallbacks {
     await addAll([for (List<TextComponent> row in grid) ...row]);
   }
 }
+
+
+
+///
+///
+///
+/// Priority of world
+/// 
+/// 
+/// 
+/// Building front : 110
+/// Building back : 100
+/// 
+/// 
+/// When dragging building for build : 
+///   - Door : 511
+///   - Front : 510
+///   - Back : 490
+/// 
+/// 
+/// 
+/// TileCursor : 400

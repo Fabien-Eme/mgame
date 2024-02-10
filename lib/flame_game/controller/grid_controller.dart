@@ -1,7 +1,9 @@
 import 'dart:math';
 
 import 'package:flame/components.dart';
+import 'package:mgame/flame_game/buildings/building.dart';
 import 'package:mgame/flame_game/game_world.dart';
+import 'package:mgame/flame_game/riverpod_controllers/construction_mode_controller.dart';
 
 import '../game.dart';
 import '../tile.dart';
@@ -55,6 +57,35 @@ class GridController extends Component with HasGameRef<MGame>, HasWorldReference
       return true;
     } else {
       return false;
+    }
+  }
+
+  ///
+  ///
+  /// Check if Tile is buildable
+  ///
+  bool isTileBuildable(Vector2 dimetricTilePos) {
+    Point<int> posGrid = convertDimetricToGridPoint(dimetricTilePos);
+    if (!checkIfWithinGridBoundaries(posGrid)) {
+      return false;
+    } else {
+      return world.grid[posGrid.x][posGrid.y].isBuildingConstructible;
+    }
+  }
+
+  Future<void> buildOnTile(Vector2 currentMouseTilePos, ConstructionState constructionState) async {
+    world.buildings.add(createBuilding(buildingType: constructionState.buildingType!, direction: constructionState.buildingDirection, anchorTile: currentMouseTilePos));
+    await world.add(world.buildings.last);
+    world.buildings.last.changePosition(convertDimetricToWorldCoordinates(currentMouseTilePos));
+    markTilesAsBuilt(currentMouseTilePos, game.buildingController.getBuildingSizeInTile(constructionState));
+  }
+
+  void markTilesAsBuilt(Vector2 currentMouseTilePos, int buildingSizeInTile) {
+    for (int i = 0; i < buildingSizeInTile; i++) {
+      for (int j = 0; j < buildingSizeInTile; j++) {
+        Point<int> posGrid = convertDimetricToGridPoint(currentMouseTilePos + Vector2(-i.toDouble(), j.toDouble()));
+        world.grid[posGrid.x][posGrid.y].markAsBuilt();
+      }
     }
   }
 }

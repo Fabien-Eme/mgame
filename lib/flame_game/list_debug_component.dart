@@ -22,10 +22,10 @@ class ListDebugComponent extends Component with HasWorldReference {
       Belt(beltType: BeltType.beltWE, position: convertDimetricToWorldCoordinates(Vector2(7, -5))),
       GarbageConveyorBack(position: convertDimetricToWorldCoordinates(Vector2(6, -5))),
       GarbageConveyorFront(position: convertDimetricToWorldCoordinates(Vector2(6, -5))),
-      GarbageLoader(direction: Directions.E, garbageLoaderFlow: GarbageLoaderFlow.flowIn, position: convertDimetricToWorldCoordinates(Vector2(8, -5))),
-      GarbageLoader(direction: Directions.S, garbageLoaderFlow: GarbageLoaderFlow.flowIn, position: convertDimetricToWorldCoordinates(Vector2(12, 0))),
-      Incinerator(direction: Directions.E, position: convertDimetricToWorldCoordinates(Vector2(18, -5))),
-      Incinerator(direction: Directions.S, position: convertDimetricToWorldCoordinates(Vector2(20, 7))),
+      GarbageLoader(direction: Directions.E, garbageLoaderFlow: GarbageLoaderFlow.flowIn, position: convertDimetricToWorldCoordinates(Vector2(8, -5)), anchorTile: Vector2.zero()),
+      GarbageLoader(direction: Directions.S, garbageLoaderFlow: GarbageLoaderFlow.flowIn, position: convertDimetricToWorldCoordinates(Vector2(12, 0)), anchorTile: Vector2.zero()),
+      Incinerator(direction: Directions.E, position: convertDimetricToWorldCoordinates(Vector2(18, -5)), anchorTile: Vector2.zero()),
+      Incinerator(direction: Directions.S, position: convertDimetricToWorldCoordinates(Vector2(20, 7)), anchorTile: Vector2.zero()),
     ]);
     return super.onLoad();
   }

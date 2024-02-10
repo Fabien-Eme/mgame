@@ -19,6 +19,7 @@ mixin _$ConstructionState {
   ConstructionMode get status => throw _privateConstructorUsedError;
   TileType? get tileType => throw _privateConstructorUsedError;
   BuildingType? get buildingType => throw _privateConstructorUsedError;
+  Directions? get buildingDirection => throw _privateConstructorUsedError;
 
   @JsonKey(ignore: true)
   $ConstructionStateCopyWith<ConstructionState> get copyWith =>
@@ -34,7 +35,8 @@ abstract class $ConstructionStateCopyWith<$Res> {
   $Res call(
       {ConstructionMode status,
       TileType? tileType,
-      BuildingType? buildingType});
+      BuildingType? buildingType,
+      Directions? buildingDirection});
 }
 
 /// @nodoc
@@ -53,6 +55,7 @@ class _$ConstructionStateCopyWithImpl<$Res, $Val extends ConstructionState>
     Object? status = null,
     Object? tileType = freezed,
     Object? buildingType = freezed,
+    Object? buildingDirection = freezed,
   }) {
     return _then(_value.copyWith(
       status: null == status
@@ -67,6 +70,10 @@ class _$ConstructionStateCopyWithImpl<$Res, $Val extends ConstructionState>
           ? _value.buildingType
           : buildingType // ignore: cast_nullable_to_non_nullable
               as BuildingType?,
+      buildingDirection: freezed == buildingDirection
+          ? _value.buildingDirection
+          : buildingDirection // ignore: cast_nullable_to_non_nullable
+              as Directions?,
     ) as $Val);
   }
 }
@@ -82,7 +89,8 @@ abstract class _$$ConstructionStateImplCopyWith<$Res>
   $Res call(
       {ConstructionMode status,
       TileType? tileType,
-      BuildingType? buildingType});
+      BuildingType? buildingType,
+      Directions? buildingDirection});
 }
 
 /// @nodoc
@@ -99,6 +107,7 @@ class __$$ConstructionStateImplCopyWithImpl<$Res>
     Object? status = null,
     Object? tileType = freezed,
     Object? buildingType = freezed,
+    Object? buildingDirection = freezed,
   }) {
     return _then(_$ConstructionStateImpl(
       status: null == status
@@ -113,6 +122,10 @@ class __$$ConstructionStateImplCopyWithImpl<$Res>
           ? _value.buildingType
           : buildingType // ignore: cast_nullable_to_non_nullable
               as BuildingType?,
+      buildingDirection: freezed == buildingDirection
+          ? _value.buildingDirection
+          : buildingDirection // ignore: cast_nullable_to_non_nullable
+              as Directions?,
     ));
   }
 }
@@ -121,7 +134,10 @@ class __$$ConstructionStateImplCopyWithImpl<$Res>
 
 class _$ConstructionStateImpl implements _ConstructionState {
   _$ConstructionStateImpl(
-      {required this.status, this.tileType, this.buildingType});
+      {required this.status,
+      this.tileType,
+      this.buildingType,
+      this.buildingDirection});
 
   @override
   final ConstructionMode status;
@@ -129,10 +145,12 @@ class _$ConstructionStateImpl implements _ConstructionState {
   final TileType? tileType;
   @override
   final BuildingType? buildingType;
+  @override
+  final Directions? buildingDirection;
 
   @override
   String toString() {
-    return 'ConstructionState(status: $status, tileType: $tileType, buildingType: $buildingType)';
+    return 'ConstructionState(status: $status, tileType: $tileType, buildingType: $buildingType, buildingDirection: $buildingDirection)';
   }
 
   @override
@@ -144,11 +162,14 @@ class _$ConstructionStateImpl implements _ConstructionState {
             (identical(other.tileType, tileType) ||
                 other.tileType == tileType) &&
             (identical(other.buildingType, buildingType) ||
-                other.buildingType == buildingType));
+                other.buildingType == buildingType) &&
+            (identical(other.buildingDirection, buildingDirection) ||
+                other.buildingDirection == buildingDirection));
   }
 
   @override
-  int get hashCode => Object.hash(runtimeType, status, tileType, buildingType);
+  int get hashCode => Object.hash(
+      runtimeType, status, tileType, buildingType, buildingDirection);
 
   @JsonKey(ignore: true)
   @override
@@ -162,7 +183,8 @@ abstract class _ConstructionState implements ConstructionState {
   factory _ConstructionState(
       {required final ConstructionMode status,
       final TileType? tileType,
-      final BuildingType? buildingType}) = _$ConstructionStateImpl;
+      final BuildingType? buildingType,
+      final Directions? buildingDirection}) = _$ConstructionStateImpl;
 
   @override
   ConstructionMode get status;
@@ -170,6 +192,8 @@ abstract class _ConstructionState implements ConstructionState {
   TileType? get tileType;
   @override
   BuildingType? get buildingType;
+  @override
+  Directions? get buildingDirection;
   @override
   @JsonKey(ignore: true)
   _$$ConstructionStateImplCopyWith<_$ConstructionStateImpl> get copyWith =>

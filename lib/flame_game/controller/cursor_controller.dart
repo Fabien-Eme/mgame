@@ -1,6 +1,5 @@
 import 'package:flame/components.dart';
 import 'package:flame_riverpod/flame_riverpod.dart';
-import 'package:mgame/flame_game/buildings/incinerator/incinerator.dart';
 import 'package:mgame/flame_game/game_world.dart';
 import 'package:mgame/flame_game/riverpod_controllers/construction_mode_controller.dart';
 
@@ -27,13 +26,13 @@ class CursorController extends Component with HasGameRef<MGame>, HasWorldReferen
     /// Trigger only if cursor is on World grid
     if (game.gridController.checkIfWithinGridBoundaries(convertDimetricToGridPoint(newMouseTilePos))) {
       /// Handle building
-      _handleBuilding(newMouseTilePos);
+      await game.buildingController.projectBuildingOnTile(newMouseTilePos);
 
       /// Handle Road construction by dragging
       _handleRoadConstructionByDragging();
 
       /// Project construction on current Tile and Current Neighbors
-      _projectConstructionOnTileAndNeighbors(newMouseTilePos);
+      game.constructionController.projectConstructionOnTileAndNeighbors(newMouseTilePos);
 
       /// Move Cursor to current Tile
       world.tileCursor.changePosition(convertDimetricToWorldCoordinates(newMouseTilePos));
@@ -83,44 +82,6 @@ class CursorController extends Component with HasGameRef<MGame>, HasWorldReferen
         }
       } else if (constructionState.status == ConstructionMode.destruct) {
         game.constructionController.destroy(posDimetric: game.currentMouseTilePos, isMouseDragging: true);
-      }
-    }
-  }
-
-  ///
-  ///
-  /// Project construction on current Tile and Current Neighbors
-  ///
-  void _projectConstructionOnTileAndNeighbors(Vector2 newMouseTilePos) {
-    final constructionState = ref.read(constructionModeControllerProvider);
-
-    if (constructionState.status == ConstructionMode.construct) {
-      game.constructionController.projectConstructionOnTile(convertDimetricToGridPoint(newMouseTilePos));
-    } else if (constructionState.status == ConstructionMode.destruct) {
-      game.constructionController.projectDestructionOnTile(convertDimetricToGridPoint(newMouseTilePos));
-    }
-
-    if (constructionState.status == ConstructionMode.construct || constructionState.status == ConstructionMode.destruct) {
-      Map<Directions, Tile?> mapNeighbors = game.gridController.getAllNeigbhorsTile(dimetricGridPoint: convertVectorToPoint(newMouseTilePos));
-      for (Tile? tile in mapNeighbors.values) {
-        tile?.projectTileChange();
-      }
-    }
-  }
-
-  ///
-  ///
-  /// Handle Building
-  ///
-  void _handleBuilding(Vector2 newMouseTilePos) {
-    final constructionState = ref.read(constructionModeControllerProvider);
-
-    if (constructionState.status == ConstructionMode.construct && constructionState.buildingType != null) {
-      if (world.temporaryBuilding == null) {
-        world.temporaryBuilding = Incinerator(direction: Directions.E, position: convertDimetricToWorldCoordinates(newMouseTilePos));
-        world.add(world.temporaryBuilding!);
-      } else {
-        world.temporaryBuilding!.changePosition(convertDimetricToWorldCoordinates(newMouseTilePos));
       }
     }
   }

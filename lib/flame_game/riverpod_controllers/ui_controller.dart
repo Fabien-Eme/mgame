@@ -2,6 +2,7 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 import '../../gen/assets.gen.dart';
 import '../buildings/building.dart';
 import '../tile.dart';
+import '../utils/manage_coordinates.dart';
 import 'construction_mode_controller.dart';
 
 part 'ui_controller.g.dart';
@@ -40,21 +41,25 @@ class ActiveUIButtonController extends _$ActiveUIButtonController {
         if (state == buttonType) {
           ref.read(constructionModeControllerProvider.notifier).exitConstructionMode();
         } else {
-          ref.read(constructionModeControllerProvider.notifier).enterConstructionMode(buildingType: BuildingType.garbageLoader);
+          ref.read(constructionModeControllerProvider.notifier).enterConstructionMode(buildingType: BuildingType.garbageLoader, buildingDirection: Directions.S);
         }
       case ButtonType.recycler:
         if (state == buttonType) {
           ref.read(constructionModeControllerProvider.notifier).exitConstructionMode();
         } else {
-          ref.read(constructionModeControllerProvider.notifier).enterConstructionMode(buildingType: BuildingType.recycler);
+          ref.read(constructionModeControllerProvider.notifier).enterConstructionMode(buildingType: BuildingType.recycler, buildingDirection: Directions.S);
         }
       case ButtonType.incinerator:
         if (state == buttonType) {
           ref.read(constructionModeControllerProvider.notifier).exitConstructionMode();
         } else {
-          ref.read(constructionModeControllerProvider.notifier).enterConstructionMode(buildingType: BuildingType.incinerator);
+          ref.read(constructionModeControllerProvider.notifier).enterConstructionMode(buildingType: BuildingType.incinerator, buildingDirection: Directions.S);
         }
     }
+  }
+
+  void resetButtons() {
+    state = null;
   }
 
   void onSecondaryTapUp() {

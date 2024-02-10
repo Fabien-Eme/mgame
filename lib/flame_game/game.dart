@@ -8,6 +8,7 @@ import 'package:flame/game.dart';
 import 'package:flame_riverpod/flame_riverpod.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:mgame/flame_game/controller/building_controller.dart';
 import 'package:mgame/flame_game/controller/construction_mode_listener.dart';
 import 'package:mgame/flame_game/controller/grid_controller.dart';
 import 'package:mgame/flame_game/controller/mouse_controller.dart';
@@ -21,6 +22,7 @@ import 'controller/tap_controller.dart';
 import 'game_world.dart';
 import 'ui/mouse_cursor.dart';
 
+///TODO Implement world rotation
 class MGame extends FlameGame<GameWorld>
     with MouseMovementDetector, ScrollDetector, MultiTouchDragDetector, TapDetector, SecondaryTapDetector, TertiaryTapDetector, HasKeyboardHandlerComponents, RiverpodGameMixin {
   static const double gameWidth = 2000;
@@ -29,7 +31,7 @@ class MGame extends FlameGame<GameWorld>
   static const double tileWidth = 100;
   static const double tileHeight = 50;
   static const double maxZoom = 3;
-  static const double minZoom = 1.06;
+  static const double minZoom = 0.5;
 
   final bool isMobile;
   final bool isDesktop;
@@ -61,6 +63,7 @@ class MGame extends FlameGame<GameWorld>
   late final GridController gridController;
   late final ConstructionController constructionController;
   late final CursorController cursorController;
+  late final BuildingController buildingController;
 
   ///
   ///
@@ -86,6 +89,7 @@ class MGame extends FlameGame<GameWorld>
     gridController = GridController();
     constructionController = ConstructionController();
     cursorController = CursorController();
+    buildingController = BuildingController();
     world.addAll([
       mouseController,
       dragZoomController,
@@ -93,6 +97,7 @@ class MGame extends FlameGame<GameWorld>
       gridController,
       constructionController,
       cursorController,
+      buildingController,
     ]);
 
     world.add(ConstructionModeListener());

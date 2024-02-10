@@ -2,12 +2,16 @@ import 'dart:async';
 import 'dart:ui';
 
 import 'package:flame/components.dart';
+import 'package:mgame/flame_game/utils/manage_coordinates.dart';
 
 import '../../gen/assets.gen.dart';
+import '../palette.dart';
 
 class TileCursor extends Component with HasWorldReference {
   TileCursorArrow tileCursorArrow = TileCursorArrow();
   TileCursorBackground tileCursorBackground = TileCursorBackground();
+
+  Vector2 offset = Vector2.zero();
 
   @override
   FutureOr<void> onLoad() {
@@ -17,9 +21,21 @@ class TileCursor extends Component with HasWorldReference {
     return super.onLoad();
   }
 
+  void scaleToThreeTile() {
+    tileCursorArrow.scale = Vector2.all(3);
+    tileCursorBackground.scale = Vector2.all(3);
+    offset = convertDimetricToWorldCoordinates(Vector2(-3, 1));
+  }
+
+  void resetScale() {
+    tileCursorArrow.scale = Vector2.all(1);
+    tileCursorBackground.scale = Vector2.all(1);
+    offset = Vector2.zero();
+  }
+
   void changePosition(Vector2 pos) {
-    tileCursorArrow.position = pos;
-    tileCursorBackground.position = pos + Vector2(-0.5, 1);
+    tileCursorArrow.position = pos + offset;
+    tileCursorBackground.position = pos + Vector2(-0.5, 1) + offset;
   }
 
   void hideTileCursor() {
@@ -33,11 +49,11 @@ class TileCursor extends Component with HasWorldReference {
   }
 
   void highlightGreen() {
-    tileCursorBackground.paint.colorFilter = const ColorFilter.mode(Color.fromARGB(255, 0, 255, 38), BlendMode.srcATop);
+    tileCursorBackground.paint.colorFilter = const ColorFilter.mode(Palette.green, BlendMode.srcATop);
   }
 
   void highlightRed() {
-    tileCursorBackground.paint.colorFilter = const ColorFilter.mode(Color.fromARGB(255, 250, 40, 40), BlendMode.srcATop);
+    tileCursorBackground.paint.colorFilter = const ColorFilter.mode(Palette.red, BlendMode.srcATop);
   }
 
   void highlightDefault() {
@@ -48,7 +64,7 @@ class TileCursor extends Component with HasWorldReference {
 class TileCursorArrow extends SpriteComponent with HasGameRef, HasVisibility {
   @override
   FutureOr<void> onLoad() {
-    priority = 1000;
+    priority = 400;
     sprite = Sprite(game.images.fromCache(Assets.images.ui.tileCursor.path));
     paint.filterQuality = FilterQuality.low;
 
@@ -59,7 +75,7 @@ class TileCursorArrow extends SpriteComponent with HasGameRef, HasVisibility {
 class TileCursorBackground extends SpriteComponent with HasGameRef, HasVisibility {
   @override
   FutureOr<void> onLoad() {
-    priority = 1000;
+    priority = 400;
     sprite = Sprite(game.images.fromCache(Assets.images.ui.tileCursorBackground.path));
     paint.filterQuality = FilterQuality.low;
 
