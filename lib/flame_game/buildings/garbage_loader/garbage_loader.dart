@@ -6,13 +6,15 @@ import 'package:mgame/flame_game/buildings/building.dart';
 import 'package:mgame/flame_game/buildings/garbage_loader/garbage_loader_back.dart';
 import 'package:mgame/flame_game/buildings/garbage_loader/garbage_loader_front.dart';
 
-import '../../utils/manage_coordinates.dart';
+import '../../game.dart';
+import '../../utils/convert_coordinates.dart';
+import '../../utils/convert_rotations.dart';
 
 class GarbageLoader extends Building {
   GarbageLoaderFlow garbageLoaderFlow;
   GarbageLoader({super.direction, required this.garbageLoaderFlow, super.position, required super.anchorTile});
 
-  final Vector2 offset = convertDimetricToWorldCoordinates(Vector2(2, 0)) + Vector2(10, 5);
+  final Vector2 offset = convertDimetricVectorToWorldCoordinates(Vector2(2, 0)) + Vector2(10, 5);
 
   late final GarbageLoaderFront garbageLoaderFront;
   late final GarbageLoaderBack garbageLoaderBack;
@@ -30,10 +32,22 @@ class GarbageLoader extends Building {
   }
 
   @override
-  void changePosition(Vector2 newPosition) {
-    position = newPosition;
-    garbageLoaderFront.position = newPosition + offset;
-    garbageLoaderBack.position = newPosition + offset;
+  void updatePosition(Vector2 updatedPosition) {
+    garbageLoaderFront.position = updatedPosition + offset;
+    garbageLoaderBack.position = updatedPosition + offset;
+  }
+
+  @override
+  void updateDirection(Directions updatedDirection) {
+    garbageLoaderFront.updateDirection(updatedDirection);
+    garbageLoaderBack.updateDirection(updatedDirection);
+  }
+
+  @override
+  void updatePriority(Vector2 updatedPosition) {
+    final int offsetPriority = ((updatedPosition.y + offset.y) / MGame.gameHeight * 100).toInt();
+    garbageLoaderFront.priority = 110 + offsetPriority;
+    garbageLoaderBack.priority = 90 + offsetPriority;
   }
 
   @override
@@ -64,5 +78,6 @@ class GarbageLoader extends Building {
   void onRemove() {
     world.remove(garbageLoaderFront);
     world.remove(garbageLoaderBack);
+    super.onRemove();
   }
 }

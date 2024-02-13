@@ -4,28 +4,43 @@ import 'dart:ui';
 import 'package:flame/components.dart';
 
 import '../../../gen/assets.gen.dart';
-import '../../utils/manage_coordinates.dart';
+import '../../utils/convert_rotations.dart';
 
 class GarbageLoaderBack extends SpriteComponent with HasGameRef {
   GarbageLoaderBack({required this.direction, super.position});
-  final Directions direction;
+  Directions direction;
+
+  late String asset;
 
   @override
   FutureOr<void> onLoad() {
-    String asset;
-    if (direction == Directions.E) {
-      asset = Assets.images.buildings.garbageLoader.garbageLoaderEBack.path;
-    } else {
-      asset = Assets.images.buildings.garbageLoader.garbageLoaderSBack.path;
-    }
-
     size = Vector2(120, 129);
     priority = 90;
     anchor = Anchor.bottomRight;
+    updateSprite();
 
-    sprite = Sprite(game.images.fromCache(asset));
     paint = Paint()..filterQuality = FilterQuality.low;
 
     return super.onLoad();
+  }
+
+  void updateDirection(Directions updatedDirection) {
+    direction = updatedDirection;
+    updateSprite();
+  }
+
+  void updateSprite() {
+    switch (direction) {
+      case Directions.S:
+        asset = Assets.images.buildings.garbageLoader.garbageLoaderSBack.path;
+      case Directions.W:
+        asset = Assets.images.buildings.garbageLoader.garbageLoaderEBack.path;
+      case Directions.N:
+        asset = Assets.images.buildings.garbageLoader.garbageLoaderSBack.path;
+      case Directions.E:
+        asset = Assets.images.buildings.garbageLoader.garbageLoaderEBack.path;
+    }
+
+    sprite = Sprite(game.images.fromCache(asset));
   }
 }

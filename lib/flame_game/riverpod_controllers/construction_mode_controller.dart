@@ -2,8 +2,8 @@ import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 import '../buildings/building.dart';
-import '../tile.dart';
-import '../utils/manage_coordinates.dart';
+import '../tile_helper.dart';
+import '../utils/convert_rotations.dart';
 
 part 'construction_mode_controller.g.dart';
 part 'construction_mode_controller.freezed.dart';
@@ -32,10 +32,17 @@ class ConstructionModeController extends _$ConstructionModeController {
   }
 
   void rotateBuilding() {
-    if (state.buildingDirection == Directions.E) {
-      state = state.copyWith(buildingDirection: Directions.S);
-    } else if (state.buildingDirection == Directions.S) {
-      state = state.copyWith(buildingDirection: Directions.E);
+    switch (state.buildingDirection) {
+      case Directions.S:
+        state = state.copyWith(buildingDirection: Directions.E);
+      case Directions.W:
+        state = state.copyWith(buildingDirection: Directions.S);
+      case Directions.N:
+        state = state.copyWith(buildingDirection: Directions.W);
+      case Directions.E:
+        state = state.copyWith(buildingDirection: Directions.N);
+      case null:
+        break;
     }
   }
 }

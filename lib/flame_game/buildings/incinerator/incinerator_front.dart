@@ -4,29 +4,42 @@ import 'dart:ui';
 import 'package:flame/components.dart';
 
 import '../../../gen/assets.gen.dart';
-import '../../utils/manage_coordinates.dart';
+import '../../utils/convert_rotations.dart';
 
 class IncineratorFront extends SpriteComponent with HasGameRef {
   IncineratorFront({required this.direction, super.position});
-  final Directions direction;
+  Directions direction;
+  late String asset;
 
   @override
   FutureOr<void> onLoad() {
-    String asset;
-    if (direction == Directions.E) {
-      asset = Assets.images.buildings.incinerator.incineratorEFront.path;
-    } else {
-      asset = Assets.images.buildings.incinerator.incineratorSFront.path;
-    }
-
     size = Vector2(300, 312);
     priority = 110;
     anchor = Anchor.bottomRight;
 
-    sprite = Sprite(game.images.fromCache(asset));
+    updateSprite();
     paint = Paint()..filterQuality = FilterQuality.low;
-    // paint.color = paint.color.withAlpha(100);
 
     return super.onLoad();
+  }
+
+  void updateDirection(Directions updatedDirection) {
+    direction = updatedDirection;
+    updateSprite();
+  }
+
+  void updateSprite() {
+    switch (direction) {
+      case Directions.S:
+        asset = Assets.images.buildings.incinerator.incineratorSFront.path;
+      case Directions.W:
+        asset = Assets.images.buildings.incinerator.incineratorWFront.path;
+      case Directions.N:
+        asset = Assets.images.buildings.incinerator.incineratorNFront.path;
+      case Directions.E:
+        asset = Assets.images.buildings.incinerator.incineratorEFront.path;
+    }
+
+    sprite = Sprite(game.images.fromCache(asset));
   }
 }

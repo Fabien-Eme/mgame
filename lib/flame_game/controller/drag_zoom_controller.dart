@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:math';
 
 import 'package:flame/components.dart';
 import 'package:flame/events.dart';
@@ -141,7 +142,7 @@ class DragZoomController extends Component with HasGameRef<MGame> {
 
           int tileX = dimetricX.floor();
           int tileY = dimetricY.floor();
-          Vector2 newMouseTilePos = Vector2(tileX.toDouble(), tileY.toDouble());
+          Point<int> newMouseTilePos = Point(tileX, tileY);
 
           if (game.currentMouseTilePos != newMouseTilePos) {
             game.cursorController.cursorIsMovingOnNewTile(newMouseTilePos);
@@ -170,10 +171,10 @@ class DragZoomController extends Component with HasGameRef<MGame> {
         (viewfinderInitialPosition / camera.viewfinder.zoom - camera.viewfinder.position) * camera.viewfinder.zoom;
 
     Vector2 projectedViewfinderPosition = camera.viewfinder.position - Vector2(details.delta.dx / camera.viewfinder.zoom, details.delta.dy / camera.viewfinder.zoom);
-    if (projectedViewfinderPosition.x < (viewfinderInitialPosition.x / camera.viewfinder.zoom + tileWidth / 2) ||
-        projectedViewfinderPosition.x > (gameWidth - viewfinderInitialPosition.x / camera.viewfinder.zoom - tileWidth / 2) ||
-        projectedViewfinderPosition.y < (viewfinderInitialPosition.y / camera.viewfinder.zoom + tileHeight / 2) ||
-        projectedViewfinderPosition.y > (gameHeight - viewfinderInitialPosition.y / camera.viewfinder.zoom - tileHeight / 2) ||
+    if (projectedViewfinderPosition.x < (viewfinderInitialPosition.x / camera.viewfinder.zoom) ||
+        projectedViewfinderPosition.x > (gameWidth - viewfinderInitialPosition.x / camera.viewfinder.zoom) ||
+        projectedViewfinderPosition.y < (viewfinderInitialPosition.y / camera.viewfinder.zoom) ||
+        projectedViewfinderPosition.y > (gameHeight - viewfinderInitialPosition.y / camera.viewfinder.zoom) ||
         camera.viewfinder.zoom == minZoom) {
     } else {
       camera.viewfinder.position = projectedViewfinderPosition;

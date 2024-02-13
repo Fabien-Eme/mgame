@@ -2,8 +2,9 @@ import 'package:flame/components.dart';
 import 'package:flame_riverpod/flame_riverpod.dart';
 import 'package:mgame/flame_game/game_world.dart';
 import 'package:mgame/flame_game/riverpod_controllers/construction_mode_controller.dart';
+import '../buildings/building.dart';
 import '../game.dart';
-import '../utils/manage_coordinates.dart';
+import '../utils/convert_coordinates.dart';
 
 class ConstructionModeListener extends Component with HasGameRef<MGame>, HasWorldReference<GameWorld>, RiverpodComponentMixin {
   @override
@@ -30,7 +31,7 @@ class ConstructionModeListener extends Component with HasGameRef<MGame>, HasWorl
           world.tileCursor.resetScale();
         } else {
           /// If building, size Tile cursor properly
-          switch (game.buildingController.getBuildingSizeInTile(constructionState)) {
+          switch (createBuilding(buildingType: constructionState.buildingType!).sizeInTile) {
             case 3:
               world.tileCursor.scaleToThreeTile();
               break;
@@ -40,7 +41,7 @@ class ConstructionModeListener extends Component with HasGameRef<MGame>, HasWorl
           }
         }
 
-        world.tileCursor.changePosition(convertDimetricToWorldCoordinates(game.currentMouseTilePos));
+        world.tileCursor.changePosition(convertDimetricPointToWorldCoordinates(game.currentMouseTilePos));
         break;
       case ConstructionMode.destruct:
         break;
@@ -51,7 +52,7 @@ class ConstructionModeListener extends Component with HasGameRef<MGame>, HasWorl
         game.buildingController.removeTemporaryBuilding();
 
         world.tileCursor.resetScale();
-        world.tileCursor.changePosition(convertDimetricToWorldCoordinates(game.currentMouseTilePos));
+        world.tileCursor.changePosition(convertDimetricPointToWorldCoordinates(game.currentMouseTilePos));
 
         break;
     }

@@ -45,6 +45,8 @@ extension MGameAssets on MGame {
       () => images.load(Assets.images.ui.uiGarbageLoader.path),
       () => images.load(Assets.images.ui.uiRecycler.path),
       () => images.load(Assets.images.ui.uiIncinerator.path),
+      () => images.load(Assets.images.ui.rotateLEFT.path),
+      () => images.load(Assets.images.ui.rotateRIGHT.path),
 
       ///
       /// TRUCK
@@ -72,11 +74,17 @@ extension MGameAssets on MGame {
       () => images.load(Assets.images.buildings.incinerator.incineratorEBack.path),
       () => images.load(Assets.images.buildings.incinerator.incineratorSFront.path),
       () => images.load(Assets.images.buildings.incinerator.incineratorSBack.path),
+      () => images.load(Assets.images.buildings.incinerator.incineratorWFront.path),
+      () => images.load(Assets.images.buildings.incinerator.incineratorNFront.path),
       () => images.load(Assets.images.buildings.incinerator.doorESpritesheet.path),
       () => images.load(Assets.images.buildings.incinerator.doorSSpritesheet.path),
 
       () => images.load(Assets.images.buildings.beltSN.path),
       () => images.load(Assets.images.buildings.beltWE.path),
+
+      ///
+      /// UTILS
+      () => images.load(Assets.images.buildings.empty.path),
     ];
   }
 }

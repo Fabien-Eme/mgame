@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:math';
 
 import 'package:flame/camera.dart';
 import 'package:flame/components.dart';
@@ -12,6 +13,8 @@ import 'package:mgame/flame_game/controller/building_controller.dart';
 import 'package:mgame/flame_game/controller/construction_mode_listener.dart';
 import 'package:mgame/flame_game/controller/grid_controller.dart';
 import 'package:mgame/flame_game/controller/mouse_controller.dart';
+import 'package:mgame/flame_game/ui/ui_rotate.dart';
+import 'package:mgame/flame_game/utils/convert_rotations.dart';
 import 'package:mgame/flame_game/utils/game_assets.dart';
 import 'package:mgame/flame_game/ui/ui_bottom_bar.dart';
 
@@ -22,16 +25,17 @@ import 'controller/tap_controller.dart';
 import 'game_world.dart';
 import 'ui/mouse_cursor.dart';
 
-///TODO Implement world rotation
+///TODO lorsque le batiment est construit dans une vue rotatée, à la premiere rotation ils se tourne
+
 class MGame extends FlameGame<GameWorld>
     with MouseMovementDetector, ScrollDetector, MultiTouchDragDetector, TapDetector, SecondaryTapDetector, TertiaryTapDetector, HasKeyboardHandlerComponents, RiverpodGameMixin {
   static const double gameWidth = 2000;
-  static const double gameHeight = 900;
+  static const double gameHeight = 1000;
   final Vector2 viewfinderInitialPosition = Vector2(gameWidth / 2, gameHeight / 2);
   static const double tileWidth = 100;
   static const double tileHeight = 50;
   static const double maxZoom = 3;
-  static const double minZoom = 0.5;
+  static const double minZoom = 1;
 
   final bool isMobile;
   final bool isDesktop;
@@ -41,21 +45,22 @@ class MGame extends FlameGame<GameWorld>
   }) : super(
           world: GameWorld(),
           camera: CameraComponent.withFixedResolution(
-              width: gameWidth,
-              height: gameHeight,
-              viewfinder: Viewfinder()
-                ..position = Vector2(gameWidth / 2, gameHeight / 2)
-                ..zoom = minZoom),
+            width: gameWidth,
+            height: gameHeight,
+            viewfinder: Viewfinder()
+              ..position = Vector2(gameWidth / 2, gameHeight / 2)
+              ..zoom = minZoom,
+          ),
         );
 
-  Vector2 currentMouseTilePos = Vector2.zero();
+  Point<int> currentMouseTilePos = const Point(0, 0);
   Vector2 mousePosition = Vector2.zero();
 
-  bool hasConstructed = false;
   bool isMouseDragging = false;
   bool isMouseHoveringUI = false;
 
-  late final UIBottomBar uiComponent;
+  late final UIBottomBar uiBottomBar;
+  late final UIRotate uiRotate;
   late final MyMouseCursor myMouseCursor;
   late final MouseController mouseController;
   late final DragZoomController dragZoomController;
@@ -64,6 +69,7 @@ class MGame extends FlameGame<GameWorld>
   late final ConstructionController constructionController;
   late final CursorController cursorController;
   late final BuildingController buildingController;
+  late final ConvertRotations convertRotations;
 
   ///
   ///
@@ -79,7 +85,8 @@ class MGame extends FlameGame<GameWorld>
     /// Hide system mouse cursor before adding custom one
     mouseCursor = SystemMouseCursors.none;
 
-    uiComponent = UIBottomBar();
+    uiBottomBar = UIBottomBar();
+    uiRotate = UIRotate();
     myMouseCursor = MyMouseCursor();
 
     ///Adding Controllers
@@ -90,6 +97,7 @@ class MGame extends FlameGame<GameWorld>
     constructionController = ConstructionController();
     cursorController = CursorController();
     buildingController = BuildingController();
+    convertRotations = ConvertRotations();
     world.addAll([
       mouseController,
       dragZoomController,
@@ -98,6 +106,7 @@ class MGame extends FlameGame<GameWorld>
       constructionController,
       cursorController,
       buildingController,
+      convertRotations,
     ]);
 
     world.add(ConstructionModeListener());
@@ -115,7 +124,8 @@ class MGame extends FlameGame<GameWorld>
 
     camera.viewport.addAll(
       [
-        uiComponent,
+        uiBottomBar,
+        uiRotate,
         myMouseCursor,
       ],
     );

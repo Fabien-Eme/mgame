@@ -1,17 +1,55 @@
+import 'dart:math';
 import 'dart:ui';
 
 import 'package:flame/components.dart';
+import 'package:flame_riverpod/flame_riverpod.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:mgame/flame_game/buildings/garbage_loader/garbage_loader.dart';
 import 'package:mgame/flame_game/buildings/garbage_loader/garbage_loader_front.dart';
 import 'package:mgame/flame_game/buildings/incinerator/incinerator.dart';
-import 'package:mgame/flame_game/utils/manage_coordinates.dart';
+import 'package:mgame/flame_game/utils/convert_coordinates.dart';
 
-abstract class Building extends PositionComponent with HasWorldReference {
+import '../game.dart';
+import '../riverpod_controllers/rotation_controller.dart';
+import '../utils/convert_rotations.dart';
+
+abstract class Building extends PositionComponent with HasGameReference<MGame>, HasWorldReference, RiverpodComponentMixin {
   Directions direction;
-  Vector2 anchorTile;
+  Point<int> anchorTile;
+  Point<int> dimetricCoordinates = const Point<int>(0, 0);
+  Rotation rotation = Rotation.zero;
 
   Building({this.direction = Directions.E, required this.anchorTile, super.position});
+
+  @override
+  void onMount() {
+    addToGameWidgetBuild(() => ref.listen(rotationControllerProvider, (previous, value) {
+          rotation = value;
+          Point<int> offsetSizeInTile = game.convertRotations.rotateOffsetSizeInTile(sizeInTile);
+          Vector2 updatedPosition = convertDimetricPointToWorldCoordinates(game.convertRotations.rotateCoordinates(dimetricCoordinates - offsetSizeInTile));
+          updatePosition(updatedPosition);
+          Directions updatedDirection = game.convertRotations.rotateDirections(direction);
+          updateDirection(updatedDirection);
+          updatePriority(updatedPosition);
+        }));
+
+    super.onMount();
+  }
+
+  void setPosition(Point<int> newPosition) {
+    Point<int> initialOffsetSizeInTile = game.convertRotations.rotateOffsetSizeInTile(sizeInTile);
+    dimetricCoordinates = newPosition + initialOffsetSizeInTile;
+
+    Point<int> offsetSizeInTile = game.convertRotations.rotateOffsetSizeInTile(sizeInTile);
+    Vector2 updatedPosition = convertDimetricPointToWorldCoordinates(game.convertRotations.rotateCoordinates(dimetricCoordinates - offsetSizeInTile));
+    updatePosition(updatedPosition);
+    updatePriority(updatedPosition);
+  }
+
+  void setDirection(Directions newDirection) {
+    direction = game.convertRotations.unRotateDirections(newDirection);
+    updateDirection(newDirection);
+  }
 
   @mustBeOverridden
   BuildingType get buildingType;
@@ -20,7 +58,13 @@ abstract class Building extends PositionComponent with HasWorldReference {
   int get sizeInTile;
 
   @mustBeOverridden
-  void changePosition(Vector2 newPosition) {}
+  void updatePosition(Vector2 updatedPosition) {}
+
+  @mustBeOverridden
+  void updateDirection(Directions updatedDirection) {}
+
+  @mustBeOverridden
+  void updatePriority(Vector2 updatedPosition) {}
 
   @mustBeOverridden
   void renderAboveAll() {}
@@ -33,17 +77,18 @@ abstract class Building extends PositionComponent with HasWorldReference {
 
   @mustBeOverridden
   @override
-  void onRemove() {}
+  void onRemove() {
+    super.onRemove();
+  }
 }
 
-Building createBuilding({required BuildingType buildingType, Directions? direction, Vector2? anchorTile}) {
-  anchorTile ??= Vector2.zero();
+Building createBuilding({required BuildingType buildingType, Directions? direction, Point<int>? anchorTile}) {
+  anchorTile ??= const Point(0, 0);
+  direction ??= Directions.E;
   return switch (buildingType) {
-    BuildingType.garbageLoader => (direction == Directions.E)
-        ? GarbageLoader(direction: Directions.E, garbageLoaderFlow: GarbageLoaderFlow.flowIn, anchorTile: anchorTile)
-        : GarbageLoader(direction: Directions.S, garbageLoaderFlow: GarbageLoaderFlow.flowIn, anchorTile: anchorTile),
-    BuildingType.recycler => (direction == Directions.E) ? Incinerator(direction: Directions.E, anchorTile: anchorTile) : Incinerator(direction: Directions.S, anchorTile: anchorTile),
-    BuildingType.incinerator => (direction == Directions.E) ? Incinerator(direction: Directions.E, anchorTile: anchorTile) : Incinerator(direction: Directions.S, anchorTile: anchorTile),
+    BuildingType.garbageLoader => GarbageLoader(direction: direction, garbageLoaderFlow: GarbageLoaderFlow.flowIn, anchorTile: anchorTile),
+    BuildingType.recycler => Incinerator(direction: direction, anchorTile: anchorTile),
+    BuildingType.incinerator => Incinerator(direction: direction, anchorTile: anchorTile),
   };
 }
 

@@ -2,7 +2,7 @@ import 'dart:async';
 import 'dart:ui';
 
 import 'package:flame/components.dart';
-import 'package:mgame/flame_game/utils/manage_coordinates.dart';
+import 'package:mgame/flame_game/utils/convert_coordinates.dart';
 
 import '../../gen/assets.gen.dart';
 import '../palette.dart';
@@ -24,7 +24,7 @@ class TileCursor extends Component with HasWorldReference {
   void scaleToThreeTile() {
     tileCursorArrow.scale = Vector2.all(3);
     tileCursorBackground.scale = Vector2.all(3);
-    offset = convertDimetricToWorldCoordinates(Vector2(-3, 1));
+    offset = convertDimetricVectorToWorldCoordinates(Vector2(-3, 1));
   }
 
   void resetScale() {

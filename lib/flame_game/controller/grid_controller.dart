@@ -1,58 +1,67 @@
 import 'dart:math';
 
 import 'package:flame/components.dart';
+import 'package:flame_riverpod/flame_riverpod.dart';
 import 'package:mgame/flame_game/buildings/building.dart';
 import 'package:mgame/flame_game/game_world.dart';
 import 'package:mgame/flame_game/riverpod_controllers/construction_mode_controller.dart';
 
 import '../game.dart';
 import '../tile.dart';
-import '../utils/manage_coordinates.dart';
+import '../utils/convert_coordinates.dart';
+import '../utils/convert_rotations.dart';
 
-class GridController extends Component with HasGameRef<MGame>, HasWorldReference<GameWorld> {
-  Map<Directions, Tile?> getAllNeigbhorsTile({required Point<int> dimetricGridPoint}) {
+class GridController extends Component with HasGameRef<MGame>, HasWorldReference<GameWorld>, RiverpodComponentMixin {
+  Map<Directions, Tile?> getAllNeigbhorsTile(Tile? tile) {
+    if (tile == null) return {};
     return {
-      Directions.S: getNeigbhorTile(dimetricGridPoint, Directions.S),
-      Directions.W: getNeigbhorTile(dimetricGridPoint, Directions.W),
-      Directions.N: getNeigbhorTile(dimetricGridPoint, Directions.N),
-      Directions.E: getNeigbhorTile(dimetricGridPoint, Directions.E),
+      Directions.S: getNeigbhorTile(tile, Directions.S),
+      Directions.W: getNeigbhorTile(tile, Directions.W),
+      Directions.N: getNeigbhorTile(tile, Directions.N),
+      Directions.E: getNeigbhorTile(tile, Directions.E),
     };
   }
 
-  Tile? getNeigbhorTile(Point<int> dimetricGridPoint, Directions direction) {
+  Tile? getNeigbhorTile(Tile tile, Directions direction) {
     Point<int> neighborDimetricPoint = switch (direction) {
-      Directions.S => Point(dimetricGridPoint.x, dimetricGridPoint.y - 1),
-      Directions.W => Point(dimetricGridPoint.x - 1, dimetricGridPoint.y),
-      Directions.N => Point(dimetricGridPoint.x, dimetricGridPoint.y + 1),
-      Directions.E => Point(dimetricGridPoint.x + 1, dimetricGridPoint.y),
+      Directions.S => Point(tile.dimetricCoordinates.x, tile.dimetricCoordinates.y - 1),
+      Directions.W => Point(tile.dimetricCoordinates.x - 1, tile.dimetricCoordinates.y),
+      Directions.N => Point(tile.dimetricCoordinates.x, tile.dimetricCoordinates.y + 1),
+      Directions.E => Point(tile.dimetricCoordinates.x + 1, tile.dimetricCoordinates.y),
     };
-    Point<int> neighborGridPoint = convertDimetricPointToGridPoint(neighborDimetricPoint);
 
-    if (checkIfWithinGridBoundaries(neighborGridPoint)) {
+    if (checkIfWithinGridBoundaries(neighborDimetricPoint)) {
+      Point<int> neighborGridPoint = convertDimetricPointToGridPoint(neighborDimetricPoint);
+
       return world.grid[neighborGridPoint.x][neighborGridPoint.y];
     } else {
       return null;
     }
   }
 
-  Map<Directions, TileType?> getAllNeigbhorsTileType({required Point<int> dimetricGridPoint}) {
-    return {
-      Directions.S: getNeigbhorTileType(dimetricGridPoint, Directions.S),
-      Directions.W: getNeigbhorTileType(dimetricGridPoint, Directions.W),
-      Directions.N: getNeigbhorTileType(dimetricGridPoint, Directions.N),
-      Directions.E: getNeigbhorTileType(dimetricGridPoint, Directions.E),
-    };
-  }
-
-  TileType? getNeigbhorTileType(Point<int> dimetricGridPoint, Directions direction) {
-    return getNeigbhorTile(dimetricGridPoint, direction)?.projectedTileType ?? getNeigbhorTile(dimetricGridPoint, direction)?.tileType;
+  Directions? getNeigbhorTileDirection(Tile me, Tile neighbor) {
+    Point<int> offset = me.dimetricCoordinates - neighbor.dimetricCoordinates;
+    if (offset == const Point<int>(0, 1)) {
+      return Directions.S;
+    }
+    if (offset == const Point<int>(1, 0)) {
+      return Directions.W;
+    }
+    if (offset == const Point<int>(0, -1)) {
+      return Directions.N;
+    }
+    if (offset == const Point<int>(-1, 0)) {
+      return Directions.E;
+    }
+    return null;
   }
 
   ///
   ///
   ///Method to check if Vector2 is within grid boundaries
   ///
-  bool checkIfWithinGridBoundaries(Point<int> posGrid) {
+  bool checkIfWithinGridBoundaries(Point<int> dimetricCoordinates) {
+    Point<int> posGrid = convertDimetricPointToGridPoint(dimetricCoordinates);
     if (posGrid.x >= 0 && posGrid.x < (world.grid.length) && posGrid.y >= 0 && posGrid.y < (world.grid[posGrid.x]).length) {
       return true;
     } else {
@@ -64,28 +73,88 @@ class GridController extends Component with HasGameRef<MGame>, HasWorldReference
   ///
   /// Check if Tile is buildable
   ///
-  bool isTileBuildable(Vector2 dimetricTilePos) {
-    Point<int> posGrid = convertDimetricToGridPoint(dimetricTilePos);
-    if (!checkIfWithinGridBoundaries(posGrid)) {
-      return false;
-    } else {
-      return world.grid[posGrid.x][posGrid.y].isBuildingConstructible;
+  bool isTileBuildable(Point<int> dimetricTilePos) {
+    return getTileAtDimetricCoordinates(dimetricTilePos)?.isBuildingConstructible ?? false;
+  }
+
+  Future<void> buildOnTile(Point<int> coordinates, ConstructionState constructionState) async {
+    Building building = createBuilding(buildingType: constructionState.buildingType!, direction: constructionState.buildingDirection, anchorTile: coordinates);
+    world.buildings.add(building);
+    await world.add(world.buildings.last);
+    world.buildings.last.setPosition(coordinates);
+    world.buildings.last.setDirection(constructionState.buildingDirection!);
+    markTilesAsBuilt(game.convertRotations.rotateCoordinates(coordinates), building);
+  }
+
+  void markTilesAsBuilt(Point<int> coordinates, Building building) {
+    int buildingSizeInTile = building.sizeInTile;
+    Directions buildingDirection = game.convertRotations.rotateDirections(building.direction);
+
+    if (building.buildingType == BuildingType.garbageLoader) {
+      if (buildingDirection == Directions.E || buildingDirection == Directions.W) {
+        getTileAtDimetricCoordinates(coordinates)
+          ?..markAsBuiltButStillConstructible()
+          ..listConnectionRestriction = [game.convertRotations.unRotateDirections(Directions.S), game.convertRotations.unRotateDirections(Directions.N)];
+      } else {
+        getTileAtDimetricCoordinates(coordinates)
+          ?..markAsBuiltButStillConstructible()
+          ..listConnectionRestriction = [game.convertRotations.unRotateDirections(Directions.E), game.convertRotations.unRotateDirections(Directions.W)];
+      }
+    } else if (building.buildingType == BuildingType.incinerator) {
+      for (int i = 0; i < buildingSizeInTile; i++) {
+        for (int j = 0; j < buildingSizeInTile; j++) {
+          if (buildingDirection == Directions.S && Point<int>(-i, j) == const Point<int>(-1, 0)) {
+            getTileAtDimetricCoordinates(coordinates + Point<int>(-i, j))
+              ?..markAsBuiltButStillConstructible()
+              ..listConnectionRestriction = [
+                game.convertRotations.unRotateDirections(Directions.N),
+                game.convertRotations.unRotateDirections(Directions.E),
+                game.convertRotations.unRotateDirections(Directions.W)
+              ];
+          } else if (buildingDirection == Directions.W && Point<int>(-i, j) == const Point<int>(-2, 1)) {
+            getTileAtDimetricCoordinates(coordinates + Point<int>(-i, j))
+              ?..markAsBuiltButStillConstructible()
+              ..listConnectionRestriction = [
+                game.convertRotations.unRotateDirections(Directions.N),
+                game.convertRotations.unRotateDirections(Directions.E),
+                game.convertRotations.unRotateDirections(Directions.S)
+              ];
+          } else if (buildingDirection == Directions.N && Point<int>(-i, j) == const Point<int>(-1, 2)) {
+            getTileAtDimetricCoordinates(coordinates + Point<int>(-i, j))
+              ?..markAsBuiltButStillConstructible()
+              ..listConnectionRestriction = [
+                game.convertRotations.unRotateDirections(Directions.S),
+                game.convertRotations.unRotateDirections(Directions.E),
+                game.convertRotations.unRotateDirections(Directions.W)
+              ];
+          } else if (buildingDirection == Directions.E && Point<int>(-i, j) == const Point<int>(0, 1)) {
+            getTileAtDimetricCoordinates(coordinates + Point<int>(-i, j))
+              ?..markAsBuiltButStillConstructible()
+              ..listConnectionRestriction = [
+                game.convertRotations.unRotateDirections(Directions.N),
+                game.convertRotations.unRotateDirections(Directions.S),
+                game.convertRotations.unRotateDirections(Directions.W)
+              ];
+          } else {
+            getTileAtDimetricCoordinates(coordinates + Point<int>(-i, j))?.markAsBuilt();
+          }
+        }
+      }
     }
   }
 
-  Future<void> buildOnTile(Vector2 currentMouseTilePos, ConstructionState constructionState) async {
-    world.buildings.add(createBuilding(buildingType: constructionState.buildingType!, direction: constructionState.buildingDirection, anchorTile: currentMouseTilePos));
-    await world.add(world.buildings.last);
-    world.buildings.last.changePosition(convertDimetricToWorldCoordinates(currentMouseTilePos));
-    markTilesAsBuilt(currentMouseTilePos, game.buildingController.getBuildingSizeInTile(constructionState));
-  }
+  ///
+  ///
+  /// Get the Tile at Dimetric coordinates
+  ///
+  Tile? getTileAtDimetricCoordinates(Point<int> dimetricCoordinates) {
+    dimetricCoordinates = game.convertRotations.unRotateCoordinates(dimetricCoordinates);
+    if (!checkIfWithinGridBoundaries(dimetricCoordinates)) {
+      return null;
+    } else {
+      Point<int> posGrid = convertDimetricPointToGridPoint(dimetricCoordinates);
 
-  void markTilesAsBuilt(Vector2 currentMouseTilePos, int buildingSizeInTile) {
-    for (int i = 0; i < buildingSizeInTile; i++) {
-      for (int j = 0; j < buildingSizeInTile; j++) {
-        Point<int> posGrid = convertDimetricToGridPoint(currentMouseTilePos + Vector2(-i.toDouble(), j.toDouble()));
-        world.grid[posGrid.x][posGrid.y].markAsBuilt();
-      }
+      return world.grid[posGrid.x][posGrid.y];
     }
   }
 }

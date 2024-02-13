@@ -6,7 +6,9 @@ import 'package:mgame/flame_game/buildings/building.dart';
 import 'package:mgame/flame_game/buildings/incinerator/incinerator_back.dart';
 import 'package:mgame/flame_game/buildings/incinerator/incinerator_front.dart';
 
-import '../../utils/manage_coordinates.dart';
+import '../../game.dart';
+import '../../utils/convert_coordinates.dart';
+import '../../utils/convert_rotations.dart';
 import 'incinerator_door.dart';
 
 class Incinerator extends Building {
@@ -19,7 +21,7 @@ class Incinerator extends Building {
 
   @override
   FutureOr<void> onLoad() {
-    offset = convertDimetricToWorldCoordinates(Vector2(3, 1)) + Vector2(0, 2);
+    offset = convertDimetricVectorToWorldCoordinates(Vector2(3, 1)) + Vector2(0, 2);
 
     incineratorFront = IncineratorFront(direction: direction, position: position + offset);
     incineratorBack = IncineratorBack(direction: direction, position: position + offset);
@@ -35,11 +37,25 @@ class Incinerator extends Building {
   }
 
   @override
-  void changePosition(Vector2 newPosition) {
-    position = newPosition;
-    incineratorFront.position = newPosition + offset;
-    incineratorBack.position = newPosition + offset;
-    incineratorDoor.position = newPosition + offset;
+  void updatePosition(Vector2 updatedPosition) {
+    incineratorFront.position = updatedPosition + offset;
+    incineratorBack.position = updatedPosition + offset;
+    incineratorDoor.position = updatedPosition + offset;
+  }
+
+  @override
+  void updateDirection(Directions updatedDirection) {
+    incineratorFront.updateDirection(updatedDirection);
+    incineratorBack.updateDirection(updatedDirection);
+    incineratorDoor.updateDirection(updatedDirection);
+  }
+
+  @override
+  void updatePriority(Vector2 updatedPosition) {
+    final int offsetPriority = ((updatedPosition.y + offset.y) / MGame.gameHeight * 100).toInt();
+    incineratorFront.priority = 110 + offsetPriority;
+    incineratorBack.priority = 90 + offsetPriority;
+    incineratorDoor.priority = 110 + offsetPriority;
   }
 
   @override

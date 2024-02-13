@@ -7,15 +7,15 @@ import 'package:mgame/flame_game/riverpod_controllers/construction_mode_controll
 
 import '../game.dart';
 import '../tile.dart';
-import '../utils/manage_coordinates.dart';
+import '../tile_helper.dart';
+import '../utils/convert_rotations.dart';
 
 class ConstructionController extends Component with HasGameRef<MGame>, HasWorldReference<GameWorld>, RiverpodComponentMixin {
-  void construct({required Vector2 posDimetric, required TileType tileType, bool isMouseDragging = false}) {
-    Point<int> posGrid = convertDimetricToGridPoint(posDimetric);
-    if (game.gridController.checkIfWithinGridBoundaries(posGrid)) {
-      world.grid[posGrid.x][posGrid.y].constructTile(tileType: tileType, isMouseDragging: isMouseDragging);
+  void construct({required Point<int> posDimetric, required TileType tileType, bool isMouseDragging = false}) {
+    if (game.gridController.checkIfWithinGridBoundaries(posDimetric)) {
+      game.gridController.getTileAtDimetricCoordinates(posDimetric)?.constructTile(tileType: tileType, isMouseDragging: isMouseDragging);
 
-      Map<Directions, Tile?> mapNeighbors = game.gridController.getAllNeigbhorsTile(dimetricGridPoint: convertVectorToPoint(posDimetric));
+      Map<Directions, Tile?> mapNeighbors = game.gridController.getAllNeigbhorsTile(game.gridController.getTileAtDimetricCoordinates(posDimetric));
 
       for (Tile? tile in mapNeighbors.values) {
         tile?.propagateTileChange();
@@ -23,16 +23,13 @@ class ConstructionController extends Component with HasGameRef<MGame>, HasWorldR
     }
   }
 
-  void destroy({required Vector2 posDimetric, bool isMouseDragging = false}) {
-    Point<int> posGrid = convertDimetricToGridPoint(posDimetric);
-    if (game.gridController.checkIfWithinGridBoundaries(posGrid)) {
-      world.grid[posGrid.x][posGrid.y].destroyTile(isMouseDragging: isMouseDragging);
+  void destroy({required Point<int> posDimetric, bool isMouseDragging = false}) {
+    game.gridController.getTileAtDimetricCoordinates(posDimetric)?.destroyTile(isMouseDragging: isMouseDragging);
 
-      Map<Directions, Tile?> mapNeighbors = game.gridController.getAllNeigbhorsTile(dimetricGridPoint: convertVectorToPoint(posDimetric));
-      for (Tile? tile in mapNeighbors.values) {
-        tile?.projectTileChange();
-        tile?.propagateTileChange();
-      }
+    Map<Directions, Tile?> mapNeighbors = game.gridController.getAllNeigbhorsTile(game.gridController.getTileAtDimetricCoordinates(posDimetric));
+    for (Tile? tile in mapNeighbors.values) {
+      tile?.projectTileChange();
+      tile?.propagateTileChange();
     }
   }
 
@@ -40,32 +37,22 @@ class ConstructionController extends Component with HasGameRef<MGame>, HasWorldR
   ///
   /// Project construction on current Tile and Current Neighbors
   ///
-  void projectConstructionOnTile(Point<int> posGrid) {
-    world.grid[posGrid.x][posGrid.y].projectTileConstruction(ref.read(constructionModeControllerProvider).tileType);
+
+  void resetTile(Point<int> posDimetric) {
+    game.gridController.getTileAtDimetricCoordinates(posDimetric)?.resetTileAfterProjection();
   }
 
-  void projectDestructionOnTile(Point<int> posGrid) {
-    world.grid[posGrid.x][posGrid.y].changeTileToWantToDestroy();
-  }
-
-  void resetTile(Vector2 posDimetric) {
-    Point<int> posGrid = convertDimetricToGridPoint(posDimetric);
-    if (game.gridController.checkIfWithinGridBoundaries(posGrid)) {
-      world.grid[posGrid.x][posGrid.y].resetTileAfterProjection();
-    }
-  }
-
-  void projectConstructionOnTileAndNeighbors(Vector2 dimetricTilePos) {
+  void projectConstructionOnTileAndNeighbors(Point<int> dimetricTilePos) {
     final constructionState = ref.read(constructionModeControllerProvider);
 
     if (constructionState.status == ConstructionMode.construct) {
-      projectConstructionOnTile(convertDimetricToGridPoint(dimetricTilePos));
+      game.gridController.getTileAtDimetricCoordinates(dimetricTilePos)?.projectTileConstruction(ref.read(constructionModeControllerProvider).tileType);
     } else if (constructionState.status == ConstructionMode.destruct) {
-      projectDestructionOnTile(convertDimetricToGridPoint(dimetricTilePos));
+      game.gridController.getTileAtDimetricCoordinates(dimetricTilePos)?.changeTileToWantToDestroy();
     }
 
     if (constructionState.status == ConstructionMode.construct || constructionState.status == ConstructionMode.destruct) {
-      Map<Directions, Tile?> mapNeighbors = game.gridController.getAllNeigbhorsTile(dimetricGridPoint: convertVectorToPoint(dimetricTilePos));
+      Map<Directions, Tile?> mapNeighbors = game.gridController.getAllNeigbhorsTile(game.gridController.getTileAtDimetricCoordinates(dimetricTilePos));
       for (Tile? tile in mapNeighbors.values) {
         tile?.projectTileChange();
       }

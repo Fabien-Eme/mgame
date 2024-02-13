@@ -5,15 +5,15 @@ import 'package:flame/components.dart';
 import 'package:flame/events.dart';
 import 'package:mgame/flame_game/ui/tile_cursor.dart';
 import 'package:mgame/flame_game/game.dart';
-import 'package:mgame/flame_game/utils/manage_coordinates.dart';
+import 'package:mgame/flame_game/utils/convert_coordinates.dart';
 import 'buildings/building.dart';
-import 'list_debug_component.dart';
 import 'tile.dart';
+import 'tile_helper.dart';
 
 class GameWorld extends World with HasGameRef<MGame>, TapCallbacks {
   GameWorld();
   static const int gridWidth = 20;
-  static const int gridHeight = 35;
+  static const int gridHeight = 39;
   List<List<Tile>> grid = [];
   List<Building> buildings = [];
 
@@ -28,7 +28,7 @@ class GameWorld extends World with HasGameRef<MGame>, TapCallbacks {
     addAll([for (List<Tile> row in grid) ...row]);
 
     /// Add debug components
-    add(ListDebugComponent());
+    //add(ListDebugComponent());
 
     /// Add Tile Cursor
     add(tileCursor);
@@ -58,7 +58,7 @@ class GameWorld extends World with HasGameRef<MGame>, TapCallbacks {
             return Tile(
               tileType: TileType.grass,
               gridCoordinates: Point<int>(i, j),
-              dimetricGridCoordinates: convertGridPointToGridDimetric(i, j),
+              dimetricCoordinates: convertGridPointToGridDimetric(i, j),
               position: Vector2(j * MGame.tileWidth + ((i.isEven) ? 0 : MGame.tileHeight), i * (MGame.tileHeight / 2)),
             );
           },
@@ -107,7 +107,7 @@ class GameWorld extends World with HasGameRef<MGame>, TapCallbacks {
 /// 
 /// 
 /// Building front : 110
-/// Building back : 100
+/// Building back : 90
 /// 
 /// 
 /// When dragging building for build : 

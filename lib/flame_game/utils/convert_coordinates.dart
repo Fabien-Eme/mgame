@@ -14,10 +14,17 @@ Point<int> convertDimetricPointToGridPoint(Point<int> pos) {
   return Point(x, y);
 }
 
-Vector2 convertDimetricToWorldCoordinates(Vector2 pos) {
+Vector2 convertDimetricVectorToWorldCoordinates(Vector2 pos) {
   Point gridCoordinates = convertDimetricToGridPoint(pos);
   int y = gridCoordinates.x * MGame.tileHeight ~/ 2;
   int x = (gridCoordinates.y * MGame.tileWidth + ((gridCoordinates.x.toInt().isEven) ? 0 : MGame.tileHeight)).toInt();
+  return Vector2(x.toDouble(), y.toDouble());
+}
+
+Vector2 convertDimetricPointToWorldCoordinates(Point<int> coordinate) {
+  Point<int> gridCoordinates = convertDimetricPointToGridPoint(coordinate);
+  int y = gridCoordinates.x * MGame.tileHeight ~/ 2;
+  int x = (gridCoordinates.y * MGame.tileWidth + ((gridCoordinates.x.isEven) ? 0 : MGame.tileHeight)).toInt();
   return Vector2(x.toDouble(), y.toDouble());
 }
 
@@ -30,5 +37,3 @@ Point<int> convertGridPointToGridDimetric(int posX, int posY) {
 Point<int> convertVectorToPoint(Vector2 vector) {
   return Point(vector.x.toInt(), vector.y.toInt());
 }
-
-enum Directions { S, W, N, E }

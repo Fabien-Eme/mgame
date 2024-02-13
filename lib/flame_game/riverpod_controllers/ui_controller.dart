@@ -1,8 +1,8 @@
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import '../../gen/assets.gen.dart';
 import '../buildings/building.dart';
-import '../tile.dart';
-import '../utils/manage_coordinates.dart';
+import '../tile_helper.dart';
+import '../utils/convert_rotations.dart';
 import 'construction_mode_controller.dart';
 
 part 'ui_controller.g.dart';

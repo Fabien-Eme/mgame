@@ -1,12 +1,15 @@
 import 'dart:async';
+import 'dart:math';
 
 import 'package:flame/components.dart';
 import 'package:flame/events.dart';
+import 'package:flame_riverpod/flame_riverpod.dart';
 
 import '../game.dart';
+import '../game_world.dart';
 import '../ui/mouse_cursor.dart';
 
-class MouseController extends Component with HasGameRef<MGame> {
+class MouseController extends Component with HasGameRef<MGame>, HasWorldReference<GameWorld>, RiverpodComponentMixin {
   final double gameWidth = MGame.gameWidth;
   final double gameHeight = MGame.gameHeight;
   final double tileWidth = MGame.tileWidth;
@@ -58,10 +61,11 @@ class MouseController extends Component with HasGameRef<MGame> {
 
       int tileX = dimetricX.floor();
       int tileY = dimetricY.floor();
-      Vector2 newMouseTilePos = Vector2(tileX.toDouble(), tileY.toDouble());
-
-      if (game.currentMouseTilePos != newMouseTilePos) {
-        game.cursorController.cursorIsMovingOnNewTile(newMouseTilePos);
+      Point<int> newMouseTilePos = Point(tileX, tileY);
+      if (game.gridController.checkIfWithinGridBoundaries(newMouseTilePos)) {
+        if (game.currentMouseTilePos != newMouseTilePos) {
+          game.cursorController.cursorIsMovingOnNewTile(newMouseTilePos);
+        }
       }
     }
   }
