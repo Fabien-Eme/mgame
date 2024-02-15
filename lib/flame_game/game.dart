@@ -25,8 +25,6 @@ import 'controller/tap_controller.dart';
 import 'game_world.dart';
 import 'ui/mouse_cursor.dart';
 
-///TODO lorsque le batiment est construit dans une vue rotatée, à la premiere rotation ils se tourne
-
 class MGame extends FlameGame<GameWorld>
     with MouseMovementDetector, ScrollDetector, MultiTouchDragDetector, TapDetector, SecondaryTapDetector, TertiaryTapDetector, HasKeyboardHandlerComponents, RiverpodGameMixin {
   static const double gameWidth = 2000;
@@ -170,6 +168,7 @@ class MGame extends FlameGame<GameWorld>
   /// Forward Mouse movement to Controller
   ///
 
+  // @override
   @override
   void onMouseMove(PointerHoverInfo info) {
     mouseController.onMouseMove(info);

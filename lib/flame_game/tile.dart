@@ -10,6 +10,7 @@ import 'package:flutter/widgets.dart';
 import 'package:mgame/flame_game/game_world.dart';
 import 'package:mgame/flame_game/riverpod_controllers/rotation_controller.dart';
 
+import 'buildings/building.dart';
 import 'game.dart';
 import 'tile_helper.dart';
 import 'utils/convert_coordinates.dart';
@@ -26,6 +27,7 @@ class Tile extends SpriteComponent with HasGameRef<MGame>, HasWorldReference<Gam
   bool isTileDestructible = false;
   bool isBuildingConstructible = true;
   bool isBuildingDestructible = false;
+  Building? buildingOnTile;
   ColorEffect? colorEffect;
   TileType? previousTileType;
   TileType? projectedTileType;
@@ -140,17 +142,34 @@ class Tile extends SpriteComponent with HasGameRef<MGame>, HasWorldReference<Gam
     }
   }
 
-  void destroyTile({bool isMouseDragging = false}) {
-    if (!isTileConstructible && isTileDestructible) {
-      isTileConstructible = true;
-      isTileDestructible = false;
-      isBuildingConstructible = true;
+  void destroyTile() {
+    isTileConstructible = true;
+    isTileDestructible = false;
+    isBuildingConstructible = true;
 
-      setTileType(TileType.grass);
-      previousTileType = TileType.grass;
+    setTileType(TileType.grass);
+    previousTileType = TileType.grass;
+
+    world.tileCursor.highlightDefault();
+  }
+
+  void destroyBuilding() {
+    if (isBuildingDestructible) {
+      if (tileType == TileType.grass) {
+        isTileConstructible = true;
+        isTileDestructible = false;
+        isBuildingConstructible = true;
+      }
+
+      isBuildingDestructible = false;
+      buildingOnTile = null;
 
       world.tileCursor.highlightDefault();
     }
+  }
+
+  void resetTileRestriction() {
+    listConnectionRestriction = [];
   }
 
   void resetTileAfterProjection() {
@@ -213,16 +232,18 @@ class Tile extends SpriteComponent with HasGameRef<MGame>, HasWorldReference<Gam
     return TileType.road;
   }
 
-  void markAsBuilt() {
+  void markAsBuilt(Building building) {
     isTileConstructible = false;
     isTileDestructible = false;
     isBuildingConstructible = false;
     isBuildingDestructible = true;
+    buildingOnTile = building;
   }
 
-  void markAsBuiltButStillConstructible() {
+  void markAsBuiltButStillConstructible(Building building) {
     isBuildingConstructible = false;
     isBuildingDestructible = true;
+    buildingOnTile = building;
   }
 
   Point<int> getDimetricCoordinates() {

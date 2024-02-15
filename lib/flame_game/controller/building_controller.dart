@@ -14,7 +14,7 @@ class BuildingController extends Component with HasGameReference<MGame>, HasWorl
   @override
   void onMount() {
     addToGameWidgetBuild(() => ref.listen(constructionModeControllerProvider, (previous, value) {
-          if (world.temporaryBuilding != null) {
+          if (world.temporaryBuilding != null && value.buildingType != null) {
             world.temporaryBuilding!.setDirection(value.buildingDirection!);
           }
         }));
@@ -46,10 +46,17 @@ class BuildingController extends Component with HasGameReference<MGame>, HasWorl
       } else {
         world.temporaryBuilding?.changeColor(Palette.redTransparent);
       }
+
+      /// Give Building Transparency
+      world.temporaryBuilding?.makeTransparent();
     }
 
-    /// Give Building Transparency
-    world.temporaryBuilding?.makeTransparent();
+    ///Project Destruction
+    if (constructionState.status == ConstructionMode.destruct) {
+      if (game.gridController.isBuildingOnTile(dimetricTilePos)) {
+        game.gridController.getBuildingOnTile(dimetricTilePos)?.changeColor(Palette.redTransparent);
+      }
+    }
   }
 
   void _addTemporaryBuildingOnWorld(ConstructionState constructionState, Point<int> dimetricTilePos) {
@@ -72,7 +79,15 @@ class BuildingController extends Component with HasGameReference<MGame>, HasWorl
     bool isBuildable = true;
     for (int i = 0; i < buildingSizeInTile; i++) {
       for (int j = 0; j < buildingSizeInTile; j++) {
-        if (!game.gridController.isTileBuildable(dimetricTilePos + Point<int>(-i, j))) isBuildable = false;
+        if (!game.gridController.isTileBuildable(dimetricTilePos + Point<int>(-i, j))) {
+          // if (building.buildingType == BuildingType.garbageLoader && !game.gridController.isBuildingOnTile(dimetricTilePos + Point<int>(-i, j))) {
+          //   isBuildable = true;
+          // } else {
+          //   isBuildable = false;
+          // }
+
+          isBuildable = false;
+        }
       }
     }
     return isBuildable;

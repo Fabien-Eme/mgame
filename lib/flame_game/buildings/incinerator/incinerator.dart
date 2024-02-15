@@ -79,6 +79,14 @@ class Incinerator extends Building {
   }
 
   @override
+  void resetColor() {
+    incineratorFront.paint.colorFilter = null;
+    incineratorBack.paint.colorFilter = null;
+    incineratorDoor.paint.colorFilter = null;
+    super.resetColor();
+  }
+
+  @override
   void makeTransparent() {
     incineratorFront.opacity = 0.8;
     incineratorBack.opacity = 0.8;

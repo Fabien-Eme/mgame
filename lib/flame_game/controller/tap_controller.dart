@@ -26,6 +26,9 @@ class TapController extends Component with HasGameReference<MGame>, RiverpodComp
   }
 
   void onSecondaryTapUp(TapUpInfo info) {
+    if (ref.read(constructionModeControllerProvider).status == ConstructionMode.destruct) {
+      game.gridController.getBuildingOnTile(game.currentMouseTilePos)?.resetColor();
+    }
     ref.read(activeUIButtonControllerProvider.notifier).onSecondaryTapUp();
   }
 

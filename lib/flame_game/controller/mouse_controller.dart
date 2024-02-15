@@ -55,6 +55,12 @@ class MouseController extends Component with HasGameRef<MGame>, HasWorldReferenc
     double cursorX = game.mousePosition.x;
     double cursorY = game.mousePosition.y;
 
+    if (cursorY >= (camera.viewfinder.position.y + ((gameHeight - 100 - viewfinderInitialPosition.y) / camera.viewfinder.zoom))) {
+      game.isMouseHoveringUI = true;
+    } else {
+      game.isMouseHoveringUI = false;
+    }
+
     if (cursorX >= 0 && cursorX <= gameWidth && cursorY >= 0 && cursorY <= gameHeight) {
       double dimetricX = (cursorX + 2 * cursorY) / tileWidth - 0.5;
       double dimetricY = (cursorX - 2 * cursorY) / tileWidth + 0.5;

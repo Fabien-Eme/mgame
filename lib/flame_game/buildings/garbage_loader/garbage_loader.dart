@@ -69,6 +69,12 @@ class GarbageLoader extends Building {
   }
 
   @override
+  void resetColor() {
+    garbageLoaderFront.paint.colorFilter = null;
+    garbageLoaderBack.paint.colorFilter = null;
+  }
+
+  @override
   void makeTransparent() {
     garbageLoaderFront.opacity = 0.8;
     garbageLoaderBack.opacity = 0.8;

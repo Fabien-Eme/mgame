@@ -4,6 +4,7 @@ import 'package:flame/components.dart';
 import 'package:flame_riverpod/flame_riverpod.dart';
 import 'package:mgame/flame_game/game_world.dart';
 import 'package:mgame/flame_game/riverpod_controllers/construction_mode_controller.dart';
+import 'package:mgame/flame_game/ui/mouse_cursor.dart';
 
 import '../game.dart';
 import '../tile.dart';
@@ -15,19 +16,35 @@ class CursorController extends Component with HasGameRef<MGame>, HasWorldReferen
   bool hasbuild = false;
 
   void cursorIsMovingOnNewTile(Point<int> newMouseTilePos) async {
+    ConstructionState constructionState = ref.read(constructionModeControllerProvider);
+
     /// Reset previous Tile if construction mode
-    if (ref.read(constructionModeControllerProvider).status == ConstructionMode.construct) {
+    if (constructionState.status == ConstructionMode.construct) {
       game.constructionController.resetTile(game.currentMouseTilePos);
+    }
+    if (constructionState.status == ConstructionMode.destruct) {
+      game.gridController.getBuildingOnTile(game.currentMouseTilePos)?.resetColor();
     }
 
     /// If Player as constructed a road, keep neighbors change, otherwise discard change
     _keepOrDiscardNeighborsChanges();
 
-    /// Handle build
-    if (hasbuild) {}
-
     /// Trigger only if cursor is on World grid
     if (game.gridController.checkIfWithinGridBoundaries(newMouseTilePos)) {
+      /// Change mouse cursor appearance
+      if (game.gridController.getTileAtDimetricCoordinates(newMouseTilePos)?.buildingOnTile != null) {
+        if (constructionState.status != ConstructionMode.construct && constructionState.status != ConstructionMode.destruct) {
+          game.myMouseCursor.changeMouseCursorType(MouseCursorType.hand);
+          world.tileCursor.hideTileCursor();
+        } else {
+          game.myMouseCursor.resetMouseCursor();
+          world.tileCursor.showTileCursor();
+        }
+      } else {
+        game.myMouseCursor.resetMouseCursor();
+        world.tileCursor.showTileCursor();
+      }
+
       /// Move Cursor to current Tile
       world.tileCursor.changePosition(convertDimetricPointToWorldCoordinates(newMouseTilePos));
 

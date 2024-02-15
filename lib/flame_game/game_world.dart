@@ -3,10 +3,13 @@ import 'dart:math';
 
 import 'package:flame/components.dart';
 import 'package:flame/events.dart';
+import 'package:mgame/flame_game/buildings/garage/garage.dart';
 import 'package:mgame/flame_game/ui/tile_cursor.dart';
 import 'package:mgame/flame_game/game.dart';
 import 'package:mgame/flame_game/utils/convert_coordinates.dart';
+import 'package:mgame/flame_game/utils/convert_rotations.dart';
 import 'buildings/building.dart';
+import 'list_debug_component.dart';
 import 'tile.dart';
 import 'tile_helper.dart';
 
@@ -35,6 +38,9 @@ class GameWorld extends World with HasGameRef<MGame>, TapCallbacks {
 
     /// Add debug grid
     if (isDebugGridNumbersOn) addDebugGridNumbers();
+
+    game.gridController.internalBuildOnTile(const Point<int>(6, -2), BuildingType.garage, Directions.E);
+
     return super.onLoad();
   }
 

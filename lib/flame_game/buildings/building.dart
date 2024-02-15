@@ -11,13 +11,16 @@ import 'package:mgame/flame_game/utils/convert_coordinates.dart';
 
 import '../game.dart';
 import '../riverpod_controllers/rotation_controller.dart';
+import '../tile.dart';
 import '../utils/convert_rotations.dart';
+import 'garage/garage.dart';
 
 abstract class Building extends PositionComponent with HasGameReference<MGame>, HasWorldReference, RiverpodComponentMixin {
   Directions direction;
   Point<int> anchorTile;
   Point<int> dimetricCoordinates = const Point<int>(0, 0);
   Rotation rotation = Rotation.zero;
+  List<Tile?> tilesIAmOn = [];
 
   Building({this.direction = Directions.E, required this.anchorTile, super.position});
 
@@ -73,6 +76,9 @@ abstract class Building extends PositionComponent with HasGameReference<MGame>, 
   void changeColor(Color color) {}
 
   @mustBeOverridden
+  void resetColor() {}
+
+  @mustBeOverridden
   void makeTransparent() {}
 
   @mustBeOverridden
@@ -89,11 +95,13 @@ Building createBuilding({required BuildingType buildingType, Directions? directi
     BuildingType.garbageLoader => GarbageLoader(direction: direction, garbageLoaderFlow: GarbageLoaderFlow.flowIn, anchorTile: anchorTile),
     BuildingType.recycler => Incinerator(direction: direction, anchorTile: anchorTile),
     BuildingType.incinerator => Incinerator(direction: direction, anchorTile: anchorTile),
+    BuildingType.garage => Garage(direction: direction, anchorTile: anchorTile),
   };
 }
 
 enum BuildingType {
   garbageLoader,
   recycler,
-  incinerator;
+  incinerator,
+  garage;
 }

@@ -18,18 +18,33 @@ class ConstructionController extends Component with HasGameRef<MGame>, HasWorldR
       Map<Directions, Tile?> mapNeighbors = game.gridController.getAllNeigbhorsTile(game.gridController.getTileAtDimetricCoordinates(posDimetric));
 
       for (Tile? tile in mapNeighbors.values) {
+        tile?.projectTileChange();
         tile?.propagateTileChange();
       }
     }
   }
 
   void destroy({required Point<int> posDimetric, bool isMouseDragging = false}) {
-    game.gridController.getTileAtDimetricCoordinates(posDimetric)?.destroyTile(isMouseDragging: isMouseDragging);
+    Tile? tile = game.gridController.getTileAtDimetricCoordinates(posDimetric);
+
+    /// Destroy tile
+    tile?.destroyTile();
 
     Map<Directions, Tile?> mapNeighbors = game.gridController.getAllNeigbhorsTile(game.gridController.getTileAtDimetricCoordinates(posDimetric));
     for (Tile? tile in mapNeighbors.values) {
       tile?.projectTileChange();
       tile?.propagateTileChange();
+    }
+
+    /// Destroy building on tile
+
+    if (tile?.buildingOnTile != null) {
+      world.remove(tile!.buildingOnTile!);
+      world.buildings.remove(tile.buildingOnTile);
+      for (Tile? element in tile.buildingOnTile!.tilesIAmOn) {
+        element?.destroyBuilding();
+        element?.resetTileRestriction();
+      }
     }
   }
 

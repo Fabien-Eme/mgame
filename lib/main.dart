@@ -1,18 +1,21 @@
 import 'dart:io';
-
+// import 'dart:html' as html;
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
 import 'package:flutter/services.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:mgame/flame_game/flame_game_widget.dart';
 import 'package:wakelock_plus/wakelock_plus.dart';
 
 import 'core/launcher.dart';
 
 void main() async {
   WidgetsBinding widgetsBinding = WidgetsFlutterBinding.ensureInitialized();
-  FlutterNativeSplash.preserve(widgetsBinding: widgetsBinding);
+  //FlutterNativeSplash.preserve(widgetsBinding: widgetsBinding);
+
+  // html.window.document.onContextMenu.listen((evt) => evt.preventDefault());
 
   bool isMobile = false;
 
@@ -36,5 +39,5 @@ void main() async {
     DeviceOrientation.landscapeRight,
   ]);
 
-  runApp(const ProviderScope(child: Launcher()));
+  runApp(const ProviderScope(child: FlameGameWidget()));
 }

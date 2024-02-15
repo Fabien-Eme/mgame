@@ -81,6 +81,7 @@ flutter:
     - assets/images/buildings/garbage_loader/
     - assets/images/buildings/recycler/
     - assets/images/buildings/incinerator/
+    - assets/images/buildings/garage/
     #- assets/audio/
     #- assets/music/
     #- assets/music/ambiance/    
