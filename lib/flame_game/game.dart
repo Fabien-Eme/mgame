@@ -122,14 +122,7 @@ class MGame extends FlameGame<GameWorld>
     /// Adding UI
 
     camera.viewport.addAll(
-      [
-        uiBottomBar,
-        uiRotate,
-        myMouseCursor,
-        Truck()
-          ..position = Vector2(500, 500)
-          ..scale = Vector2(4.5, 6),
-      ],
+      [uiBottomBar, uiRotate, myMouseCursor, FpsTextComponent()],
     );
     super.onMount();
   }

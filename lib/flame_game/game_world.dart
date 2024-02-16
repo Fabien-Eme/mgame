@@ -12,6 +12,7 @@ import 'buildings/building.dart';
 import 'list_debug_component.dart';
 import 'tile.dart';
 import 'tile_helper.dart';
+import 'truck/truck.dart';
 
 class GameWorld extends World with HasGameRef<MGame>, TapCallbacks {
   GameWorld();
@@ -40,6 +41,15 @@ class GameWorld extends World with HasGameRef<MGame>, TapCallbacks {
     if (isDebugGridNumbersOn) addDebugGridNumbers();
 
     game.gridController.internalBuildOnTile(const Point<int>(6, -2), BuildingType.garage, Directions.E);
+
+    addAll([
+      Truck(true)
+        ..position = Vector2(500, 500)
+        ..scale = Vector2(4.5, 6),
+      Truck(false)
+        ..position = Vector2(275, 195)
+        ..scale = Vector2(1, 1.5),
+    ]);
 
     return super.onLoad();
   }
