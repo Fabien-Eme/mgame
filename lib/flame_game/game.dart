@@ -23,6 +23,7 @@ import 'controller/cursor_controller.dart';
 import 'controller/drag_zoom_controller.dart';
 import 'controller/tap_controller.dart';
 import 'game_world.dart';
+import 'truck/truck.dart';
 import 'ui/mouse_cursor.dart';
 
 class MGame extends FlameGame<GameWorld>
@@ -125,6 +126,9 @@ class MGame extends FlameGame<GameWorld>
         uiBottomBar,
         uiRotate,
         myMouseCursor,
+        Truck()
+          ..position = Vector2(500, 500)
+          ..scale = Vector2(4.5, 6),
       ],
     );
     super.onMount();

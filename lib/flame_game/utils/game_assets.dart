@@ -54,9 +54,22 @@ extension MGameAssets on MGame {
       () => images.load(Assets.images.ui.rotateRIGHT.path),
 
       ///
+      /// WINDOW
+      () => images.load(Assets.images.ui.window.tl.path),
+      () => images.load(Assets.images.ui.window.tc.path),
+      () => images.load(Assets.images.ui.window.tr.path),
+      () => images.load(Assets.images.ui.window.cl.path),
+      () => images.load(Assets.images.ui.window.cc.path),
+      () => images.load(Assets.images.ui.window.cr.path),
+      () => images.load(Assets.images.ui.window.bl.path),
+      () => images.load(Assets.images.ui.window.bc.path),
+      () => images.load(Assets.images.ui.window.br.path),
+
+      ///
       /// TRUCK
       () => images.load(Assets.images.truckBR.path),
       () => images.load(Assets.images.truckTL.path),
+      () => images.load(Assets.images.truck.path),
 
       ///
       /// BUILDINGS
