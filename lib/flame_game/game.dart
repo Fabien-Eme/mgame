@@ -13,6 +13,7 @@ import 'package:mgame/flame_game/controller/building_controller.dart';
 import 'package:mgame/flame_game/controller/construction_mode_listener.dart';
 import 'package:mgame/flame_game/controller/grid_controller.dart';
 import 'package:mgame/flame_game/controller/mouse_controller.dart';
+import 'package:mgame/flame_game/ui/overlay/overlay_dialog.dart';
 import 'package:mgame/flame_game/ui/ui_rotate.dart';
 import 'package:mgame/flame_game/utils/convert_rotations.dart';
 import 'package:mgame/flame_game/utils/game_assets.dart';
@@ -122,7 +123,13 @@ class MGame extends FlameGame<GameWorld>
     /// Adding UI
 
     camera.viewport.addAll(
-      [uiBottomBar, uiRotate, myMouseCursor, FpsTextComponent()],
+      [
+        uiBottomBar,
+        uiRotate,
+        myMouseCursor,
+        FpsTextComponent(),
+        OverlayDialog(overlayDialogType: OverlayDialogType.garage, position: Vector2(gameWidth / 2, gameHeight / 2)),
+      ],
     );
     super.onMount();
   }
@@ -218,3 +225,17 @@ class MGame extends FlameGame<GameWorld>
     return const Color(0x0ff00000);
   }
 }
+
+
+///
+///
+///
+/// Priority of Game
+/// 
+/// UI Rotate : 500
+/// UI Bottom Bar : 400
+/// 
+/// Mouse : 1000
+/// 
+/// 
+/// overlay dialog : 900

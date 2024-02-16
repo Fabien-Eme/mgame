@@ -10,6 +10,7 @@ import '../../gen/assets.gen.dart';
 class UIRotate extends PositionComponent with HasGameRef<MGame>, RiverpodComponentMixin {
   @override
   Future<void> onLoad() async {
+    priority = 500;
     size = Vector2(200, 100);
     position = Vector2(MGame.gameWidth - size.x, MGame.gameHeight - size.y);
     super.onLoad();

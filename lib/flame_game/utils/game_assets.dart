@@ -55,15 +55,16 @@ extension MGameAssets on MGame {
 
       ///
       /// WINDOW
-      () => images.load(Assets.images.ui.window.tl.path),
-      () => images.load(Assets.images.ui.window.tc.path),
-      () => images.load(Assets.images.ui.window.tr.path),
-      () => images.load(Assets.images.ui.window.cl.path),
-      () => images.load(Assets.images.ui.window.cc.path),
-      () => images.load(Assets.images.ui.window.cr.path),
-      () => images.load(Assets.images.ui.window.bl.path),
-      () => images.load(Assets.images.ui.window.bc.path),
-      () => images.load(Assets.images.ui.window.br.path),
+      () => images.load(Assets.images.ui.dialog.tl.path),
+      () => images.load(Assets.images.ui.dialog.tc.path),
+      () => images.load(Assets.images.ui.dialog.tr.path),
+      () => images.load(Assets.images.ui.dialog.cl.path),
+      () => images.load(Assets.images.ui.dialog.cc.path),
+      () => images.load(Assets.images.ui.dialog.cr.path),
+      () => images.load(Assets.images.ui.dialog.bl.path),
+      () => images.load(Assets.images.ui.dialog.bc.path),
+      () => images.load(Assets.images.ui.dialog.br.path),
+      () => images.load(Assets.images.ui.dialog.complete.path),
 
       ///
       /// TRUCK

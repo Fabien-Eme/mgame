@@ -7,6 +7,7 @@ import 'ui_bottom_bar_button.dart';
 class UIBottomBar extends PositionComponent with HasGameRef<MGame> {
   @override
   Future<void> onLoad() async {
+    priority = 400;
     size = Vector2(400, 100);
     position = Vector2(0, MGame.gameHeight - size.y);
     super.onLoad();

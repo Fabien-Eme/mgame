@@ -46,7 +46,7 @@ class Truck extends PositionComponent with HasGameReference {
     const sliceCount = 17;
     spriteBatch.clear();
 
-    for (int i = 0; i < sliceCount; i++) {
+    for (int i = 0; i <= sliceCount; i++) {
       spriteBatch.add(
         source: Rect.fromLTWH(0, spriteHeight * (sliceCount - i), spriteWidth, spriteHeight),
         offset: Vector2(-i.toDouble(), 0),
