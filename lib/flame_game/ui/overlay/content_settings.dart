@@ -48,7 +48,7 @@ class ContentSettings extends PositionComponent with HasGameReference<MGame>, Ri
     final buttonMenu = DialogButton(
       text: 'Main Menu',
       onPressed: () {
-        print("Main Menu");
+        game.gameController.goToMainMenu();
       },
       textStyle: MyTextStyle.buttonRed,
       buttonSize: Vector2(200, 50),

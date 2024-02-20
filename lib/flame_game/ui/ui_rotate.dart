@@ -13,16 +13,12 @@ class UIRotate extends PositionComponent with HasGameRef<MGame>, RiverpodCompone
     priority = 500;
     size = Vector2(200, 100);
     position = Vector2(MGame.gameWidth - size.x, MGame.gameHeight - size.y);
-    super.onLoad();
-  }
 
-  @override
-  void onMount() {
     addAll([
       UIRotateButton(rotateDirection: RotateDirection.left, size: Vector2.all(75), position: Vector2(100 * 0 + 12.5, 0 + 12.5)),
       UIRotateButton(rotateDirection: RotateDirection.right, size: Vector2.all(75), position: Vector2(100 * 1 + 12.5, 0 + 12.5)),
     ]);
-    super.onMount();
+    super.onLoad();
   }
 
   // @override

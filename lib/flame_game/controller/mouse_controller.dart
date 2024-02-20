@@ -30,26 +30,10 @@ class MouseController extends Component with HasGameRef<MGame>, HasWorldReferenc
 
   ///
   ///
-  /// Move [myMouseCursor] to follow mouse
-  ///
-  void moveMouseCursor(Vector2 pos) {
-    Vector2 futureMouseCursorPosition = camera.globalToLocal(pos) * camera.viewfinder.zoom + (viewfinderInitialPosition - camera.viewfinder.position * camera.viewfinder.zoom);
-    if (futureMouseCursorPosition.x < 0) futureMouseCursorPosition.x = 0;
-    if (futureMouseCursorPosition.x > gameWidth) futureMouseCursorPosition.x = gameWidth;
-    if (futureMouseCursorPosition.y < 0) futureMouseCursorPosition.y = 0;
-    if (futureMouseCursorPosition.y > gameHeight) futureMouseCursorPosition.y = gameHeight;
-
-    myMouseCursor.position = futureMouseCursorPosition;
-  }
-
-  ///
-  ///
   ///
   /// Handle mouse movement
   ///
   void onMouseMove(PointerHoverInfo info) {
-    if (isDesktop) moveMouseCursor(info.eventPosition.global);
-
     game.mousePosition = camera.globalToLocal(info.eventPosition.global);
 
     double cursorX = game.mousePosition.x;

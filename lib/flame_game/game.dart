@@ -11,11 +11,13 @@ import 'package:flame_riverpod/flame_riverpod.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:mgame/flame_game/controller/building_controller.dart';
+import 'package:mgame/flame_game/controller/game_controller.dart';
 import 'package:mgame/flame_game/controller/truck_controller.dart';
 import 'package:mgame/flame_game/listener/construction_mode_listener.dart';
 import 'package:mgame/flame_game/controller/grid_controller.dart';
 import 'package:mgame/flame_game/controller/mouse_controller.dart';
 import 'package:mgame/flame_game/listener/overlay_listener.dart';
+import 'package:mgame/flame_game/menu.dart/main_menu.dart';
 import 'package:mgame/flame_game/ui/overlay/overlay_dialog.dart';
 import 'package:mgame/flame_game/ui/settings_button.dart';
 import 'package:mgame/flame_game/ui/ui_rotate.dart';
@@ -71,23 +73,30 @@ class MGame extends FlameGame with MouseMovementDetector, ScrollDetector, MultiT
   bool isMouseHoveringOverlay = false;
   bool isMouseHoveringOverlayButton = false;
 
+  bool isMainMenu = true;
+
+  late final MainMenu mainMenu;
+
   OverlayDialog? overlayDialog;
 
-  late final UIBottomBar uiBottomBar;
-  late final UIRotate uiRotate;
-  late final MyMouseCursor myMouseCursor;
-  late final SettingsButton settingsButton;
+  final GameController gameController = GameController();
 
-  late final MouseController mouseController;
-  late final DragZoomController dragZoomController;
-  late final TapController tapController;
-  late final GridController gridController;
-  late final ConstructionController constructionController;
-  late final CursorController cursorController;
-  late final BuildingController buildingController;
-  late final ConvertRotations convertRotations;
-  late final TruckController truckController;
-  late final AudioController audioController;
+  final MyMouseCursor myMouseCursor = MyMouseCursor();
+  final AudioController audioController = AudioController();
+
+  UIBottomBar uiBottomBar = UIBottomBar();
+  UIRotate uiRotate = UIRotate();
+  SettingsButton settingsButton = SettingsButton();
+
+  MouseController mouseController = MouseController();
+  DragZoomController dragZoomController = DragZoomController();
+  TapController tapController = TapController();
+  GridController gridController = GridController();
+  ConstructionController constructionController = ConstructionController();
+  CursorController cursorController = CursorController();
+  BuildingController buildingController = BuildingController();
+  ConvertRotations convertRotations = ConvertRotations();
+  TruckController truckController = TruckController();
 
   ///
   ///
@@ -100,77 +109,43 @@ class MGame extends FlameGame with MouseMovementDetector, ScrollDetector, MultiT
     FlameAudio.bgm.initialize();
     FlameAudio.bgm.play(Assets.music.forestal).then((value) => FlameAudio.bgm.audioPlayer.setVolume(musicVolume));
 
-    /// Show Menu
-
-    /// Add world
-
     /// Preload all images
     images.prefix = '';
     final futurePreLoadImages = preLoadAssetsImages().map((loadableBuilder) => loadableBuilder());
 
     await Future.wait<void>(futurePreLoadImages);
 
-    world = GameWorld();
+    /// Show Menu
+    mainMenu = MainMenu(position: Vector2(gameWidth / 2, gameHeight / 2));
+    camera.viewport.add(mainMenu);
 
     /// Hide system mouse cursor before adding custom one
     mouseCursor = SystemMouseCursors.none;
 
-    uiBottomBar = UIBottomBar();
-    uiRotate = UIRotate();
-    myMouseCursor = MyMouseCursor();
-    settingsButton = SettingsButton();
+    /// Add Custom Mouse Cursor
+    camera.viewport.add(myMouseCursor);
 
-    ///Adding Controllers
-    mouseController = MouseController();
-    dragZoomController = DragZoomController();
-    tapController = TapController();
-    gridController = GridController();
-    constructionController = ConstructionController();
-    cursorController = CursorController();
-    buildingController = BuildingController();
-    convertRotations = ConvertRotations();
-    truckController = TruckController();
-    audioController = AudioController();
+    /// Add Audio controller
+    add(audioController);
 
-    world.addAll([
-      mouseController,
-      dragZoomController,
-      tapController,
-      gridController,
-      constructionController,
-      cursorController,
-      buildingController,
-      convertRotations,
-      truckController,
-      audioController,
-    ]);
+    add(gameController);
 
-    world.addAll([
-      ConstructionModeListener(),
-      OverlayListener(),
-    ]);
-
+    add(OverlayListener());
     return super.onLoad();
   }
 
   ///
   ///
-  /// Game Mount
+  /// Move [myMouseCursor] to follow mouse
   ///
-  @override
-  void onMount() {
-    /// Adding UI
+  void moveMouseCursor(Vector2 pos) {
+    Vector2 futureMouseCursorPosition = camera.globalToLocal(pos) * camera.viewfinder.zoom + (viewfinderInitialPosition - camera.viewfinder.position * camera.viewfinder.zoom);
+    if (futureMouseCursorPosition.x < 0) futureMouseCursorPosition.x = 0;
+    if (futureMouseCursorPosition.x > gameWidth) futureMouseCursorPosition.x = gameWidth;
+    if (futureMouseCursorPosition.y < 0) futureMouseCursorPosition.y = 0;
+    if (futureMouseCursorPosition.y > gameHeight) futureMouseCursorPosition.y = gameHeight;
 
-    camera.viewport.addAll(
-      [
-        uiBottomBar,
-        uiRotate,
-        myMouseCursor,
-        settingsButton,
-        FpsTextComponent(),
-      ],
-    );
-    super.onMount();
+    myMouseCursor.position = futureMouseCursorPosition;
   }
 
   ///
@@ -190,19 +165,19 @@ class MGame extends FlameGame with MouseMovementDetector, ScrollDetector, MultiT
 
   @override
   void onTertiaryTapDown(TapDownInfo info) {
-    tapController.onTertiaryTapDown(info);
+    if (!isMainMenu) tapController.onTertiaryTapDown(info);
     super.onTertiaryTapDown(info);
   }
 
   @override
   void onSecondaryTapUp(TapUpInfo info) {
-    tapController.onSecondaryTapUp(info);
+    if (!isMainMenu) tapController.onSecondaryTapUp(info);
     super.onSecondaryTapUp(info);
   }
 
   @override
   void onTapDown(TapDownInfo info) {
-    tapController.onTapDown(info);
+    if (!isMainMenu) tapController.onTapDown(info);
     super.onTapDown(info);
   }
 
@@ -214,7 +189,8 @@ class MGame extends FlameGame with MouseMovementDetector, ScrollDetector, MultiT
   // @override
   @override
   void onMouseMove(PointerHoverInfo info) {
-    mouseController.onMouseMove(info);
+    if (isDesktop) moveMouseCursor(info.eventPosition.global);
+    if (!isMainMenu) mouseController.onMouseMove(info);
     super.onMouseMove(info);
   }
 
@@ -224,7 +200,7 @@ class MGame extends FlameGame with MouseMovementDetector, ScrollDetector, MultiT
 
   @override
   void onScroll(PointerScrollInfo info) {
-    dragZoomController.onScroll(info);
+    if (!isMainMenu) dragZoomController.onScroll(info);
     super.onScroll(info);
   }
 
@@ -234,26 +210,26 @@ class MGame extends FlameGame with MouseMovementDetector, ScrollDetector, MultiT
 
   @override
   void onDragStart(int pointerId, DragStartInfo info) {
-    dragZoomController.onDragStart(pointerId, info);
+    if (!isMainMenu) dragZoomController.onDragStart(pointerId, info);
   }
 
   @override
   void onDragUpdate(int pointerId, DragUpdateInfo info) {
-    dragZoomController.onDragUpdate(pointerId, info);
+    if (!isMainMenu) dragZoomController.onDragUpdate(pointerId, info);
   }
 
   @override
   void onDragEnd(int pointerId, DragEndInfo info) {
-    dragZoomController.onDragEnd(pointerId, info);
+    if (!isMainMenu) dragZoomController.onDragEnd(pointerId, info);
   }
 
   @override
   void onDragCancel(int pointerId) {
-    dragZoomController.onDragCancel(pointerId);
+    if (!isMainMenu) dragZoomController.onDragCancel(pointerId);
   }
 
   void onSecondaryButtonDragUpdate(DragUpdateDetails details) {
-    dragZoomController.onSecondaryButtonDragUpdate(details);
+    if (!isMainMenu) dragZoomController.onSecondaryButtonDragUpdate(details);
   }
 
   ///

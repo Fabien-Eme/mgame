@@ -140,7 +140,7 @@ class DragZoomController extends Component with HasGameRef<MGame>, RiverpodCompo
           }
         } else {
           game.isMouseDragging = true;
-          if (isDesktop) game.mouseController.moveMouseCursor(info.eventPosition.global);
+          if (isDesktop) game.moveMouseCursor(info.eventPosition.global);
 
           double cursorX = camera.globalToLocal(info.eventPosition.global).x;
           double cursorY = camera.globalToLocal(info.eventPosition.global).y;

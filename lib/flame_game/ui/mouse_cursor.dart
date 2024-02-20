@@ -15,10 +15,11 @@ class MyMouseCursor extends SpriteComponent with HasGameRef<MGame>, RiverpodComp
   ConstructionState? constructionState;
 
   @override
-  FutureOr<void> onLoad() async {
-    priority = 1000;
+  FutureOr<void> onLoad() {
     sprite = Sprite(game.images.fromCache(mouseCursorType.path));
+    priority = 1000;
     paint = Paint()..filterQuality = FilterQuality.low;
+
     return super.onLoad();
   }
 
