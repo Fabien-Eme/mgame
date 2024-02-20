@@ -1,15 +1,18 @@
 import 'package:flame/components.dart' hide ButtonState;
 import 'package:flame/events.dart';
+import 'package:flame_audio/flame_audio.dart';
 import 'package:mgame/flame_game/utils/my_text_style.dart';
 
 import '../../../gen/assets.gen.dart';
+import '../../game.dart';
 
-class DialogButton extends PositionComponent with HasGameReference, TapCallbacks {
+class DialogButton extends PositionComponent with HasGameReference<MGame>, TapCallbacks {
   String text;
   void Function() onPressed;
   Vector2 buttonSize;
   TextPaint? textStyle;
-  DialogButton({required this.text, required this.onPressed, required this.buttonSize, this.textStyle, super.position});
+  bool isButtonBack;
+  DialogButton({required this.text, required this.onPressed, required this.buttonSize, this.textStyle, this.isButtonBack = false, super.position});
 
   late NineTileBoxComponent button;
   late NineTileBoxComponent buttonDown;
@@ -47,6 +50,11 @@ class DialogButton extends PositionComponent with HasGameReference, TapCallbacks
 
   @override
   void onTapDown(TapDownEvent event) {
+    if (isButtonBack) {
+      game.audioController.playClickButtonBack();
+    } else {
+      game.audioController.playClickButton();
+    }
     onPressed.call();
     button.priority = 1;
     buttonDown.priority = 2;

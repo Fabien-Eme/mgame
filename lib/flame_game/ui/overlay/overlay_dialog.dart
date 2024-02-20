@@ -1,13 +1,13 @@
 import 'dart:async';
+import 'dart:ui';
 
 import 'package:flame/components.dart';
-import 'package:mgame/flame_game/truck/truck_stacked.dart';
+import 'package:flame/palette.dart';
 import 'package:mgame/flame_game/ui/overlay/content_garage.dart';
-import 'package:mgame/flame_game/ui/overlay/dialog_button.dart';
+import 'package:mgame/flame_game/ui/overlay/content_settings.dart';
+
 import 'package:mgame/flame_game/ui/overlay/dialog_tabs.dart';
-import 'package:mgame/flame_game/ui/overlay/forward_backward_button.dart';
-import 'package:mgame/flame_game/ui/overlay/truck_selector.dart';
-import 'package:mgame/flame_game/utils/my_text_style.dart';
+
 import 'package:mgame/flame_game/ui/overlay/close_button.dart';
 import 'package:mgame/gen/assets.gen.dart';
 
@@ -29,13 +29,19 @@ class OverlayDialog extends PositionComponent with HasGameReference<MGame> {
   List<DialogTab> listTabs = [];
 
   ContentGarage? contentGarage;
+  ContentSettings? contentSettings;
 
   @override
   Future<void> onLoad() async {
     position = Vector2(MGame.gameWidth / 2, MGame.gameHeight / 2);
+
     priority = 900;
+    if (overlayDialogType == OverlayDialogType.settings) priority = 990;
+
     spriteNineTileBox = Sprite(game.images.fromCache(Assets.images.ui.dialog.complete.path));
-    boxSize = Vector2(900, 500);
+    boxSize = getBoxSize();
+
+    if (overlayDialogType == OverlayDialogType.settings) add(blackOverlay());
 
     addTabs();
     add(
@@ -53,12 +59,24 @@ class OverlayDialog extends PositionComponent with HasGameReference<MGame> {
     addContent();
   }
 
+  Vector2 getBoxSize() {
+    switch (overlayDialogType) {
+      case OverlayDialogType.settings:
+        return Vector2(600, 500);
+      default:
+        return Vector2(900, 500);
+    }
+  }
+
   void addContent() {
     switch (overlayDialogType) {
       case OverlayDialogType.garage:
         contentGarage = ContentGarage(boxSize: boxSize);
         add(contentGarage!);
-
+        break;
+      case OverlayDialogType.settings:
+        contentSettings = ContentSettings(boxSize: boxSize);
+        add(contentSettings!);
         break;
       default:
         break;
@@ -88,5 +106,13 @@ class OverlayDialog extends PositionComponent with HasGameReference<MGame> {
       }
     }
     return isOver;
+  }
+
+  RectangleComponent blackOverlay() {
+    return RectangleComponent(
+      anchor: Anchor.center,
+      size: Vector2(MGame.gameWidth, MGame.gameHeight),
+      paint: Paint()..color = BasicPalette.black.color.withOpacity(0.7),
+    );
   }
 }

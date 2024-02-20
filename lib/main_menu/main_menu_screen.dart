@@ -4,7 +4,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:mgame/audio/audio_controller.dart';
+import 'package:mgame/audio/flutter_audio_controller.dart';
 import 'package:mgame/audio/sounds.dart';
 import 'package:mgame/settings/settings.dart';
 import 'package:mgame/style/menu/menu_text.dart';
@@ -42,8 +42,8 @@ class MainMenuScreen extends ConsumerWidget {
 
                               context.go('/game');
                             } else {
-                              ref.read(audioControllerProvider.notifier).stopAllSound();
-                              ref.read(audioControllerProvider.notifier).playSfx(SfxType.clickPlay);
+                              ref.read(flutterAudioControllerProvider.notifier).stopAllSound();
+                              ref.read(flutterAudioControllerProvider.notifier).playSfx(SfxType.clickPlay);
 
                               ref.read(narrativeControllerProvider.notifier).load(title: 'intro');
                               ref.read(gameUiControllerProvider.notifier).load(gameUiType: GameUiType.narrative);
@@ -52,7 +52,7 @@ class MainMenuScreen extends ConsumerWidget {
                             }
                           }),
                           _MenuLine('SETTINGS', onSelected: () {
-                            ref.read(audioControllerProvider.notifier).playSfx(SfxType.buttonTap);
+                            ref.read(flutterAudioControllerProvider.notifier).playSfx(SfxType.buttonTap);
                             context.push('/settings');
                           }),
                           getQuitButton(),

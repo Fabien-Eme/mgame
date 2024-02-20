@@ -6,6 +6,7 @@ import 'package:flame/events.dart';
 import 'package:flame_riverpod/flame_riverpod.dart';
 import 'package:flutter/gestures.dart';
 import 'package:mgame/flame_game/riverpod_controllers/overlay_controller.dart';
+import 'package:mgame/flame_game/ui/overlay/overlay_dialog.dart';
 
 import '../game.dart';
 import '../ui/mouse_cursor.dart';
@@ -114,6 +115,8 @@ class DragZoomController extends Component with HasGameRef<MGame>, RiverpodCompo
     if (!ref.read(overlayControllerProvider).isVisible) {
       _drags[pointerId] = DragInfo(startPosition: info.eventPosition.global);
       _updateGesture();
+    } else if (ref.read(overlayControllerProvider).overlayDialogType == OverlayDialogType.settings) {
+      game.overlayDialog?.contentSettings?.onDragStart(info);
     }
   }
 
@@ -156,6 +159,8 @@ class DragZoomController extends Component with HasGameRef<MGame>, RiverpodCompo
           }
         }
       }
+    } else if (ref.read(overlayControllerProvider).overlayDialogType == OverlayDialogType.settings) {
+      game.overlayDialog?.contentSettings?.onDragUpdate(info);
     }
   }
 
@@ -165,6 +170,8 @@ class DragZoomController extends Component with HasGameRef<MGame>, RiverpodCompo
       _updateGesture();
       game.cursorController.cursorIsMovingOnNewTile(game.currentMouseTilePos);
       game.isMouseDragging = false;
+    } else if (ref.read(overlayControllerProvider).overlayDialogType == OverlayDialogType.settings) {
+      game.overlayDialog?.contentSettings?.onDragEnd(info);
     }
   }
 
@@ -174,6 +181,8 @@ class DragZoomController extends Component with HasGameRef<MGame>, RiverpodCompo
       _updateGesture();
       game.cursorController.cursorIsMovingOnNewTile(game.currentMouseTilePos);
       game.isMouseDragging = false;
+    } else if (ref.read(overlayControllerProvider).overlayDialogType == OverlayDialogType.settings) {
+      game.overlayDialog?.contentSettings?.onDragCancel();
     }
   }
 

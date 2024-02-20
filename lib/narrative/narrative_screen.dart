@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:mgame/audio/audio_controller.dart';
+import 'package:mgame/audio/flutter_audio_controller.dart';
 import '../game/game_ui_controller.dart';
 import '../game/game_ui_widget.dart';
 import '../narrative/narrative_controller.dart';
@@ -22,7 +22,7 @@ class NarrativeScreen extends ConsumerWidget {
     final List<String>? previousTextLines = narrative.text[(textIndex - 1).toString()] as List<String>?;
     final Duration initialDelayTime = (narrative.textIndex == 1) ? const Duration(seconds: 4) : const Duration(seconds: 1);
 
-    if (textIndex == 1) Future.delayed(const Duration(seconds: 4)).then((_) => ref.read(audioControllerProvider.notifier).resetMusic());
+    if (textIndex == 1) Future.delayed(const Duration(seconds: 4)).then((_) => ref.read(flutterAudioControllerProvider.notifier).resetMusic());
 
     return Scaffold(
       backgroundColor: palette.backgroundDark,

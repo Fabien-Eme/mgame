@@ -55,12 +55,11 @@ class ContentGarage extends PositionComponent {
   }
 
   addBuySell() async {
-    boxSize = Vector2(900, 500);
-    final title = TextBoxComponent(
+    final title = TextComponent(
       text: "GARAGE",
       textRenderer: MyTextStyle.title,
       anchor: Anchor.topCenter,
-      position: Vector2(0, -boxSize.y / 2 + 10),
+      position: Vector2(0, -boxSize.y / 2 + 20),
     );
     add(title);
 

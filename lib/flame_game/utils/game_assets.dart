@@ -1,117 +1,56 @@
 import 'package:flame/extensions.dart';
 import 'package:mgame/flame_game/game.dart';
+import 'package:flame_audio/flame_audio.dart';
 
 import '../../gen/assets.gen.dart';
 
 extension MGameAssets on MGame {
-  List<Future<Image> Function()> preLoadAssets() {
+  List<Future<Image> Function()> preLoadAssetsImages() {
     return [
       ///
       /// TILES
-      () => images.load(Assets.images.tiles.road.path),
-      () => images.load(Assets.images.tiles.roadS.path),
-      () => images.load(Assets.images.tiles.roadW.path),
-      () => images.load(Assets.images.tiles.roadN.path),
-      () => images.load(Assets.images.tiles.roadE.path),
-      () => images.load(Assets.images.tiles.roadNE.path),
-      () => images.load(Assets.images.tiles.roadSE.path),
-      () => images.load(Assets.images.tiles.roadSN.path),
-      () => images.load(Assets.images.tiles.roadSW.path),
-      () => images.load(Assets.images.tiles.roadWE.path),
-      () => images.load(Assets.images.tiles.roadWN.path),
-      () => images.load(Assets.images.tiles.roadESW.path),
-      () => images.load(Assets.images.tiles.roadNES.path),
-      () => images.load(Assets.images.tiles.roadSWN.path),
-      () => images.load(Assets.images.tiles.roadWNE.path),
-      () => images.load(Assets.images.tiles.roadSWNE.path),
-      () => images.load(Assets.images.tiles.grass.path),
+      for (AssetGenImage element in Assets.images.tiles.values) () => images.load(element.path),
 
       ///
       /// UI
       for (AssetGenImage element in Assets.images.ui.values) () => images.load(element.path),
-      // () => images.load(Assets.images.ui.uiButtonWhite.path),
-      // () => images.load(Assets.images.ui.uiButtonPressedWhite.path),
-      // () => images.load(Assets.images.ui.uiButtonGreen.path),
-      // () => images.load(Assets.images.ui.uiButtonPressedGreen.path),
-      // () => images.load(Assets.images.ui.uiButtonRed.path),
-      // () => images.load(Assets.images.ui.uiButtonPressedRed.path),
-      // () => images.load(Assets.images.ui.uiRoadSN.path),
-      // () => images.load(Assets.images.ui.uiRoadWE.path),
-
-      // () => images.load(Assets.images.ui.mouseCursor.path),
-      // () => images.load(Assets.images.ui.mouseCursorAdd.path),
-      // () => images.load(Assets.images.ui.mouseCursorTrash.path),
-      // () => images.load(Assets.images.ui.mouseCursorHand.path),
-
-      // () => images.load(Assets.images.ui.tileCursor.path),
-      // () => images.load(Assets.images.ui.tileCursorBackground.path),
-
-      // () => images.load(Assets.images.ui.uiTrash.path),
-      // () => images.load(Assets.images.ui.uiGarbageLoader.path),
-      // () => images.load(Assets.images.ui.uiRecycler.path),
-      // () => images.load(Assets.images.ui.uiIncinerator.path),
-
-      // () => images.load(Assets.images.ui.rotateLEFT.path),
-      // () => images.load(Assets.images.ui.rotateRIGHT.path),
 
       ///
       /// DIALOG
-      () => images.load(Assets.images.ui.dialog.complete.path),
-      () => images.load(Assets.images.ui.dialog.completeElevated.path),
-      () => images.load(Assets.images.ui.dialog.completeThick.path),
-      () => images.load(Assets.images.ui.dialog.completeWhite.path),
-      () => images.load(Assets.images.ui.dialog.close.path),
-      () => images.load(Assets.images.ui.dialog.forward.path),
-      () => images.load(Assets.images.ui.dialog.backward.path),
+      for (AssetGenImage element in Assets.images.ui.dialog.values) () => images.load(element.path),
 
       ///
       /// TRUCK
       for (AssetGenImage element in Assets.images.trucks.values) () => images.load(element.path),
-      () => images.load(Assets.images.trucks.stacked.truckYStacked.path),
-      () => images.load(Assets.images.trucks.stacked.truckBStacked.path),
-      () => images.load(Assets.images.trucks.stacked.truckPStacked.path),
+      for (AssetGenImage element in Assets.images.trucks.stacked.values) () => images.load(element.path),
 
       ///
       /// BUILDINGS
-      () => images.load(Assets.images.buildings.garbageConveyor.garbageConveyorBack.path),
-      () => images.load(Assets.images.buildings.garbageConveyor.garbageConveyorFront.path),
+      for (AssetGenImage element in Assets.images.buildings.garbageConveyor.values) () => images.load(element.path),
 
-      () => images.load(Assets.images.buildings.garbageLoader.garbageLoaderEINSpritesheet.path),
-      () => images.load(Assets.images.buildings.garbageLoader.garbageLoaderEOUTSpritesheet.path),
-      () => images.load(Assets.images.buildings.garbageLoader.garbageLoaderSINSpritesheet.path),
-      () => images.load(Assets.images.buildings.garbageLoader.garbageLoaderSOUTSpritesheet.path),
-      () => images.load(Assets.images.buildings.garbageLoader.garbageLoaderEBack.path),
-      () => images.load(Assets.images.buildings.garbageLoader.garbageLoaderSBack.path),
+      for (AssetGenImage element in Assets.images.buildings.garbageLoader.values) () => images.load(element.path),
 
-      () => images.load(Assets.images.buildings.recycler.recyclerEFront.path),
-      () => images.load(Assets.images.buildings.recycler.recyclerEBack.path),
-      () => images.load(Assets.images.buildings.recycler.recyclerSFront.path),
-      () => images.load(Assets.images.buildings.recycler.recyclerSBack.path),
+      for (AssetGenImage element in Assets.images.buildings.recycler.values) () => images.load(element.path),
 
-      () => images.load(Assets.images.buildings.incinerator.incineratorEFront.path),
-      () => images.load(Assets.images.buildings.incinerator.incineratorEBack.path),
-      () => images.load(Assets.images.buildings.incinerator.incineratorSFront.path),
-      () => images.load(Assets.images.buildings.incinerator.incineratorSBack.path),
-      () => images.load(Assets.images.buildings.incinerator.incineratorWFront.path),
-      () => images.load(Assets.images.buildings.incinerator.incineratorNFront.path),
-      () => images.load(Assets.images.buildings.incinerator.doorESpritesheet.path),
-      () => images.load(Assets.images.buildings.incinerator.doorSSpritesheet.path),
+      for (AssetGenImage element in Assets.images.buildings.incinerator.values) () => images.load(element.path),
 
-      () => images.load(Assets.images.buildings.garage.garageEFront.path),
-      () => images.load(Assets.images.buildings.garage.garageEBack.path),
-      () => images.load(Assets.images.buildings.garage.garageEDoorSpritesheet.path),
-      () => images.load(Assets.images.buildings.garage.garageSFront.path),
-      () => images.load(Assets.images.buildings.garage.garageSBack.path),
-      () => images.load(Assets.images.buildings.garage.garageSDoorSpritesheet.path),
-      () => images.load(Assets.images.buildings.garage.garageWFront.path),
-      () => images.load(Assets.images.buildings.garage.garageNFront.path),
+      for (AssetGenImage element in Assets.images.buildings.garage.values) () => images.load(element.path),
 
-      () => images.load(Assets.images.buildings.beltSN.path),
-      () => images.load(Assets.images.buildings.beltWE.path),
+      for (AssetGenImage element in Assets.images.buildings.values) () => images.load(element.path),
 
       ///
       /// UTILS
       () => images.load(Assets.images.buildings.empty.path),
     ];
+  }
+
+  Future<void> preLoadAudio() async {
+    FlameAudio.updatePrefix('');
+    for (String element in Assets.music.values) {
+      () => FlameAudio.audioCache.load(element);
+    }
+    for (String element in Assets.sfx.values) {
+      () => FlameAudio.audioCache.load(element);
+    }
   }
 }

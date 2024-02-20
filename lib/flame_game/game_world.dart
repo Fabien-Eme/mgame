@@ -25,7 +25,9 @@ class GameWorld extends World with HasGameRef<MGame>, TapCallbacks {
   Building? temporaryBuilding;
 
   @override
-  FutureOr<void> onLoad() {
+  FutureOr<void> onMount() {
+    super.onMount();
+
     /// Add grid
     grid = generateGrid();
     addAll([for (List<Tile> row in grid) ...row]);
@@ -42,8 +44,6 @@ class GameWorld extends World with HasGameRef<MGame>, TapCallbacks {
     game.gridController.internalBuildOnTile(const Point<int>(6, -2), BuildingType.garage, Directions.E);
 
     add(Truck());
-
-    return super.onLoad();
   }
 
   void removeTemporaryBuilding() {

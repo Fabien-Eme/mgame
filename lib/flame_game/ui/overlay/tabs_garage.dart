@@ -21,7 +21,7 @@ class TabsGarage extends PositionComponent {
     );
     add(tabBuySell);
 
-    (parent as OverlayDialog).listButtons.add({'coordinates': tabBuySell.position, 'size': tabBuySell.size});
+    (parent as OverlayDialog).listButtons.add({'coordinates': tabBuySell.position - Vector2(12.5, 0), 'size': tabBuySell.size - Vector2(25, 0)});
     (parent as OverlayDialog).listTabs.add(tabBuySell);
 
     final tabAllTrucks = DialogTab(
@@ -32,7 +32,7 @@ class TabsGarage extends PositionComponent {
       position: Vector2(-boxSize.x / 2 - 50, -boxSize.y / 2 + 90),
     );
     add(tabAllTrucks);
-    (parent as OverlayDialog).listButtons.add({'coordinates': tabAllTrucks.position, 'size': tabAllTrucks.size});
+    (parent as OverlayDialog).listButtons.add({'coordinates': tabAllTrucks.position - Vector2(12.5, 0), 'size': tabAllTrucks.size - Vector2(25, 0)});
     (parent as OverlayDialog).listTabs.add(tabAllTrucks);
 
     tabBuySell.select();

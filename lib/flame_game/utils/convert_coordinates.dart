@@ -37,3 +37,11 @@ Point<int> convertGridPointToGridDimetric(int posX, int posY) {
 Point<int> convertVectorToPoint(Vector2 vector) {
   return Point(vector.x.toInt(), vector.y.toInt());
 }
+
+bool isVectorInsideObject({required Vector2 vector, required Vector2 objectPosition, required Vector2 objectSize}) {
+  if (vector.x > objectPosition.x && vector.x <= objectPosition.x + objectSize.x && vector.y > objectPosition.y && vector.y <= objectPosition.y + objectSize.y) {
+    return true;
+  } else {
+    return false;
+  }
+}

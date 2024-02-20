@@ -42,6 +42,7 @@ dependencies:
   equatable: ^2.0.5
 
   flame_riverpod: ^5.2.0
+  flame_audio: ^2.10.0
 
   
 
@@ -86,9 +87,7 @@ flutter:
     - assets/images/buildings/recycler/
     - assets/images/buildings/incinerator/
     - assets/images/buildings/garage/
-    #- assets/audio/
-    #- assets/music/
-    #- assets/music/ambiance/    
+    - assets/music/
     - assets/sfx/
 
   fonts:

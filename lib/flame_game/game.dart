@@ -6,6 +6,7 @@ import 'package:flame/components.dart';
 import 'package:flame/events.dart';
 import 'package:flame/extensions.dart';
 import 'package:flame/game.dart';
+import 'package:flame_audio/flame_audio.dart';
 import 'package:flame_riverpod/flame_riverpod.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -21,17 +22,18 @@ import 'package:mgame/flame_game/ui/ui_rotate.dart';
 import 'package:mgame/flame_game/utils/convert_rotations.dart';
 import 'package:mgame/flame_game/utils/game_assets.dart';
 import 'package:mgame/flame_game/ui/ui_bottom_bar.dart';
-import 'package:mgame/settings/settings.dart';
 
+import '../gen/assets.gen.dart';
+import 'controller/audio_controller.dart';
 import 'controller/construction_controller.dart';
 import 'controller/cursor_controller.dart';
 import 'controller/drag_zoom_controller.dart';
 import 'controller/tap_controller.dart';
 import 'game_world.dart';
 import 'ui/mouse_cursor.dart';
+import 'utils/palette.dart';
 
-class MGame extends FlameGame<GameWorld>
-    with MouseMovementDetector, ScrollDetector, MultiTouchDragDetector, TapDetector, SecondaryTapDetector, TertiaryTapDetector, HasKeyboardHandlerComponents, RiverpodGameMixin {
+class MGame extends FlameGame with MouseMovementDetector, ScrollDetector, MultiTouchDragDetector, TapDetector, SecondaryTapDetector, TertiaryTapDetector, KeyboardEvents, RiverpodGameMixin {
   static const double gameWidth = 2000;
   static const double gameHeight = 1000;
   final Vector2 viewfinderInitialPosition = Vector2(gameWidth / 2, gameHeight / 2);
@@ -46,7 +48,6 @@ class MGame extends FlameGame<GameWorld>
     required this.isMobile,
     required this.isDesktop,
   }) : super(
-          world: GameWorld(),
           camera: CameraComponent.withFixedResolution(
             width: gameWidth,
             height: gameHeight,
@@ -56,8 +57,13 @@ class MGame extends FlameGame<GameWorld>
           ),
         );
 
+  Color customBackgroundColor = Palette.backGroundMenu;
+
   Point<int> currentMouseTilePos = const Point(0, 0);
   Vector2 mousePosition = Vector2.zero();
+
+  double musicVolume = 0.0;
+  double soundVolume = 1.0;
 
   bool isMouseDragging = false;
   bool isMouseHoveringUI = false;
@@ -81,6 +87,7 @@ class MGame extends FlameGame<GameWorld>
   late final BuildingController buildingController;
   late final ConvertRotations convertRotations;
   late final TruckController truckController;
+  late final AudioController audioController;
 
   ///
   ///
@@ -88,10 +95,22 @@ class MGame extends FlameGame<GameWorld>
   ///
   @override
   FutureOr<void> onLoad() async {
+    /// Load Sounds
+    await preLoadAudio();
+    FlameAudio.bgm.initialize();
+    FlameAudio.bgm.play(Assets.music.forestal).then((value) => FlameAudio.bgm.audioPlayer.setVolume(musicVolume));
+
+    /// Show Menu
+
+    /// Add world
+
     /// Preload all images
     images.prefix = '';
-    final futures = preLoadAssets().map((loadableBuilder) => loadableBuilder());
-    await Future.wait<void>(futures);
+    final futurePreLoadImages = preLoadAssetsImages().map((loadableBuilder) => loadableBuilder());
+
+    await Future.wait<void>(futurePreLoadImages);
+
+    world = GameWorld();
 
     /// Hide system mouse cursor before adding custom one
     mouseCursor = SystemMouseCursors.none;
@@ -111,6 +130,7 @@ class MGame extends FlameGame<GameWorld>
     buildingController = BuildingController();
     convertRotations = ConvertRotations();
     truckController = TruckController();
+    audioController = AudioController();
 
     world.addAll([
       mouseController,
@@ -122,6 +142,7 @@ class MGame extends FlameGame<GameWorld>
       buildingController,
       convertRotations,
       truckController,
+      audioController,
     ]);
 
     world.addAll([
@@ -157,7 +178,7 @@ class MGame extends FlameGame<GameWorld>
   /// Handle Keyboard
 
   @override
-  KeyEventResult onKeyEvent(RawKeyEvent event, Set<LogicalKeyboardKey> keysPressed) {
+  KeyEventResult onKeyEvent(KeyEvent event, Set<LogicalKeyboardKey> keysPressed) {
     super.onKeyEvent(event, keysPressed);
     // Return handled to prevent macOS noises.
     return KeyEventResult.handled;
@@ -240,7 +261,7 @@ class MGame extends FlameGame<GameWorld>
   /// Game Background
   @override
   Color backgroundColor() {
-    return const Color(0x0ff00000);
+    return customBackgroundColor;
   }
 }
 
@@ -257,3 +278,4 @@ class MGame extends FlameGame<GameWorld>
 /// 
 /// 
 /// overlay dialog : 900
+/// overlay settings : 990
