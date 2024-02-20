@@ -3,12 +3,14 @@ import 'dart:math';
 
 import 'package:flame/components.dart';
 import 'package:flame/events.dart';
+import 'package:flame_riverpod/flame_riverpod.dart';
 import 'package:flutter/gestures.dart';
+import 'package:mgame/flame_game/riverpod_controllers/overlay_controller.dart';
 
 import '../game.dart';
 import '../ui/mouse_cursor.dart';
 
-class DragZoomController extends Component with HasGameRef<MGame> {
+class DragZoomController extends Component with HasGameRef<MGame>, RiverpodComponentMixin {
   final double gameWidth = MGame.gameWidth;
   final double gameHeight = MGame.gameHeight;
   final double minZoom = MGame.minZoom;
@@ -109,43 +111,48 @@ class DragZoomController extends Component with HasGameRef<MGame> {
   /// Handle Drag
   ///
   void onDragStart(int pointerId, DragStartInfo info) {
-    _drags[pointerId] = DragInfo(startPosition: info.eventPosition.global);
-    _updateGesture();
+    if (!ref.read(overlayControllerProvider).isVisible) {
+      _drags[pointerId] = DragInfo(startPosition: info.eventPosition.global);
+      _updateGesture();
+    }
   }
 
   void onDragUpdate(int pointerId, DragUpdateInfo info) {
     myMouseCursor.position =
         camera.globalToLocal(info.eventPosition.global) * camera.viewfinder.zoom + (viewfinderInitialPosition / camera.viewfinder.zoom - camera.viewfinder.position) * camera.viewfinder.zoom;
-    _drags[pointerId]?.updatePosition(info.eventPosition.global);
-    _updateGesture();
-    if (_drags.length == 1) {
-      if (!isDesktop) {
-        Vector2 projectedViewfinderPosition = camera.viewfinder.position - Vector2(info.delta.global.x / camera.viewfinder.zoom, info.delta.global.y / camera.viewfinder.zoom);
-        if (projectedViewfinderPosition.x < (viewfinderInitialPosition.x / camera.viewfinder.zoom + tileWidth / 2) ||
-            projectedViewfinderPosition.x > (gameWidth - viewfinderInitialPosition.x / camera.viewfinder.zoom - tileWidth / 2) ||
-            projectedViewfinderPosition.y < (viewfinderInitialPosition.y / camera.viewfinder.zoom + tileHeight / 2) ||
-            projectedViewfinderPosition.y > (gameHeight - viewfinderInitialPosition.y / camera.viewfinder.zoom - tileHeight / 2) ||
-            camera.viewfinder.zoom == minZoom) {
+    if (!ref.read(overlayControllerProvider).isVisible) {
+      _drags[pointerId]?.updatePosition(info.eventPosition.global);
+
+      _updateGesture();
+      if (_drags.length == 1) {
+        if (!isDesktop) {
+          Vector2 projectedViewfinderPosition = camera.viewfinder.position - Vector2(info.delta.global.x / camera.viewfinder.zoom, info.delta.global.y / camera.viewfinder.zoom);
+          if (projectedViewfinderPosition.x < (viewfinderInitialPosition.x / camera.viewfinder.zoom + tileWidth / 2) ||
+              projectedViewfinderPosition.x > (gameWidth - viewfinderInitialPosition.x / camera.viewfinder.zoom - tileWidth / 2) ||
+              projectedViewfinderPosition.y < (viewfinderInitialPosition.y / camera.viewfinder.zoom + tileHeight / 2) ||
+              projectedViewfinderPosition.y > (gameHeight - viewfinderInitialPosition.y / camera.viewfinder.zoom - tileHeight / 2) ||
+              camera.viewfinder.zoom == minZoom) {
+          } else {
+            camera.viewfinder.position = projectedViewfinderPosition;
+          }
         } else {
-          camera.viewfinder.position = projectedViewfinderPosition;
-        }
-      } else {
-        game.isMouseDragging = true;
-        if (isDesktop) game.mouseController.moveMouseCursor(info.eventPosition.global);
+          game.isMouseDragging = true;
+          if (isDesktop) game.mouseController.moveMouseCursor(info.eventPosition.global);
 
-        double cursorX = camera.globalToLocal(info.eventPosition.global).x;
-        double cursorY = camera.globalToLocal(info.eventPosition.global).y;
+          double cursorX = camera.globalToLocal(info.eventPosition.global).x;
+          double cursorY = camera.globalToLocal(info.eventPosition.global).y;
 
-        if (cursorX >= 0 && cursorX <= gameWidth && cursorY >= 0 && cursorY <= gameHeight) {
-          double dimetricX = (cursorX + 2 * cursorY) / tileWidth - 0.5;
-          double dimetricY = (cursorX - 2 * cursorY) / tileWidth + 0.5;
+          if (cursorX >= 0 && cursorX <= gameWidth && cursorY >= 0 && cursorY <= gameHeight) {
+            double dimetricX = (cursorX + 2 * cursorY) / tileWidth - 0.5;
+            double dimetricY = (cursorX - 2 * cursorY) / tileWidth + 0.5;
 
-          int tileX = dimetricX.floor();
-          int tileY = dimetricY.floor();
-          Point<int> newMouseTilePos = Point(tileX, tileY);
+            int tileX = dimetricX.floor();
+            int tileY = dimetricY.floor();
+            Point<int> newMouseTilePos = Point(tileX, tileY);
 
-          if (game.currentMouseTilePos != newMouseTilePos) {
-            game.cursorController.cursorIsMovingOnNewTile(newMouseTilePos);
+            if (game.currentMouseTilePos != newMouseTilePos) {
+              game.cursorController.cursorIsMovingOnNewTile(newMouseTilePos);
+            }
           }
         }
       }
@@ -153,17 +160,21 @@ class DragZoomController extends Component with HasGameRef<MGame> {
   }
 
   void onDragEnd(int pointerId, DragEndInfo info) {
-    _drags.remove(pointerId);
-    _updateGesture();
-    game.cursorController.cursorIsMovingOnNewTile(game.currentMouseTilePos);
-    game.isMouseDragging = false;
+    if (!ref.read(overlayControllerProvider).isVisible) {
+      _drags.remove(pointerId);
+      _updateGesture();
+      game.cursorController.cursorIsMovingOnNewTile(game.currentMouseTilePos);
+      game.isMouseDragging = false;
+    }
   }
 
   void onDragCancel(int pointerId) {
-    _drags.remove(pointerId);
-    _updateGesture();
-    game.cursorController.cursorIsMovingOnNewTile(game.currentMouseTilePos);
-    game.isMouseDragging = false;
+    if (!ref.read(overlayControllerProvider).isVisible) {
+      _drags.remove(pointerId);
+      _updateGesture();
+      game.cursorController.cursorIsMovingOnNewTile(game.currentMouseTilePos);
+      game.isMouseDragging = false;
+    }
   }
 
   void onSecondaryButtonDragUpdate(DragUpdateDetails details) {

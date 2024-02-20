@@ -6,7 +6,7 @@ part of 'overlay_controller.dart';
 // RiverpodGenerator
 // **************************************************************************
 
-String _$overlayControllerHash() => r'b677885428dc2ff83ac78573a9402bb4b65947a6';
+String _$overlayControllerHash() => r'7ba76427ce9f34c2693ebe1003789863c30d665b';
 
 /// See also [OverlayController].
 @ProviderFor(OverlayController)

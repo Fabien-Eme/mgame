@@ -10,21 +10,24 @@ import 'package:flame_riverpod/flame_riverpod.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:mgame/flame_game/controller/building_controller.dart';
-import 'package:mgame/flame_game/controller/construction_mode_listener.dart';
+import 'package:mgame/flame_game/controller/truck_controller.dart';
+import 'package:mgame/flame_game/listener/construction_mode_listener.dart';
 import 'package:mgame/flame_game/controller/grid_controller.dart';
 import 'package:mgame/flame_game/controller/mouse_controller.dart';
+import 'package:mgame/flame_game/listener/overlay_listener.dart';
 import 'package:mgame/flame_game/ui/overlay/overlay_dialog.dart';
+import 'package:mgame/flame_game/ui/settings_button.dart';
 import 'package:mgame/flame_game/ui/ui_rotate.dart';
 import 'package:mgame/flame_game/utils/convert_rotations.dart';
 import 'package:mgame/flame_game/utils/game_assets.dart';
 import 'package:mgame/flame_game/ui/ui_bottom_bar.dart';
+import 'package:mgame/settings/settings.dart';
 
 import 'controller/construction_controller.dart';
 import 'controller/cursor_controller.dart';
 import 'controller/drag_zoom_controller.dart';
 import 'controller/tap_controller.dart';
 import 'game_world.dart';
-import 'truck/truck.dart';
 import 'ui/mouse_cursor.dart';
 
 class MGame extends FlameGame<GameWorld>
@@ -58,10 +61,17 @@ class MGame extends FlameGame<GameWorld>
 
   bool isMouseDragging = false;
   bool isMouseHoveringUI = false;
+  bool isMouseHoveringBuilding = false;
+  bool isMouseHoveringOverlay = false;
+  bool isMouseHoveringOverlayButton = false;
+
+  OverlayDialog? overlayDialog;
 
   late final UIBottomBar uiBottomBar;
   late final UIRotate uiRotate;
   late final MyMouseCursor myMouseCursor;
+  late final SettingsButton settingsButton;
+
   late final MouseController mouseController;
   late final DragZoomController dragZoomController;
   late final TapController tapController;
@@ -70,6 +80,7 @@ class MGame extends FlameGame<GameWorld>
   late final CursorController cursorController;
   late final BuildingController buildingController;
   late final ConvertRotations convertRotations;
+  late final TruckController truckController;
 
   ///
   ///
@@ -88,6 +99,7 @@ class MGame extends FlameGame<GameWorld>
     uiBottomBar = UIBottomBar();
     uiRotate = UIRotate();
     myMouseCursor = MyMouseCursor();
+    settingsButton = SettingsButton();
 
     ///Adding Controllers
     mouseController = MouseController();
@@ -98,6 +110,8 @@ class MGame extends FlameGame<GameWorld>
     cursorController = CursorController();
     buildingController = BuildingController();
     convertRotations = ConvertRotations();
+    truckController = TruckController();
+
     world.addAll([
       mouseController,
       dragZoomController,
@@ -107,9 +121,13 @@ class MGame extends FlameGame<GameWorld>
       cursorController,
       buildingController,
       convertRotations,
+      truckController,
     ]);
 
-    world.add(ConstructionModeListener());
+    world.addAll([
+      ConstructionModeListener(),
+      OverlayListener(),
+    ]);
 
     return super.onLoad();
   }
@@ -127,8 +145,8 @@ class MGame extends FlameGame<GameWorld>
         uiBottomBar,
         uiRotate,
         myMouseCursor,
+        settingsButton,
         FpsTextComponent(),
-        OverlayDialog(overlayDialogType: OverlayDialogType.garage, position: Vector2(gameWidth / 2, gameHeight / 2)),
       ],
     );
     super.onMount();

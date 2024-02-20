@@ -11,6 +11,18 @@ class OverlayController extends _$OverlayController {
   OverlayState build() {
     return OverlayState(isVisible: false);
   }
+
+  void overlayOpen({required OverlayDialogType overlayDialogType}) {
+    if (!state.isVisible) {
+      state = OverlayState(isVisible: true, overlayDialogType: overlayDialogType);
+    }
+  }
+
+  void overlayClose() {
+    if (state.isVisible) {
+      state = OverlayState(isVisible: false);
+    }
+  }
 }
 
 @freezed

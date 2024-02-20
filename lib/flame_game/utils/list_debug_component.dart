@@ -4,14 +4,8 @@ import 'dart:math';
 import 'package:flame/components.dart';
 import 'package:mgame/flame_game/buildings/garage/garage.dart';
 
-import 'buildings/belt.dart';
-import 'buildings/garbage_conveyor/garbage_conveyor_back.dart';
-import 'buildings/garbage_conveyor/garbage_conveyor_front.dart';
-import 'buildings/garbage_loader/garbage_loader.dart';
-import 'buildings/garbage_loader/garbage_loader_front.dart';
-import 'buildings/incinerator/incinerator.dart';
-import 'utils/convert_coordinates.dart';
-import 'utils/convert_rotations.dart';
+import 'convert_coordinates.dart';
+import 'convert_rotations.dart';
 
 class ListDebugComponent extends Component with HasWorldReference {
   @override

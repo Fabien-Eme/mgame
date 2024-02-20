@@ -5,7 +5,7 @@ import 'package:flame/components.dart';
 import 'package:mgame/flame_game/utils/convert_coordinates.dart';
 
 import '../../gen/assets.gen.dart';
-import '../palette.dart';
+import '../utils/palette.dart';
 
 class TileCursor extends Component with HasWorldReference {
   TileCursorArrow tileCursorArrow = TileCursorArrow();

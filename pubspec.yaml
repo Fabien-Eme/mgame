@@ -75,6 +75,8 @@ flutter:
   assets:
     - assets/icons/
     - assets/images/
+    - assets/images/trucks/
+    - assets/images/trucks/stacked/
     - assets/images/tiles/
     - assets/images/ui/
     - assets/images/ui/dialog/
@@ -93,6 +95,14 @@ flutter:
     - family: AmaticSC
       fonts:
         - asset: assets/fonts/AmaticSC-Bold.ttf
+
+    - family: Play
+      fonts:
+        - asset: assets/fonts/Play-Regular.ttf
+          weight: 400
+        - asset: assets/fonts/Play-Bold.ttf
+          weight: 700 
+
 
 flutter_launcher_icons:
   android: true

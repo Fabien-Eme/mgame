@@ -55,8 +55,12 @@ class MouseController extends Component with HasGameRef<MGame>, HasWorldReferenc
     double cursorX = game.mousePosition.x;
     double cursorY = game.mousePosition.y;
 
-    if (cursorY >= (camera.viewfinder.position.y + ((gameHeight - 100 - viewfinderInitialPosition.y) / camera.viewfinder.zoom))) {
+    double globalCursorX = (game.mousePosition.x - camera.viewfinder.position.x) * camera.viewfinder.zoom + viewfinderInitialPosition.x;
+    double globalCursorY = (game.mousePosition.y - camera.viewfinder.position.y) * camera.viewfinder.zoom + viewfinderInitialPosition.y;
+
+    if ((globalCursorY >= gameHeight - 100 && (globalCursorX < 400 || globalCursorX > MGame.gameWidth - 200)) || (globalCursorY <= 70 && globalCursorX > MGame.gameWidth - 70)) {
       game.isMouseHoveringUI = true;
+      game.myMouseCursor.changeMouseCursorType(MouseCursorType.hand);
     } else {
       game.isMouseHoveringUI = false;
     }
@@ -65,12 +69,23 @@ class MouseController extends Component with HasGameRef<MGame>, HasWorldReferenc
       double dimetricX = (cursorX + 2 * cursorY) / tileWidth - 0.5;
       double dimetricY = (cursorX - 2 * cursorY) / tileWidth + 0.5;
 
-      int tileX = dimetricX.floor();
-      int tileY = dimetricY.floor();
-      Point<int> newMouseTilePos = Point(tileX, tileY);
-      if (game.gridController.checkIfWithinGridBoundaries(newMouseTilePos)) {
-        if (game.currentMouseTilePos != newMouseTilePos) {
-          game.cursorController.cursorIsMovingOnNewTile(newMouseTilePos);
+      /// Overlay navigation
+      if (game.overlayDialog != null) {
+        if (game.overlayDialog!.isCoordinatesOverButton(Vector2(globalCursorX, globalCursorY))) {
+          game.isMouseHoveringOverlayButton = true;
+          game.myMouseCursor.changeMouseCursorType(MouseCursorType.hand);
+        } else {
+          game.isMouseHoveringOverlayButton = false;
+          game.myMouseCursor.resetMouseCursor();
+        }
+      } else {
+        int tileX = dimetricX.floor();
+        int tileY = dimetricY.floor();
+        Point<int> newMouseTilePos = Point(tileX, tileY);
+        if (game.gridController.checkIfWithinGridBoundaries(newMouseTilePos)) {
+          if (game.currentMouseTilePos != newMouseTilePos) {
+            game.cursorController.cursorIsMovingOnNewTile(newMouseTilePos);
+          }
         }
       }
     }

@@ -7,7 +7,7 @@ import 'package:mgame/flame_game/riverpod_controllers/ui_controller.dart';
 
 import '../buildings/building.dart';
 import '../game.dart';
-import '../palette.dart';
+import '../utils/palette.dart';
 import '../riverpod_controllers/construction_mode_controller.dart';
 
 class BuildingController extends Component with HasGameReference<MGame>, HasWorldReference<GameWorld>, RiverpodComponentMixin {

@@ -44,6 +44,7 @@ class Tile extends SpriteComponent with HasGameRef<MGame>, HasWorldReference<Gam
     shownTileType = tileType;
     shownDimetricGridCoordinates = dimetricCoordinates;
     updateSprite();
+    scale = Vector2(1.02, 1);
     paint = Paint()..filterQuality = FilterQuality.low;
     if (isDebugMode) add(TextBoxComponent(text: '[${dimetricCoordinates.x}, ${dimetricCoordinates.y}]', scale: Vector2.all(0.6), position: Vector2(25, 12)));
     return super.onLoad();

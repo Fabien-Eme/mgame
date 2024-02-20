@@ -3,16 +3,15 @@ import 'dart:math';
 
 import 'package:flame/components.dart';
 import 'package:flame/events.dart';
-import 'package:mgame/flame_game/buildings/garage/garage.dart';
+import 'package:mgame/flame_game/truck/truck.dart';
 import 'package:mgame/flame_game/ui/tile_cursor.dart';
 import 'package:mgame/flame_game/game.dart';
 import 'package:mgame/flame_game/utils/convert_coordinates.dart';
 import 'package:mgame/flame_game/utils/convert_rotations.dart';
 import 'buildings/building.dart';
-import 'list_debug_component.dart';
 import 'tile.dart';
 import 'tile_helper.dart';
-import 'truck/truck.dart';
+import 'truck/truck_stacked.dart';
 
 class GameWorld extends World with HasGameRef<MGame>, TapCallbacks {
   GameWorld();
@@ -42,14 +41,7 @@ class GameWorld extends World with HasGameRef<MGame>, TapCallbacks {
 
     game.gridController.internalBuildOnTile(const Point<int>(6, -2), BuildingType.garage, Directions.E);
 
-    addAll([
-      Truck(true)
-        ..position = Vector2(500, 500)
-        ..scale = Vector2(4.5, 6),
-      Truck(false)
-        ..position = Vector2(275, 195)
-        ..scale = Vector2(1, 1.5),
-    ]);
+    add(Truck());
 
     return super.onLoad();
   }

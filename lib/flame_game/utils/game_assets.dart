@@ -28,49 +28,48 @@ extension MGameAssets on MGame {
 
       ///
       /// UI
-      () => images.load(Assets.images.ui.uiButtonWhite.path),
-      () => images.load(Assets.images.ui.uiButtonPressedWhite.path),
-      () => images.load(Assets.images.ui.uiButtonGreen.path),
-      () => images.load(Assets.images.ui.uiButtonPressedGreen.path),
-      () => images.load(Assets.images.ui.uiButtonRed.path),
-      () => images.load(Assets.images.ui.uiButtonPressedRed.path),
-      () => images.load(Assets.images.ui.uiRoadSN.path),
-      () => images.load(Assets.images.ui.uiRoadWE.path),
+      for (AssetGenImage element in Assets.images.ui.values) () => images.load(element.path),
+      // () => images.load(Assets.images.ui.uiButtonWhite.path),
+      // () => images.load(Assets.images.ui.uiButtonPressedWhite.path),
+      // () => images.load(Assets.images.ui.uiButtonGreen.path),
+      // () => images.load(Assets.images.ui.uiButtonPressedGreen.path),
+      // () => images.load(Assets.images.ui.uiButtonRed.path),
+      // () => images.load(Assets.images.ui.uiButtonPressedRed.path),
+      // () => images.load(Assets.images.ui.uiRoadSN.path),
+      // () => images.load(Assets.images.ui.uiRoadWE.path),
 
-      () => images.load(Assets.images.ui.mouseCursor.path),
-      () => images.load(Assets.images.ui.mouseCursorAdd.path),
-      () => images.load(Assets.images.ui.mouseCursorTrash.path),
-      () => images.load(Assets.images.ui.mouseCursorHand.path),
+      // () => images.load(Assets.images.ui.mouseCursor.path),
+      // () => images.load(Assets.images.ui.mouseCursorAdd.path),
+      // () => images.load(Assets.images.ui.mouseCursorTrash.path),
+      // () => images.load(Assets.images.ui.mouseCursorHand.path),
 
-      () => images.load(Assets.images.ui.tileCursor.path),
-      () => images.load(Assets.images.ui.tileCursorBackground.path),
+      // () => images.load(Assets.images.ui.tileCursor.path),
+      // () => images.load(Assets.images.ui.tileCursorBackground.path),
 
-      () => images.load(Assets.images.ui.uiTrash.path),
-      () => images.load(Assets.images.ui.uiGarbageLoader.path),
-      () => images.load(Assets.images.ui.uiRecycler.path),
-      () => images.load(Assets.images.ui.uiIncinerator.path),
+      // () => images.load(Assets.images.ui.uiTrash.path),
+      // () => images.load(Assets.images.ui.uiGarbageLoader.path),
+      // () => images.load(Assets.images.ui.uiRecycler.path),
+      // () => images.load(Assets.images.ui.uiIncinerator.path),
 
-      () => images.load(Assets.images.ui.rotateLEFT.path),
-      () => images.load(Assets.images.ui.rotateRIGHT.path),
+      // () => images.load(Assets.images.ui.rotateLEFT.path),
+      // () => images.load(Assets.images.ui.rotateRIGHT.path),
 
       ///
-      /// WINDOW
-      () => images.load(Assets.images.ui.dialog.tl.path),
-      () => images.load(Assets.images.ui.dialog.tc.path),
-      () => images.load(Assets.images.ui.dialog.tr.path),
-      () => images.load(Assets.images.ui.dialog.cl.path),
-      () => images.load(Assets.images.ui.dialog.cc.path),
-      () => images.load(Assets.images.ui.dialog.cr.path),
-      () => images.load(Assets.images.ui.dialog.bl.path),
-      () => images.load(Assets.images.ui.dialog.bc.path),
-      () => images.load(Assets.images.ui.dialog.br.path),
+      /// DIALOG
       () => images.load(Assets.images.ui.dialog.complete.path),
+      () => images.load(Assets.images.ui.dialog.completeElevated.path),
+      () => images.load(Assets.images.ui.dialog.completeThick.path),
+      () => images.load(Assets.images.ui.dialog.completeWhite.path),
+      () => images.load(Assets.images.ui.dialog.close.path),
+      () => images.load(Assets.images.ui.dialog.forward.path),
+      () => images.load(Assets.images.ui.dialog.backward.path),
 
       ///
       /// TRUCK
-      () => images.load(Assets.images.truckBR.path),
-      () => images.load(Assets.images.truckTL.path),
-      () => images.load(Assets.images.truck.path),
+      for (AssetGenImage element in Assets.images.trucks.values) () => images.load(element.path),
+      () => images.load(Assets.images.trucks.stacked.truckYStacked.path),
+      () => images.load(Assets.images.trucks.stacked.truckBStacked.path),
+      () => images.load(Assets.images.trucks.stacked.truckPStacked.path),
 
       ///
       /// BUILDINGS

@@ -3,6 +3,7 @@ import 'dart:ui';
 import 'package:flame/components.dart' hide ButtonState;
 import 'package:flame/input.dart';
 import 'package:flame_riverpod/flame_riverpod.dart';
+import 'package:mgame/flame_game/riverpod_controllers/overlay_controller.dart';
 
 import '../../gen/assets.gen.dart';
 import '../riverpod_controllers/ui_controller.dart';
@@ -36,8 +37,9 @@ class UIBottomBarButton extends SpriteButtonComponent with HasGameReference, Riv
 
   @override
   void onTapDown(_) {
-    ref.read(activeUIButtonControllerProvider.notifier).gotTapped(buttonType);
-
+    if (!ref.read(overlayControllerProvider).isVisible) {
+      ref.read(activeUIButtonControllerProvider.notifier).gotTapped(buttonType);
+    }
     super.onTapDown(_);
   }
 
