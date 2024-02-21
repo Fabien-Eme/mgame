@@ -1,5 +1,6 @@
 import 'package:flame/components.dart';
 import 'package:flame_riverpod/flame_riverpod.dart';
+import 'package:mgame/flame_game/menu.dart/main_menu.dart';
 import 'package:mgame/flame_game/riverpod_controllers/overlay_controller.dart';
 
 import '../game.dart';
@@ -24,7 +25,7 @@ class GameController extends Component with HasGameReference<MGame>, RiverpodCom
     game.camera.viewport.remove(game.mainMenu);
 
     addWorld();
-    Future.delayed(const Duration(seconds: 1)).then((value) => game.isMainMenu = false);
+    Future.delayed(const Duration(milliseconds: 100)).then((value) => game.isMainMenu = false);
 
     ref.read(overlayControllerProvider.notifier).overlayClose();
   }
@@ -35,6 +36,7 @@ class GameController extends Component with HasGameReference<MGame>, RiverpodCom
     await removeWorld();
     await removeUI();
 
+    game.mainMenu = MainMenu(position: Vector2(MGame.gameWidth / 2, MGame.gameHeight / 2));
     game.camera.viewport.add(game.mainMenu);
   }
 

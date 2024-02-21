@@ -40,23 +40,26 @@ class ContentSettings extends PositionComponent with HasGameReference<MGame>, Ri
         ref.read(overlayControllerProvider.notifier).overlayClose();
       },
       buttonSize: Vector2(150, 50),
-      position: Vector2(boxSize.x / 5, boxSize.y / 2 - 50),
+      position: Vector2((game.isMainMenu) ? 0 : boxSize.x / 5, boxSize.y / 2 - 50),
     );
     add(buttonConfirm);
     (parent as OverlayDialog).listButtons.add({'coordinates': buttonConfirm.position, 'size': buttonConfirm.buttonSize});
 
-    final buttonMenu = DialogButton(
-      text: 'Main Menu',
-      onPressed: () {
-        game.gameController.goToMainMenu();
-      },
-      textStyle: MyTextStyle.buttonRed,
-      buttonSize: Vector2(200, 50),
-      isButtonBack: true,
-      position: Vector2(-boxSize.x / 5, boxSize.y / 2 - 50),
-    );
-    add(buttonMenu);
-    (parent as OverlayDialog).listButtons.add({'coordinates': buttonMenu.position, 'size': buttonMenu.buttonSize});
+    if (!game.isMainMenu) {
+      final buttonMenu = DialogButton(
+        text: 'Main Menu',
+        onPressed: () {
+          game.gameController.goToMainMenu();
+        },
+        textStyle: MyTextStyle.buttonRed,
+        buttonSize: Vector2(200, 50),
+        isButtonBack: true,
+        position: Vector2(-boxSize.x / 5, boxSize.y / 2 - 50),
+      );
+
+      add(buttonMenu);
+      (parent as OverlayDialog).listButtons.add({'coordinates': buttonMenu.position, 'size': buttonMenu.buttonSize});
+    }
 
     ///
     ///

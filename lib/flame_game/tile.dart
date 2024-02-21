@@ -41,6 +41,14 @@ class Tile extends SpriteComponent with HasGameRef<MGame>, HasWorldReference<Gam
 
   @override
   FutureOr<void> onLoad() {
+    if (tileType == TileType.forestS || tileType == TileType.forestW || tileType == TileType.forestN || tileType == TileType.forestE) {
+      isTileConstructible = false;
+      isTileDestructible = false;
+      isBuildingConstructible = false;
+      isBuildingDestructible = false;
+    }
+    anchor = Anchor.bottomCenter;
+    position += Vector2(50, 64);
     shownTileType = tileType;
     shownDimetricGridCoordinates = dimetricCoordinates;
     updateSprite();
@@ -54,7 +62,9 @@ class Tile extends SpriteComponent with HasGameRef<MGame>, HasWorldReference<Gam
   void onMount() {
     addToGameWidgetBuild(() => ref.listen(rotationControllerProvider, (previous, value) {
           rotation = value;
-          updatePosition();
+          if (!isForest()) {
+            updatePosition();
+          }
           updateSprite();
         }));
 
@@ -74,7 +84,7 @@ class Tile extends SpriteComponent with HasGameRef<MGame>, HasWorldReference<Gam
   void updatePosition() {
     shownDimetricGridCoordinates = game.convertRotations.rotateCoordinates(dimetricCoordinates);
     priority = convertDimetricPointToGridPoint(shownDimetricGridCoordinates).x;
-    position = convertDimetricVectorToWorldCoordinates(Vector2(shownDimetricGridCoordinates.x.toDouble(), shownDimetricGridCoordinates.y.toDouble()));
+    position = convertDimetricVectorToWorldCoordinates(Vector2(shownDimetricGridCoordinates.x.toDouble(), shownDimetricGridCoordinates.y.toDouble())) + Vector2(50, 64);
   }
 
   void updateSprite() {
@@ -249,5 +259,13 @@ class Tile extends SpriteComponent with HasGameRef<MGame>, HasWorldReference<Gam
 
   Point<int> getDimetricCoordinates() {
     return dimetricCoordinates;
+  }
+
+  bool isForest() {
+    if (tileType == TileType.forestS || tileType == TileType.forestW || tileType == TileType.forestN || tileType == TileType.forestE) {
+      return true;
+    } else {
+      return false;
+    }
   }
 }

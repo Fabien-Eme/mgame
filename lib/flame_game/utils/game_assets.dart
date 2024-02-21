@@ -10,6 +10,7 @@ extension MGameAssets on MGame {
       ///
       /// TILES
       for (AssetGenImage element in Assets.images.tiles.values) () => images.load(element.path),
+      for (AssetGenImage element in Assets.images.tiles.forest.values) () => images.load(element.path),
 
       ///
       /// UI

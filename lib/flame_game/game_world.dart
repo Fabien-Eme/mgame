@@ -13,7 +13,7 @@ import 'tile.dart';
 import 'tile_helper.dart';
 import 'truck/truck_stacked.dart';
 
-class GameWorld extends World with HasGameRef<MGame>, TapCallbacks {
+class GameWorld extends World with HasGameReference<MGame>, TapCallbacks {
   GameWorld();
   static const int gridWidth = 20;
   static const int gridHeight = 39;
@@ -27,6 +27,11 @@ class GameWorld extends World with HasGameRef<MGame>, TapCallbacks {
   @override
   FutureOr<void> onMount() {
     super.onMount();
+
+    addAll(generateGridForestTop());
+    addAll(generateGridForestLeft());
+    addAll(generateGridForestRight());
+    addAll(generateGridForestBottom());
 
     /// Add grid
     grid = generateGrid();
@@ -68,9 +73,65 @@ class GameWorld extends World with HasGameRef<MGame>, TapCallbacks {
               gridCoordinates: Point<int>(i, j),
               dimetricCoordinates: convertGridPointToGridDimetric(i, j),
               position: Vector2(j * MGame.tileWidth + ((i.isEven) ? 0 : MGame.tileHeight), i * (MGame.tileHeight / 2)),
-            );
+            )..priority = i;
           },
         );
+      },
+    );
+  }
+
+  List<Tile> generateGridForestTop() {
+    return List.generate(
+      gridWidth + 1,
+      (i) {
+        return Tile(
+          tileType: TileType.forestS,
+          gridCoordinates: Point<int>(0, i),
+          dimetricCoordinates: convertGridPointToGridDimetric(0, i),
+          position: Vector2(i * MGame.tileWidth - MGame.tileWidth / 2, -MGame.tileHeight / 2),
+        );
+      },
+    );
+  }
+
+  List<Tile> generateGridForestLeft() {
+    return List.generate(
+      gridHeight ~/ 2 + 1,
+      (i) {
+        return Tile(
+          tileType: TileType.forestS,
+          gridCoordinates: Point<int>(i, -1),
+          dimetricCoordinates: convertGridPointToGridDimetric(i, -1),
+          position: Vector2(-MGame.tileWidth / 2, i * MGame.tileHeight + MGame.tileHeight / 2),
+        )..priority = i * 2 + 1;
+      },
+    );
+  }
+
+  List<Tile> generateGridForestBottom() {
+    return List.generate(
+      gridWidth + 1,
+      (i) {
+        return Tile(
+          tileType: TileType.forestS,
+          gridCoordinates: Point<int>(gridHeight - 1, i),
+          dimetricCoordinates: convertGridPointToGridDimetric(gridHeight - 1, i),
+          position: Vector2(i * MGame.tileWidth - MGame.tileWidth / 2, gridHeight * (MGame.tileHeight / 2)),
+        )..priority = 600;
+      },
+    );
+  }
+
+  List<Tile> generateGridForestRight() {
+    return List.generate(
+      gridHeight ~/ 2 + 1,
+      (i) {
+        return Tile(
+          tileType: TileType.forestS,
+          gridCoordinates: Point<int>(i, gridWidth),
+          dimetricCoordinates: convertGridPointToGridDimetric(i, gridWidth),
+          position: Vector2(gridWidth * MGame.tileWidth - MGame.tileWidth / 2, i * MGame.tileHeight + MGame.tileHeight / 2),
+        )..priority = i * 2 + 1;
       },
     );
   }

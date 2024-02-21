@@ -1,5 +1,6 @@
 import '../gen/assets.gen.dart';
 import 'riverpod_controllers/rotation_controller.dart';
+import 'dart:math';
 
 TileType getShownTileType(TileType tileType, Rotation rotation) {
   switch (tileType) {
@@ -161,6 +162,52 @@ TileType getShownTileType(TileType tileType, Rotation rotation) {
       }
     case TileType.roadSWNE:
       return tileType;
+
+    case TileType.forestS:
+      switch (rotation) {
+        case Rotation.zero:
+          return tileType;
+        case Rotation.halfPi:
+          return TileType.forestE;
+        case Rotation.pi:
+          return TileType.forestN;
+        case Rotation.piAndHalf:
+          return TileType.forestW;
+      }
+    case TileType.forestW:
+      switch (rotation) {
+        case Rotation.zero:
+          return tileType;
+        case Rotation.halfPi:
+          return TileType.forestS;
+        case Rotation.pi:
+          return TileType.forestE;
+        case Rotation.piAndHalf:
+          return TileType.forestN;
+      }
+    case TileType.forestN:
+      switch (rotation) {
+        case Rotation.zero:
+          return tileType;
+        case Rotation.halfPi:
+          return TileType.forestW;
+        case Rotation.pi:
+          return TileType.forestS;
+        case Rotation.piAndHalf:
+          return TileType.forestE;
+      }
+    case TileType.forestE:
+      switch (rotation) {
+        case Rotation.zero:
+          return tileType;
+        case Rotation.halfPi:
+          return TileType.forestN;
+        case Rotation.pi:
+          return TileType.forestW;
+        case Rotation.piAndHalf:
+          return TileType.forestS;
+      }
+
     case TileType.grass:
       return tileType;
     default:
@@ -186,6 +233,10 @@ enum TileType {
   roadWNE,
   roadSWNE,
 
+  forestS,
+  forestW,
+  forestN,
+  forestE,
   grass;
 
   String get path {
@@ -207,6 +258,10 @@ enum TileType {
       TileType.roadWNE => Assets.images.tiles.roadWNE.path,
       TileType.roadSWNE => Assets.images.tiles.roadSWNE.path,
       TileType.grass => Assets.images.tiles.grass.path,
+      TileType.forestS => Assets.images.tiles.forest.forestS.path,
+      TileType.forestW => Assets.images.tiles.forest.forestW.path,
+      TileType.forestN => Assets.images.tiles.forest.forestN.path,
+      TileType.forestE => Assets.images.tiles.forest.forestE.path,
     };
   }
 
@@ -216,5 +271,16 @@ enum TileType {
     } else {
       return false;
     }
+  }
+
+  String getForestAsset() {
+    // final list = Assets.images.tiles.forest.values;
+    final list = [
+      Assets.images.tiles.forest.forestTile3,
+      Assets.images.tiles.forest.forestTile4,
+      Assets.images.tiles.forest.forestTile5,
+    ];
+
+    return list[Random().nextInt(list.length)].path;
   }
 }

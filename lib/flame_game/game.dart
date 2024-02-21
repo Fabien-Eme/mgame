@@ -75,7 +75,7 @@ class MGame extends FlameGame with MouseMovementDetector, ScrollDetector, MultiT
 
   bool isMainMenu = true;
 
-  late final MainMenu mainMenu;
+  late MainMenu mainMenu;
 
   OverlayDialog? overlayDialog;
 
