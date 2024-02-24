@@ -4,6 +4,9 @@ import 'dart:math';
 
 TileType getShownTileType(TileType tileType, Rotation rotation) {
   switch (tileType) {
+    case TileType.grass:
+      return tileType;
+
     case TileType.road:
       return tileType;
     case TileType.roadS:
@@ -208,14 +211,59 @@ TileType getShownTileType(TileType tileType, Rotation rotation) {
           return TileType.forestS;
       }
 
-    case TileType.grass:
-      return tileType;
+    case TileType.arrowS:
+      switch (rotation) {
+        case Rotation.zero:
+          return tileType;
+        case Rotation.halfPi:
+          return TileType.arrowE;
+        case Rotation.pi:
+          return TileType.arrowN;
+        case Rotation.piAndHalf:
+          return TileType.arrowW;
+      }
+    case TileType.arrowW:
+      switch (rotation) {
+        case Rotation.zero:
+          return tileType;
+        case Rotation.halfPi:
+          return TileType.arrowS;
+        case Rotation.pi:
+          return TileType.arrowE;
+        case Rotation.piAndHalf:
+          return TileType.arrowN;
+      }
+    case TileType.arrowN:
+      switch (rotation) {
+        case Rotation.zero:
+          return tileType;
+        case Rotation.halfPi:
+          return TileType.arrowW;
+        case Rotation.pi:
+          return TileType.arrowS;
+        case Rotation.piAndHalf:
+          return TileType.arrowE;
+      }
+    case TileType.arrowE:
+      switch (rotation) {
+        case Rotation.zero:
+          return tileType;
+        case Rotation.halfPi:
+          return TileType.arrowN;
+        case Rotation.pi:
+          return TileType.arrowW;
+        case Rotation.piAndHalf:
+          return TileType.arrowS;
+      }
+
     default:
       return tileType;
   }
 }
 
 enum TileType {
+  grass,
+
   road,
   roadS,
   roadW,
@@ -237,10 +285,15 @@ enum TileType {
   forestW,
   forestN,
   forestE,
-  grass;
+
+  arrowS,
+  arrowW,
+  arrowN,
+  arrowE;
 
   String get path {
     return switch (this) {
+      TileType.grass => Assets.images.tiles.grass.path,
       TileType.road => Assets.images.tiles.road.path,
       TileType.roadS => Assets.images.tiles.roadS.path,
       TileType.roadW => Assets.images.tiles.roadW.path,
@@ -257,11 +310,14 @@ enum TileType {
       TileType.roadSWN => Assets.images.tiles.roadSWN.path,
       TileType.roadWNE => Assets.images.tiles.roadWNE.path,
       TileType.roadSWNE => Assets.images.tiles.roadSWNE.path,
-      TileType.grass => Assets.images.tiles.grass.path,
       TileType.forestS => Assets.images.tiles.forest.forestS.path,
       TileType.forestW => Assets.images.tiles.forest.forestW.path,
       TileType.forestN => Assets.images.tiles.forest.forestN.path,
       TileType.forestE => Assets.images.tiles.forest.forestE.path,
+      TileType.arrowS => Assets.images.tiles.arrows.arrowS.path,
+      TileType.arrowW => Assets.images.tiles.arrows.arrowW.path,
+      TileType.arrowN => Assets.images.tiles.arrows.arrowN.path,
+      TileType.arrowE => Assets.images.tiles.arrows.arrowE.path,
     };
   }
 

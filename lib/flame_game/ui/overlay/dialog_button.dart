@@ -1,6 +1,5 @@
 import 'package:flame/components.dart' hide ButtonState;
 import 'package:flame/events.dart';
-import 'package:flame_audio/flame_audio.dart';
 import 'package:mgame/flame_game/utils/my_text_style.dart';
 
 import '../../../gen/assets.gen.dart';

@@ -94,6 +94,38 @@ class Incinerator extends Building {
   }
 
   @override
+  void initialize() {
+    incineratorDoor.animationTicker!.paused = true;
+    incineratorDoor.animationTicker!.setToLast();
+  }
+
+  @override
+  void closeDoor() {
+    if (incineratorDoor.isAnimationReversed) {
+      int currentIndex = incineratorDoor.animationTicker!.currentIndex;
+      incineratorDoor.animation = incineratorDoor.animation!.reversed();
+      incineratorDoor.animationTicker!.currentIndex = incineratorDoor.spriteAmount - 1 - currentIndex;
+      incineratorDoor.animationTicker!.paused = false;
+      incineratorDoor.isAnimationReversed = false;
+    } else {
+      incineratorDoor.animationTicker!.paused = false;
+    }
+  }
+
+  @override
+  void openDoor() {
+    if (incineratorDoor.isAnimationReversed) {
+      incineratorDoor.animationTicker!.paused = false;
+    } else {
+      int currentIndex = incineratorDoor.animationTicker!.currentIndex;
+      incineratorDoor.animation = incineratorDoor.animation!.reversed();
+      incineratorDoor.animationTicker!.currentIndex = incineratorDoor.spriteAmount - 1 - currentIndex;
+      incineratorDoor.animationTicker!.paused = false;
+      incineratorDoor.isAnimationReversed = true;
+    }
+  }
+
+  @override
   void onRemove() {
     world.remove(incineratorFront);
     world.remove(incineratorBack);

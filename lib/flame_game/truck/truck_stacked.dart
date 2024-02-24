@@ -24,7 +24,7 @@ class TruckStacked extends PositionComponent with HasGameReference {
     angle = pi / 2;
 
     addSprites();
-    spriteBatchComponent = SpriteBatchComponent(spriteBatch: spriteBatch, paint: Paint()..filterQuality = FilterQuality.none);
+    spriteBatchComponent = SpriteBatchComponent(spriteBatch: spriteBatch, paint: Paint()..filterQuality = FilterQuality.low);
     add(spriteBatchComponent);
     return super.onLoad();
   }
@@ -37,7 +37,7 @@ class TruckStacked extends PositionComponent with HasGameReference {
 
     for (int i = 0; i <= sliceCount; i++) {
       spriteBatch.add(
-        source: Rect.fromLTWH(0, spriteHeight * (sliceCount - i), spriteWidth, spriteHeight),
+        source: Rect.fromLTWH(0, spriteHeight * (sliceCount - i) + 0.3, spriteWidth, spriteHeight),
         offset: Vector2(-i.toDouble() * 0.8, 0),
         anchor: Vector2(8.5, 16.5),
         rotation: stackAngle,

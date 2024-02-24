@@ -3,7 +3,6 @@ import 'dart:async';
 import 'package:flame/components.dart';
 import 'package:flame/events.dart';
 import 'package:flame_riverpod/flame_riverpod.dart';
-import 'package:mgame/flame_game/riverpod_controllers/overlay_controller.dart';
 
 import '../../../gen/assets.gen.dart';
 import '../../game.dart';

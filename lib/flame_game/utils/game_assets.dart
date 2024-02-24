@@ -11,6 +11,7 @@ extension MGameAssets on MGame {
       /// TILES
       for (AssetGenImage element in Assets.images.tiles.values) () => images.load(element.path),
       for (AssetGenImage element in Assets.images.tiles.forest.values) () => images.load(element.path),
+      for (AssetGenImage element in Assets.images.tiles.arrows.values) () => images.load(element.path),
 
       ///
       /// UI
@@ -27,6 +28,8 @@ extension MGameAssets on MGame {
 
       ///
       /// BUILDINGS
+      for (AssetGenImage element in Assets.images.buildings.city.values) () => images.load(element.path),
+
       for (AssetGenImage element in Assets.images.buildings.garbageConveyor.values) () => images.load(element.path),
 
       for (AssetGenImage element in Assets.images.buildings.garbageLoader.values) () => images.load(element.path),
@@ -38,6 +41,10 @@ extension MGameAssets on MGame {
       for (AssetGenImage element in Assets.images.buildings.garage.values) () => images.load(element.path),
 
       for (AssetGenImage element in Assets.images.buildings.values) () => images.load(element.path),
+
+      ///
+      /// GARBAGE
+      for (AssetGenImage element in Assets.images.garbage.values) () => images.load(element.path),
 
       ///
       /// UTILS

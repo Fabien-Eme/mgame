@@ -76,13 +76,16 @@ flutter:
   assets:
     - assets/icons/
     - assets/images/
+    - assets/images/garbage/
     - assets/images/trucks/
     - assets/images/trucks/stacked/
     - assets/images/tiles/
     - assets/images/tiles/forest/
+    - assets/images/tiles/arrows/
     - assets/images/ui/
     - assets/images/ui/dialog/
     - assets/images/buildings/
+    - assets/images/buildings/city/
     - assets/images/buildings/garbage_conveyor/
     - assets/images/buildings/garbage_loader/
     - assets/images/buildings/recycler/

@@ -20,10 +20,10 @@ class GarbageLoader extends Building {
   late final GarbageLoaderBack garbageLoaderBack;
 
   @override
-  FutureOr<void> onLoad() {
+  FutureOr<void> onLoad() async {
     garbageLoaderFront = GarbageLoaderFront(direction: direction, garbageLoaderFlow: garbageLoaderFlow, position: position + offset);
     garbageLoaderBack = GarbageLoaderBack(direction: direction, position: position + offset);
-    world.addAll([
+    await world.addAll([
       garbageLoaderFront,
       garbageLoaderBack,
     ]);
@@ -78,6 +78,38 @@ class GarbageLoader extends Building {
   void makeTransparent() {
     garbageLoaderFront.opacity = 0.8;
     garbageLoaderBack.opacity = 0.8;
+  }
+
+  @override
+  void initialize() {
+    garbageLoaderFront.animationTicker!.paused = true;
+    garbageLoaderFront.animationTicker!.setToLast();
+  }
+
+  @override
+  void closeDoor() {
+    if (garbageLoaderFront.isAnimationReversed) {
+      int currentIndex = garbageLoaderFront.animationTicker!.currentIndex;
+      garbageLoaderFront.animation = garbageLoaderFront.animation!.reversed();
+      garbageLoaderFront.animationTicker!.currentIndex = garbageLoaderFront.spriteAmount - 1 - currentIndex;
+      garbageLoaderFront.animationTicker!.paused = false;
+      garbageLoaderFront.isAnimationReversed = false;
+    } else {
+      garbageLoaderFront.animationTicker!.paused = false;
+    }
+  }
+
+  @override
+  void openDoor() {
+    if (garbageLoaderFront.isAnimationReversed) {
+      garbageLoaderFront.animationTicker!.paused = false;
+    } else {
+      int currentIndex = garbageLoaderFront.animationTicker!.currentIndex;
+      garbageLoaderFront.animation = garbageLoaderFront.animation!.reversed();
+      garbageLoaderFront.animationTicker!.currentIndex = garbageLoaderFront.spriteAmount - 1 - currentIndex;
+      garbageLoaderFront.animationTicker!.paused = false;
+      garbageLoaderFront.isAnimationReversed = true;
+    }
   }
 
   @override

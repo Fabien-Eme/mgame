@@ -33,11 +33,16 @@ class Tile extends SpriteComponent with HasGameRef<MGame>, HasWorldReference<Gam
   TileType? projectedTileType;
   TileType? beforeProjectionTileType;
   Rotation rotation = Rotation.zero;
+  TileType defaultTyleType = TileType.grass;
+
+  bool isLoadPoint = false;
+  bool isUnLoadPoint = false;
 
   late Point<int> shownDimetricGridCoordinates;
   late TileType shownTileType;
 
   List<Directions> listConnectionRestriction = [];
+  List<BuildingType> listOnlyBuildingsAllowed = [];
 
   @override
   FutureOr<void> onLoad() {
@@ -130,14 +135,14 @@ class Tile extends SpriteComponent with HasGameRef<MGame>, HasWorldReference<Gam
     if (previousTileType != null) setTileType(previousTileType!);
   }
 
-  void constructTile({required TileType tileType, bool isMouseDragging = false}) {
-    if (isTileConstructible) {
+  void constructTile({required TileType tileType, bool isMouseDragging = false, bool isIndestructible = false, bool isLoader = false}) {
+    if ((isTileConstructible && !(isLoadPoint || isUnLoadPoint)) || ((isLoadPoint || isUnLoadPoint) && isLoader)) {
       if (tileType == TileType.road) {
         tileType = determineMyRoadType();
       }
       setTileType(tileType);
       isTileConstructible = false;
-      isTileDestructible = true;
+      isTileDestructible = !isIndestructible;
       isBuildingConstructible = false;
       projectedTileType = null;
       beforeProjectionTileType = null;
@@ -154,19 +159,19 @@ class Tile extends SpriteComponent with HasGameRef<MGame>, HasWorldReference<Gam
   }
 
   void destroyTile() {
-    isTileConstructible = true;
+    isTileConstructible = (isLoadPoint || isUnLoadPoint) ? false : true;
     isTileDestructible = false;
     isBuildingConstructible = true;
 
-    setTileType(TileType.grass);
-    previousTileType = TileType.grass;
+    setTileType(defaultTyleType);
+    previousTileType = null;
 
     world.tileCursor.highlightDefault();
   }
 
   void destroyBuilding() {
     if (isBuildingDestructible) {
-      if (tileType == TileType.grass) {
+      if (tileType == defaultTyleType) {
         isTileConstructible = true;
         isTileDestructible = false;
         isBuildingConstructible = true;
@@ -251,10 +256,38 @@ class Tile extends SpriteComponent with HasGameRef<MGame>, HasWorldReference<Gam
     buildingOnTile = building;
   }
 
-  void markAsBuiltButStillConstructible(Building building) {
+  void markAsBuiltAndIndestructible(Building building) {
+    isTileConstructible = false;
+    isTileDestructible = false;
+    isBuildingConstructible = false;
+    isBuildingDestructible = false;
+    buildingOnTile = building;
+  }
+
+  void markAsBuiltAndConstructible(Building building) {
     isBuildingConstructible = false;
     isBuildingDestructible = true;
     buildingOnTile = building;
+  }
+
+  void markAsBuiltAndConstructibleAndBuildingIndestructible(Building building) {
+    isBuildingConstructible = false;
+    isBuildingDestructible = true;
+    isBuildingConstructible = false;
+    isBuildingDestructible = false;
+    buildingOnTile = building;
+  }
+
+  void marksAsLoadPoint() {
+    isLoadPoint = true;
+    listOnlyBuildingsAllowed = [BuildingType.garbageLoader];
+    isTileConstructible = false;
+  }
+
+  void markAsUnloadPoint() {
+    isUnLoadPoint = true;
+    listOnlyBuildingsAllowed = [BuildingType.garbageLoader];
+    isTileConstructible = false;
   }
 
   Point<int> getDimetricCoordinates() {

@@ -94,6 +94,37 @@ class Garage extends Building {
   }
 
   @override
+  void initialize() {
+    garageDoor.animationTicker!.paused = true;
+  }
+
+  @override
+  void closeDoor() {
+    if (garageDoor.isAnimationReversed) {
+      garageDoor.animationTicker!.paused = false;
+    } else {
+      int currentIndex = garageDoor.animationTicker!.currentIndex;
+      garageDoor.animation = garageDoor.animation!.reversed();
+      garageDoor.animationTicker!.currentIndex = garageDoor.spriteAmount - 1 - currentIndex;
+      garageDoor.animationTicker!.paused = false;
+      garageDoor.isAnimationReversed = true;
+    }
+  }
+
+  @override
+  void openDoor() {
+    if (garageDoor.isAnimationReversed) {
+      int currentIndex = garageDoor.animationTicker!.currentIndex;
+      garageDoor.animation = garageDoor.animation!.reversed();
+      garageDoor.animationTicker!.currentIndex = garageDoor.spriteAmount - 1 - currentIndex;
+      garageDoor.animationTicker!.paused = false;
+      garageDoor.isAnimationReversed = false;
+    } else {
+      garageDoor.animationTicker!.paused = false;
+    }
+  }
+
+  @override
   void onRemove() {
     world.remove(garageFront);
     world.remove(garageBack);

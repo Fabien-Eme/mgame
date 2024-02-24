@@ -9,4 +9,6 @@ class Palette {
   static const Color darkGrey = Color.fromARGB(255, 124, 124, 124);
   static const Color grey = Color.fromARGB(255, 183, 183, 183);
   static const Color backGroundMenu = Color.fromARGB(255, 199, 210, 186);
+  static const Color white = Color.fromARGB(255, 255, 255, 255);
+  static const Color darkBlue = Color.fromARGB(255, 36, 80, 225);
 }

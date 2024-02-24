@@ -11,11 +11,14 @@ class GarageDoor extends SpriteAnimationComponent with HasGameRef {
   Directions direction;
   late String asset;
 
+  final int spriteAmount = 8;
+  bool isAnimationReversed = false;
+
   SpriteAnimationData spriteAnimationData = SpriteAnimationData.sequenced(
     amount: 8,
     stepTime: 0.1,
     textureSize: Vector2(300, 262),
-    loop: true,
+    loop: false,
   );
 
   @override
@@ -38,14 +41,36 @@ class GarageDoor extends SpriteAnimationComponent with HasGameRef {
     switch (direction) {
       case Directions.S:
         asset = Assets.images.buildings.garage.garageSDoorSpritesheet.path;
-        animation = SpriteAnimation.fromFrameData(game.images.fromCache(asset), spriteAnimationData);
+        opacity = 1;
       case Directions.W:
-        animation = null;
+        asset = Assets.images.buildings.garage.garageSDoorSpritesheet.path;
+        opacity = 0;
       case Directions.N:
-        animation = null;
+        asset = Assets.images.buildings.garage.garageSDoorSpritesheet.path;
+        opacity = 0;
       case Directions.E:
         asset = Assets.images.buildings.garage.garageEDoorSpritesheet.path;
-        animation = SpriteAnimation.fromFrameData(game.images.fromCache(asset), spriteAnimationData);
+        opacity = 1;
+    }
+
+    bool hasPreviousAnimation = false;
+    bool isPaused = false;
+    int currentIndex = 0;
+
+    if (animationTicker != null) {
+      hasPreviousAnimation = true;
+      isPaused = animationTicker!.isPaused;
+      currentIndex = animationTicker!.currentIndex;
+    }
+
+    animation = SpriteAnimation.fromFrameData(
+      game.images.fromCache(asset),
+      spriteAnimationData,
+    );
+
+    if (hasPreviousAnimation) {
+      animationTicker!.paused = isPaused;
+      animationTicker!.currentIndex = currentIndex;
     }
   }
 }

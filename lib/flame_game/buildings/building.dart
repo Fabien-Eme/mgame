@@ -13,6 +13,7 @@ import '../game.dart';
 import '../riverpod_controllers/rotation_controller.dart';
 import '../tile.dart';
 import '../utils/convert_rotations.dart';
+import 'city/city.dart';
 import 'garage/garage.dart';
 
 abstract class Building extends PositionComponent with HasGameReference<MGame>, HasWorldReference, RiverpodComponentMixin {
@@ -23,6 +24,9 @@ abstract class Building extends PositionComponent with HasGameReference<MGame>, 
   List<Tile?> tilesIAmOn = [];
 
   Building({this.direction = Directions.E, required this.anchorTile, super.position});
+
+  List<Vector2> listInitialGarbagePosition = [];
+  Vector2 finalGarbagePosition = Vector2(0, 0);
 
   @override
   void onMount() {
@@ -82,24 +86,35 @@ abstract class Building extends PositionComponent with HasGameReference<MGame>, 
   void makeTransparent() {}
 
   @mustBeOverridden
+  void openDoor() {}
+
+  @mustBeOverridden
+  void closeDoor() {}
+
+  @mustBeOverridden
   @override
   void onRemove() {
     super.onRemove();
   }
+
+  @mustBeOverridden
+  void initialize() {}
 }
 
 Building createBuilding({required BuildingType buildingType, Directions? direction, Point<int>? anchorTile}) {
   anchorTile ??= const Point(0, 0);
   direction ??= Directions.E;
   return switch (buildingType) {
-    BuildingType.garbageLoader => GarbageLoader(direction: direction, garbageLoaderFlow: GarbageLoaderFlow.flowIn, anchorTile: anchorTile),
+    BuildingType.garbageLoader => GarbageLoader(direction: direction, garbageLoaderFlow: GarbageLoaderFlow.flowOut, anchorTile: anchorTile),
     BuildingType.recycler => Incinerator(direction: direction, anchorTile: anchorTile),
     BuildingType.incinerator => Incinerator(direction: direction, anchorTile: anchorTile),
     BuildingType.garage => Garage(direction: direction, anchorTile: anchorTile),
+    BuildingType.city => City(direction: direction, anchorTile: anchorTile),
   };
 }
 
 enum BuildingType {
+  city,
   garbageLoader,
   recycler,
   incinerator,

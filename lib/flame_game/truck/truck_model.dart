@@ -22,8 +22,9 @@ class TruckModel {
   int costPerTick;
   int buyPollution;
   int pollutionPerTick;
+  int maxLoad;
 
-  TruckModel({required this.truckType, required this.name, required this.buyCost, required this.costPerTick, required this.buyPollution, required this.pollutionPerTick});
+  TruckModel({required this.truckType, required this.name, required this.buyCost, required this.costPerTick, required this.buyPollution, required this.pollutionPerTick, required this.maxLoad});
 
   factory TruckModel.yellow() {
     return TruckModel(
@@ -33,6 +34,7 @@ class TruckModel {
       costPerTick: 10,
       buyPollution: 1000,
       pollutionPerTick: 20,
+      maxLoad: 15,
     );
   }
   factory TruckModel.blue() {
@@ -43,6 +45,7 @@ class TruckModel {
       costPerTick: 8,
       buyPollution: 2500,
       pollutionPerTick: 1,
+      maxLoad: 10,
     );
   }
   factory TruckModel.purple() {
@@ -53,6 +56,7 @@ class TruckModel {
       costPerTick: 13,
       buyPollution: 1000,
       pollutionPerTick: 18,
+      maxLoad: 12,
     );
   }
 }

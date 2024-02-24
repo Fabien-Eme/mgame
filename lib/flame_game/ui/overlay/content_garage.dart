@@ -121,7 +121,7 @@ class ContentGarage extends PositionComponent {
   String getTruckDescriptionText(TruckType truckType) {
     TruckModel currenTruck = truckType.model;
 
-    return "Price: ${currenTruck.buyCost}\$\nCost per road section: ${currenTruck.costPerTick}\$\n\nFabrication pollution: ${currenTruck.buyPollution}\nPollution per road section: ${currenTruck.pollutionPerTick}\n\nOwned: 0";
+    return "Price: ${currenTruck.buyCost}\$\nCost per road section: ${currenTruck.costPerTick}\$\n\nFabrication pollution: ${currenTruck.buyPollution}\nPollution per road section: ${currenTruck.pollutionPerTick}\n\nMax Load: ${currenTruck.maxLoad}\n\nOwned: 0";
   }
 
   String getTruckTitleText(TruckType truckType) {

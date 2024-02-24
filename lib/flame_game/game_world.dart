@@ -11,7 +11,6 @@ import 'package:mgame/flame_game/utils/convert_rotations.dart';
 import 'buildings/building.dart';
 import 'tile.dart';
 import 'tile_helper.dart';
-import 'truck/truck_stacked.dart';
 
 class GameWorld extends World with HasGameReference<MGame>, TapCallbacks {
   GameWorld();
@@ -25,7 +24,7 @@ class GameWorld extends World with HasGameReference<MGame>, TapCallbacks {
   Building? temporaryBuilding;
 
   @override
-  FutureOr<void> onMount() {
+  FutureOr<void> onMount() async {
     super.onMount();
 
     addAll(generateGridForestTop());
@@ -37,16 +36,19 @@ class GameWorld extends World with HasGameReference<MGame>, TapCallbacks {
     grid = generateGrid();
     addAll([for (List<Tile> row in grid) ...row]);
 
-    /// Add debug components
-    //add(ListDebugComponent());
-
     /// Add Tile Cursor
     add(tileCursor);
 
     /// Add debug grid
     if (isDebugGridNumbersOn) addDebugGridNumbers();
 
-    game.gridController.internalBuildOnTile(const Point<int>(6, -2), BuildingType.garage, Directions.E);
+    await game.gridController.internalBuildOnTile(const Point<int>(6, -2), BuildingType.garage, Directions.E);
+    await game.gridController.internalBuildOnTile(const Point<int>(32, 3), BuildingType.city, Directions.S);
+    for (int i = 0; i < 25; i++) {
+      game.constructionController.construct(posDimetric: Point<int>(7 + i, -1), tileType: TileType.road);
+    }
+    game.constructionController.construct(posDimetric: const Point<int>(31, 0), tileType: TileType.road);
+    game.constructionController.construct(posDimetric: const Point<int>(31, 1), tileType: TileType.road);
 
     add(Truck());
   }

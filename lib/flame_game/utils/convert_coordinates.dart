@@ -45,3 +45,22 @@ bool isVectorInsideObject({required Vector2 vector, required Vector2 objectPosit
     return false;
   }
 }
+
+extension PointConversion on Point<int> {
+  Vector2 convertToVector() {
+    return Vector2(x.toDouble(), y.toDouble());
+  }
+
+  Vector2 convertDimetricPointToWorldCoordinates() {
+    Point<int> gridCoordinates = convertDimetricPointToGridPoint(this);
+    int y = gridCoordinates.x * MGame.tileHeight ~/ 2;
+    int x = (gridCoordinates.y * MGame.tileWidth + ((gridCoordinates.x.isEven) ? 0 : MGame.tileHeight)).toInt();
+    return Vector2(x.toDouble(), y.toDouble());
+  }
+}
+
+extension VectorConversion on Vector2 {
+  Point<int> convertToPoint() {
+    return Point<int>(x.toInt(), y.toInt());
+  }
+}

@@ -11,4 +11,5 @@ class MyTextStyle {
   static TextPaint tab = TextPaint(style: const TextStyle(fontSize: 18, color: Palette.darkGrey, fontFamily: 'Play', fontWeight: FontWeight.w700));
   static TextPaint text = TextPaint(style: const TextStyle(fontSize: 20, color: Palette.darkGrey, fontFamily: 'Play', fontWeight: FontWeight.w400));
   static TextPaint header = TextPaint(style: const TextStyle(fontSize: 22, color: Palette.darkGrey, fontFamily: 'Play', fontWeight: FontWeight.w700));
+  static TextPaint numberDisplay = TextPaint(style: const TextStyle(fontSize: 16, color: Palette.white, fontFamily: 'Play', fontWeight: FontWeight.w700));
 }

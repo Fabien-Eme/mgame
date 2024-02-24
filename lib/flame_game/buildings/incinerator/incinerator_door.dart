@@ -9,13 +9,16 @@ import '../../utils/convert_rotations.dart';
 class IncineratorDoor extends SpriteAnimationComponent with HasGameRef {
   IncineratorDoor({required this.direction, super.position});
   Directions direction;
-  late String asset;
+  String asset = "";
+
+  final int spriteAmount = 8;
+  bool isAnimationReversed = false;
 
   SpriteAnimationData spriteAnimationData = SpriteAnimationData.sequenced(
     amount: 8,
     stepTime: 0.1,
     textureSize: Vector2(300, 312),
-    loop: true,
+    loop: false,
   );
 
   @override
@@ -25,6 +28,9 @@ class IncineratorDoor extends SpriteAnimationComponent with HasGameRef {
     anchor = Anchor.bottomRight;
     updateSprite();
     paint = Paint()..filterQuality = FilterQuality.low;
+
+    animationTicker?.currentIndex = spriteAmount - 1;
+    animationTicker?.paused = true;
 
     return super.onLoad();
   }
@@ -38,15 +44,36 @@ class IncineratorDoor extends SpriteAnimationComponent with HasGameRef {
     switch (direction) {
       case Directions.S:
         asset = Assets.images.buildings.incinerator.doorSSpritesheet.path;
-        animation = SpriteAnimation.fromFrameData(game.images.fromCache(asset), spriteAnimationData);
-
+        opacity = 1;
       case Directions.W:
-        animation = null;
+        asset = Assets.images.buildings.incinerator.doorSSpritesheet.path;
+        opacity = 0;
       case Directions.N:
-        animation = null;
+        asset = Assets.images.buildings.incinerator.doorSSpritesheet.path;
+        opacity = 0;
       case Directions.E:
         asset = Assets.images.buildings.incinerator.doorESpritesheet.path;
-        animation = SpriteAnimation.fromFrameData(game.images.fromCache(asset), spriteAnimationData);
+        opacity = 1;
+    }
+
+    bool hasPreviousAnimation = false;
+    bool isPaused = false;
+    int currentIndex = spriteAmount - 1;
+
+    if (animationTicker != null) {
+      hasPreviousAnimation = true;
+      isPaused = animationTicker!.isPaused;
+      currentIndex = animationTicker!.currentIndex;
+    }
+
+    animation = SpriteAnimation.fromFrameData(
+      game.images.fromCache(asset),
+      spriteAnimationData,
+    );
+
+    if (hasPreviousAnimation) {
+      animationTicker!.paused = isPaused;
+      animationTicker!.currentIndex = currentIndex;
     }
   }
 }

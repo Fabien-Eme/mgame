@@ -12,8 +12,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:mgame/flame_game/controller/building_controller.dart';
 import 'package:mgame/flame_game/controller/game_controller.dart';
+import 'package:mgame/flame_game/controller/garbage_controller.dart';
+import 'package:mgame/flame_game/controller/task_controller.dart';
 import 'package:mgame/flame_game/controller/truck_controller.dart';
-import 'package:mgame/flame_game/listener/construction_mode_listener.dart';
 import 'package:mgame/flame_game/controller/grid_controller.dart';
 import 'package:mgame/flame_game/controller/mouse_controller.dart';
 import 'package:mgame/flame_game/listener/overlay_listener.dart';
@@ -31,7 +32,6 @@ import 'controller/construction_controller.dart';
 import 'controller/cursor_controller.dart';
 import 'controller/drag_zoom_controller.dart';
 import 'controller/tap_controller.dart';
-import 'game_world.dart';
 import 'ui/mouse_cursor.dart';
 import 'utils/palette.dart';
 
@@ -97,6 +97,8 @@ class MGame extends FlameGame with MouseMovementDetector, ScrollDetector, MultiT
   BuildingController buildingController = BuildingController();
   ConvertRotations convertRotations = ConvertRotations();
   TruckController truckController = TruckController();
+  GarbageController garbageController = GarbageController();
+  TaskController taskController = TaskController();
 
   ///
   ///
@@ -131,6 +133,8 @@ class MGame extends FlameGame with MouseMovementDetector, ScrollDetector, MultiT
     add(gameController);
 
     add(OverlayListener());
+
+    gameController.startGame();
     return super.onLoad();
   }
 

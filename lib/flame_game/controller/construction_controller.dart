@@ -11,9 +11,9 @@ import '../tile_helper.dart';
 import '../utils/convert_rotations.dart';
 
 class ConstructionController extends Component with HasGameRef<MGame>, HasWorldReference<GameWorld>, RiverpodComponentMixin {
-  void construct({required Point<int> posDimetric, required TileType tileType, bool isMouseDragging = false}) {
+  void construct({required Point<int> posDimetric, required TileType tileType, bool isMouseDragging = false, bool isIndestructible = false, bool isLoader = false}) {
     if (game.gridController.checkIfWithinGridBoundaries(posDimetric)) {
-      game.gridController.getTileAtDimetricCoordinates(posDimetric)?.constructTile(tileType: tileType, isMouseDragging: isMouseDragging);
+      game.gridController.getTileAtDimetricCoordinates(posDimetric)?.constructTile(tileType: tileType, isMouseDragging: isMouseDragging, isIndestructible: isIndestructible, isLoader: isLoader);
 
       Map<Directions, Tile?> mapNeighbors = game.gridController.getAllNeigbhorsTile(game.gridController.getTileAtDimetricCoordinates(posDimetric));
 
@@ -30,11 +30,15 @@ class ConstructionController extends Component with HasGameRef<MGame>, HasWorldR
     /// Destroy tile
     tile?.destroyTile();
 
-    Map<Directions, Tile?> mapNeighbors = game.gridController.getAllNeigbhorsTile(game.gridController.getTileAtDimetricCoordinates(posDimetric));
+    Map<Directions, Tile?> mapNeighbors = game.gridController.getAllNeigbhorsTile(tile);
     for (Tile? tile in mapNeighbors.values) {
       tile?.projectTileChange();
       tile?.propagateTileChange();
     }
+  }
+
+  void destroyBuilding({required Point<int> posDimetric, bool isMouseDragging = false}) {
+    Tile? tile = game.gridController.getTileAtDimetricCoordinates(posDimetric);
 
     /// Destroy building on tile
 

@@ -103,7 +103,7 @@ class CursorController extends Component with HasGameRef<MGame>, HasWorldReferen
           }
           hasConstructed = true;
         }
-      } else if (constructionState.status == ConstructionMode.destruct) {
+      } else if (constructionState.status == ConstructionMode.destruct && game.gridController.isTileDestructible(game.currentMouseTilePos)) {
         game.constructionController.destroy(posDimetric: game.currentMouseTilePos, isMouseDragging: true);
       }
     }

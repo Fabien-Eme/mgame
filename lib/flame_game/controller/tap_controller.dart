@@ -1,16 +1,18 @@
 import 'package:flame/components.dart';
 import 'package:flame/events.dart';
 import 'package:flame_riverpod/flame_riverpod.dart';
+import 'package:mgame/flame_game/game_world.dart';
 import 'package:mgame/flame_game/riverpod_controllers/construction_mode_controller.dart';
 import 'package:mgame/flame_game/riverpod_controllers/overlay_controller.dart';
 import 'package:mgame/flame_game/riverpod_controllers/ui_controller.dart';
 
 import '../game.dart';
-import '../ui/mouse_cursor.dart';
 import '../ui/overlay/overlay_dialog.dart';
 
-class TapController extends Component with HasGameReference<MGame>, RiverpodComponentMixin {
+class TapController extends Component with HasGameReference<MGame>, HasWorldReference<GameWorld>, RiverpodComponentMixin {
   void onTapDown(TapDownInfo info) {
+    // world.buildings.last.openDoor();
+
     if (!ref.read(overlayControllerProvider).isVisible) {
       if (!game.isMouseHoveringUI) {
         final constructionState = ref.read(constructionModeControllerProvider);
@@ -24,7 +26,12 @@ class TapController extends Component with HasGameReference<MGame>, RiverpodComp
             game.buildingController.tryToBuildCurrentBuilding();
           }
         } else if (constructionState.status == ConstructionMode.destruct) {
-          game.constructionController.destroy(posDimetric: game.currentMouseTilePos);
+          if (game.gridController.isTileBuildingDestructible(game.currentMouseTilePos)) {
+            game.constructionController.destroyBuilding(posDimetric: game.currentMouseTilePos);
+          }
+          if (game.gridController.isTileDestructible(game.currentMouseTilePos)) {
+            game.constructionController.destroy(posDimetric: game.currentMouseTilePos);
+          }
         }
       }
 
@@ -37,6 +44,8 @@ class TapController extends Component with HasGameReference<MGame>, RiverpodComp
   }
 
   void onSecondaryTapUp(TapUpInfo info) {
+    // world.buildings.last.closeDoor();
+
     if (ref.read(constructionModeControllerProvider).status == ConstructionMode.destruct) {
       game.gridController.getBuildingOnTile(game.currentMouseTilePos)?.resetColor();
     }

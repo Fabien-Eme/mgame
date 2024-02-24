@@ -53,7 +53,7 @@ class BuildingController extends Component with HasGameReference<MGame>, HasWorl
 
     ///Project Destruction
     if (constructionState.status == ConstructionMode.destruct) {
-      if (game.gridController.isBuildingOnTile(dimetricTilePos)) {
+      if (game.gridController.isBuildingOnTile(dimetricTilePos) && game.gridController.isTileBuildingDestructible(dimetricTilePos)) {
         game.gridController.getBuildingOnTile(dimetricTilePos)?.changeColor(Palette.redTransparent);
       }
     }
@@ -79,7 +79,7 @@ class BuildingController extends Component with HasGameReference<MGame>, HasWorl
     bool isBuildable = true;
     for (int i = 0; i < buildingSizeInTile; i++) {
       for (int j = 0; j < buildingSizeInTile; j++) {
-        if (!game.gridController.isTileBuildable(dimetricTilePos + Point<int>(-i, j))) {
+        if (!game.gridController.isTileBuildable(dimetricTilePos: dimetricTilePos + Point<int>(-i, j), buildingType: building.buildingType)) {
           // if (building.buildingType == BuildingType.garbageLoader && !game.gridController.isBuildingOnTile(dimetricTilePos + Point<int>(-i, j))) {
           //   isBuildable = true;
           // } else {
