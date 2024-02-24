@@ -10,6 +10,7 @@ import 'package:flame_audio/flame_audio.dart';
 import 'package:flame_riverpod/flame_riverpod.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:mgame/flame_game/controller/a_star_controller.dart';
 import 'package:mgame/flame_game/controller/building_controller.dart';
 import 'package:mgame/flame_game/controller/game_controller.dart';
 import 'package:mgame/flame_game/controller/garbage_controller.dart';
@@ -99,6 +100,7 @@ class MGame extends FlameGame with MouseMovementDetector, ScrollDetector, MultiT
   TruckController truckController = TruckController();
   GarbageController garbageController = GarbageController();
   TaskController taskController = TaskController();
+  AStarController aStarController = AStarController();
 
   ///
   ///

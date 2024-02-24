@@ -12,7 +12,8 @@ import '../../utils/convert_coordinates.dart';
 import '../../utils/convert_rotations.dart';
 
 class City extends Building {
-  City({super.direction, super.position, required super.anchorTile});
+  Point<int> loadTileCoordinate;
+  City({super.direction, super.position, required super.anchorTile, required this.loadTileCoordinate});
 
   late final CityComponent cityComponent;
   late final Vector2 offset;
@@ -27,7 +28,7 @@ class City extends Building {
     world.add(
       cityComponent,
     );
-
+    game.garbageController.createGarbageStack(building: this);
     return super.onLoad();
   }
 
@@ -108,4 +109,17 @@ class City extends Building {
 
   @override
   void openDoor() {}
+}
+
+Point<int> getCityLoadTileCoordinate({required Point<int> anchorTile, required Directions direction}) {
+  switch (direction) {
+    case Directions.S:
+      return anchorTile + const Point<int>(-1, -1);
+    case Directions.W:
+      return anchorTile + const Point<int>(-3, 0);
+    case Directions.N:
+      return anchorTile + const Point<int>(-1, 2);
+    case Directions.E:
+      return anchorTile + const Point<int>(1, 1);
+  }
 }

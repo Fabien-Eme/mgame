@@ -137,6 +137,7 @@ class GridController extends Component with HasGameRef<MGame>, HasWorldReference
         game.constructionController.construct(posDimetric: coordinates, tileType: TileType.road, isLoader: true);
       }
       building.tilesIAmOn = [getTileAtDimetricCoordinates(coordinates)];
+      game.taskController.loaderUnloaderBuilt(building);
     } else if (building.buildingType == BuildingType.incinerator) {
       for (int i = 0; i < buildingSizeInTile; i++) {
         for (int j = 0; j < buildingSizeInTile; j++) {

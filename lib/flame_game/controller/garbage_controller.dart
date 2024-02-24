@@ -23,11 +23,11 @@ class GarbageController extends Component with HasGameReference<MGame>, HasWorld
   ///
   ///
   ///Create the stack wich will receive [Garbage]
-  void createGarbageStack() async {
-    Garbage garbage = createGarbage(garbageType: GarbageType.garbageCan, anchorBuilding: world.buildings.whereType<City>().first, hasNumber: true);
+  void createGarbageStack({required Building building}) async {
+    Garbage garbage = createGarbage(garbageType: GarbageType.garbageCan, anchorBuilding: building, hasNumber: true);
     Uuid uuid = const Uuid();
     String id = uuid.v4();
-    GarbageStack garbageStack = GarbageStack(id: id, component: garbage, stackQuantity: 0);
+    GarbageStack garbageStack = GarbageStack(id: id, component: garbage, stackQuantity: 0, anchorBuilding: building);
     listGarbageStack[id] = garbageStack;
     await world.add(garbage);
     garbage.position = world.buildings.whereType<City>().first.finalGarbagePosition;
@@ -56,10 +56,16 @@ class GarbageController extends Component with HasGameReference<MGame>, HasWorld
     timeElapsedToAddGarbage += dt;
 
     if (timeElapsedToAddGarbage >= deltaTimeToAddGarbage) {
-      addGarbage(
+      for (GarbageStack garbageStack in listGarbageStack.values) {
+        addGarbage(
           garbageType: GarbageType.garbageCan,
           anchorBuilding: world.buildings.whereType<City>().first,
-          position: getRandomVectorInList(world.buildings.whereType<City>().first.listInitialGarbagePosition));
+          position: getRandomVectorInList(
+            garbageStack.anchorBuilding.listInitialGarbagePosition,
+          ),
+        );
+      }
+
       timeElapsedToAddGarbage -= deltaTimeToAddGarbage;
     }
 
@@ -121,8 +127,9 @@ class GarbageStack {
   String id;
   Garbage component;
   int stackQuantity;
+  Building anchorBuilding;
 
-  GarbageStack({required this.id, required this.component, required this.stackQuantity});
+  GarbageStack({required this.id, required this.component, required this.stackQuantity, required this.anchorBuilding});
 
   void changeStackQuantity(int i) {
     stackQuantity += i;

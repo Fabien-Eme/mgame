@@ -1,5 +1,6 @@
 import 'package:flame/components.dart';
 import 'package:flame_riverpod/flame_riverpod.dart';
+import 'package:mgame/flame_game/controller/a_star_controller.dart';
 import 'package:mgame/flame_game/controller/garbage_controller.dart';
 import 'package:mgame/flame_game/controller/task_controller.dart';
 import 'package:mgame/flame_game/menu.dart/main_menu.dart';
@@ -33,8 +34,6 @@ class GameController extends Component with HasGameReference<MGame>, RiverpodCom
     Future.delayed(const Duration(milliseconds: 100)).then((value) => game.isMainMenu = false);
 
     ref.read(overlayControllerProvider.notifier).overlayClose();
-
-    game.garbageController.createGarbageStack();
   }
 
   ///
@@ -70,6 +69,7 @@ class GameController extends Component with HasGameReference<MGame>, RiverpodCom
     game.truckController = TruckController();
     game.garbageController = GarbageController();
     game.taskController = TaskController();
+    game.aStarController = AStarController();
 
     ///Adding Controllers
     await game.world.addAll([
@@ -84,6 +84,7 @@ class GameController extends Component with HasGameReference<MGame>, RiverpodCom
       game.truckController,
       game.garbageController,
       game.taskController,
+      game.aStarController,
     ]);
 
     await game.world.addAll([

@@ -109,7 +109,7 @@ Building createBuilding({required BuildingType buildingType, Directions? directi
     BuildingType.recycler => Incinerator(direction: direction, anchorTile: anchorTile),
     BuildingType.incinerator => Incinerator(direction: direction, anchorTile: anchorTile),
     BuildingType.garage => Garage(direction: direction, anchorTile: anchorTile),
-    BuildingType.city => City(direction: direction, anchorTile: anchorTile),
+    BuildingType.city => City(direction: direction, anchorTile: anchorTile, loadTileCoordinate: getCityLoadTileCoordinate(anchorTile: anchorTile, direction: direction)),
   };
 }
 

@@ -6,4 +6,8 @@ import '../truck/truck.dart';
 
 class TruckController extends Component with HasGameReference<MGame>, RiverpodComponentMixin {
   Map<String, Truck> mapTruck = {};
+
+  void buyTruck() {
+    ///TODO You are here moron
+  }
 }

@@ -2,11 +2,14 @@ import 'dart:math';
 
 import 'package:flame/components.dart';
 import 'package:flame_riverpod/flame_riverpod.dart';
+import 'package:mgame/flame_game/buildings/building.dart';
+import 'package:mgame/flame_game/game_world.dart';
 import 'package:uuid/uuid.dart';
 
+import '../buildings/city/city.dart';
 import '../game.dart';
 
-class TaskController extends Component with HasGameReference<MGame>, RiverpodComponentMixin {
+class TaskController extends Component with HasGameReference<MGame>, HasWorldReference<GameWorld>, RiverpodComponentMixin {
   Map<String, Task> mapTask = {};
 
   ///
@@ -79,6 +82,20 @@ class TaskController extends Component with HasGameReference<MGame>, RiverpodCom
       return highestPriorityTasks[randomIndex];
     }
   }
+
+  void loaderUnloaderBuilt(Building building) {
+    for (City city in world.buildings.whereType<City>()) {
+      if (city.loadTileCoordinate == building.anchorTile) {
+        createTask(taskType: TaskType.collection, taskCoordinate: city.loadTileCoordinate, taskRestrictions: [TaskRestriction.simpleCollect()]);
+      }
+    }
+  }
+
+  void loaderUnloaderDestroyed(Building building) {
+    for (City city in world.buildings.whereType<City>()) {
+      if (city.loadTileCoordinate == building.anchorTile) {}
+    }
+  }
 }
 
 ///
@@ -120,6 +137,10 @@ class TaskRestriction {
   int? vehiculeQuantity;
 
   TaskRestriction({required this.taskRestrictionType, this.loadQuantity, this.loadType, this.vehiculeType, this.vehiculeQuantity});
+
+  TaskRestriction.simpleCollect()
+      : taskRestrictionType = TaskRestrictionType.loadQuantity,
+        loadQuantity = 0;
 }
 
 enum TaskRestrictionType {
