@@ -13,6 +13,7 @@ import 'package:mgame/flame_game/riverpod_controllers/rotation_controller.dart';
 import 'buildings/building.dart';
 import 'game.dart';
 import 'tile_helper.dart';
+import 'truck/truck.dart';
 import 'utils/convert_coordinates.dart';
 import 'utils/convert_rotations.dart';
 
@@ -43,6 +44,7 @@ class Tile extends SpriteComponent with HasGameRef<MGame>, HasWorldReference<Gam
 
   List<Directions> listConnectionRestriction = [];
   List<BuildingType> listOnlyBuildingsAllowed = [];
+  List<Truck> listTrucksOnTile = [];
 
   @override
   FutureOr<void> onLoad() {
@@ -196,7 +198,7 @@ class Tile extends SpriteComponent with HasGameRef<MGame>, HasWorldReference<Gam
 
   bool canTileConnectWithMe(Tile? neighborTile) {
     if (neighborTile == null) return false;
-    Directions? neighborDirection = game.gridController.getNeigbhorTileDirection(this, neighborTile);
+    Directions? neighborDirection = game.gridController.getNeigbhorTileDirection(me: this, neighbor: neighborTile);
     if (neighborTile.tileType.canConnect &&
         neighborDirection != null &&
         !listConnectionRestriction.contains(neighborDirection) &&

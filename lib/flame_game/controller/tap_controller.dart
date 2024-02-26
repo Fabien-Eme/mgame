@@ -47,7 +47,7 @@ class TapController extends Component with HasGameReference<MGame>, HasWorldRefe
 
   void onSecondaryTapUp(TapUpInfo info) {
     // world.buildings.last.closeDoor();
-    print(game.aStarController.findPathAStar(const Point(7, -1), const Point(31, 1)));
+    //print(game.aStarController.findPathAStar(const Point(7, -1), const Point(31, 1)));
 
     if (ref.read(constructionModeControllerProvider).status == ConstructionMode.destruct) {
       game.gridController.getBuildingOnTile(game.currentMouseTilePos)?.resetColor();

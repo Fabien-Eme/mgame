@@ -173,4 +173,13 @@ enum Directions {
       Directions.E => Directions.W,
     };
   }
+
+  double get angle {
+    return switch (this) {
+      Directions.S => 5 / 4 * pi,
+      Directions.W => 3 / 4 * pi,
+      Directions.N => 1 / 4 * pi,
+      Directions.E => 7 / 4 * pi,
+    };
+  }
 }

@@ -40,7 +40,7 @@ class GridController extends Component with HasGameRef<MGame>, HasWorldReference
     }
   }
 
-  Directions? getNeigbhorTileDirection(Tile me, Tile neighbor) {
+  Directions? getNeigbhorTileDirection({required Tile me, required Tile neighbor}) {
     Point<int> offset = me.dimetricCoordinates - neighbor.dimetricCoordinates;
     if (offset == const Point<int>(0, 1)) {
       return Directions.S;
@@ -298,7 +298,8 @@ class GridController extends Component with HasGameRef<MGame>, HasWorldReference
   ///
   /// Get the Tile at Dimetric coordinates
   ///
-  Tile? getTileAtDimetricCoordinates(Point<int> dimetricCoordinates) {
+  Tile? getTileAtDimetricCoordinates(Point<int>? dimetricCoordinates) {
+    if (dimetricCoordinates == null) return null;
     dimetricCoordinates = game.convertRotations.unRotateCoordinates(dimetricCoordinates);
     if (!checkIfWithinGridBoundaries(dimetricCoordinates)) {
       return null;

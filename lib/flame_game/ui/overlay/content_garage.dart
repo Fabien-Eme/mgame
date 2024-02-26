@@ -1,16 +1,19 @@
 import 'dart:async';
 
 import 'package:flame/components.dart';
+import 'package:flame_riverpod/flame_riverpod.dart';
+import 'package:mgame/flame_game/riverpod_controllers/all_trucks_controller.dart';
 import 'package:mgame/flame_game/truck/truck_model.dart';
 import 'package:mgame/flame_game/ui/overlay/overlay_dialog.dart';
 
+import '../../game.dart';
 import '../../utils/my_text_style.dart';
 import 'dialog_button.dart';
 import 'truck_selector.dart';
 
 enum TabGarageType { buySell, allTrucks }
 
-class ContentGarage extends PositionComponent {
+class ContentGarage extends PositionComponent with HasGameReference<MGame>, RiverpodComponentMixin {
   Vector2 boxSize;
   ContentGarage({required this.boxSize, super.position});
 
@@ -18,6 +21,9 @@ class ContentGarage extends PositionComponent {
 
   TextBoxComponent? textBoxComponentDescriptionTruck;
   TextBoxComponent? textBoxComponentTitleTruck;
+
+  TruckType? currentTruckType;
+  int numberOfCurrentTruckOwned = 0;
 
   void tabSelected(TabGarageType newTabGarageType) {
     if (tabGarageType != newTabGarageType) {
@@ -45,6 +51,14 @@ class ContentGarage extends PositionComponent {
     addContentOfTab();
   }
 
+  @override
+  void onMount() {
+    addToGameWidgetBuild(() => ref.listen(allTrucksControllerProvider, (previous, AllTrucks allTrucks) {
+          textBoxComponentDescriptionTruck?.text = getTruckDescriptionText();
+        }));
+    super.onMount();
+  }
+
   addContentOfTab() {
     switch (tabGarageType) {
       case TabGarageType.buySell:
@@ -66,7 +80,7 @@ class ContentGarage extends PositionComponent {
     final buttonBuy = DialogButton(
       text: 'Buy Truck',
       onPressed: () {
-        print("Truck bought");
+        game.truckController.buyTruck(currentTruckType!);
       },
       buttonSize: Vector2(200, 50),
       position: Vector2(boxSize.x / 5, boxSize.y / 2 - 50),
@@ -77,7 +91,7 @@ class ContentGarage extends PositionComponent {
     final buttonSell = DialogButton(
       text: 'Sell Truck',
       onPressed: () {
-        print("Truck sold");
+        game.truckController.sellTruck(currentTruckType!);
       },
       textStyle: MyTextStyle.buttonRed,
       buttonSize: Vector2(200, 50),
@@ -90,6 +104,8 @@ class ContentGarage extends PositionComponent {
   }
 
   void changeTruckType(TruckType truckType) async {
+    currentTruckType = truckType;
+
     if (textBoxComponentDescriptionTruck != null && textBoxComponentTitleTruck != null) {
       await textBoxComponentTitleTruck!.mounted;
       await textBoxComponentDescriptionTruck!.mounted;
@@ -102,30 +118,31 @@ class ContentGarage extends PositionComponent {
         textBoxComponentDescriptionTruck!.removed,
       ]);
     }
+
     textBoxComponentTitleTruck = TextBoxComponent(
-      text: getTruckTitleText(truckType),
+      text: getTruckTitleText(),
       textRenderer: MyTextStyle.header,
       boxConfig: TextBoxConfig(maxWidth: 300),
       position: Vector2(0, -boxSize.y / 2 + 100),
     );
     textBoxComponentDescriptionTruck = TextBoxComponent(
-      text: getTruckDescriptionText(truckType),
+      text: getTruckDescriptionText(),
       textRenderer: MyTextStyle.text,
-      boxConfig: TextBoxConfig(maxWidth: 300, timePerChar: 0.01),
+      boxConfig: TextBoxConfig(maxWidth: 300, timePerChar: 0.005),
       position: Vector2(0, -boxSize.y / 2 + 150),
     );
     add(textBoxComponentTitleTruck!);
     add(textBoxComponentDescriptionTruck!);
   }
 
-  String getTruckDescriptionText(TruckType truckType) {
-    TruckModel currenTruck = truckType.model;
+  String getTruckDescriptionText() {
+    TruckModel currenTruck = currentTruckType!.model;
 
-    return "Price: ${currenTruck.buyCost}\$\nCost per road section: ${currenTruck.costPerTick}\$\n\nFabrication pollution: ${currenTruck.buyPollution}\nPollution per road section: ${currenTruck.pollutionPerTick}\n\nMax Load: ${currenTruck.maxLoad}\n\nOwned: 0";
+    return "Price: ${currenTruck.buyCost}\$\nCost per road section: ${currenTruck.costPerTick}\$\n\nFabrication pollution: ${currenTruck.buyPollution}\nPollution per road section: ${currenTruck.pollutionPerTick}\n\nMax Load: ${currenTruck.maxLoad}\n\nOwned: ${ref.read(allTrucksControllerProvider).trucksOwned[currentTruckType] ?? 0}";
   }
 
-  String getTruckTitleText(TruckType truckType) {
-    TruckModel currenTruck = truckType.model;
+  String getTruckTitleText() {
+    TruckModel currenTruck = currentTruckType!.model;
 
     return currenTruck.name;
   }

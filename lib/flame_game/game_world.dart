@@ -4,10 +4,12 @@ import 'dart:math';
 import 'package:flame/components.dart';
 import 'package:flame/events.dart';
 import 'package:mgame/flame_game/truck/truck.dart';
+import 'package:mgame/flame_game/truck/truck_model.dart';
 import 'package:mgame/flame_game/ui/tile_cursor.dart';
 import 'package:mgame/flame_game/game.dart';
 import 'package:mgame/flame_game/utils/convert_coordinates.dart';
 import 'package:mgame/flame_game/utils/convert_rotations.dart';
+import 'package:mgame/flame_game/utils/my_text_style.dart';
 import 'buildings/building.dart';
 import 'tile.dart';
 import 'tile_helper.dart';
@@ -44,13 +46,23 @@ class GameWorld extends World with HasGameReference<MGame>, TapCallbacks {
 
     await game.gridController.internalBuildOnTile(const Point<int>(6, -2), BuildingType.garage, Directions.E);
     await game.gridController.internalBuildOnTile(const Point<int>(32, 3), BuildingType.city, Directions.S);
-    for (int i = 0; i < 25; i++) {
-      game.constructionController.construct(posDimetric: Point<int>(7 + i, -1), tileType: TileType.road);
-    }
-    game.constructionController.construct(posDimetric: const Point<int>(31, 0), tileType: TileType.road);
-    game.constructionController.construct(posDimetric: const Point<int>(31, 1), tileType: TileType.road);
 
-    add(Truck());
+    game.constructionController.construct(posDimetric: const Point<int>(8, -1), tileType: TileType.road);
+    game.constructionController.construct(posDimetric: const Point<int>(9, -1), tileType: TileType.road);
+    game.constructionController.construct(posDimetric: const Point<int>(10, -1), tileType: TileType.road);
+    game.constructionController.construct(posDimetric: const Point<int>(11, -1), tileType: TileType.road);
+    game.constructionController.construct(posDimetric: const Point<int>(12, -1), tileType: TileType.road);
+    game.constructionController.construct(posDimetric: const Point<int>(12, -2), tileType: TileType.road);
+    game.constructionController.construct(posDimetric: const Point<int>(12, -3), tileType: TileType.road);
+    game.constructionController.construct(posDimetric: const Point<int>(12, -4), tileType: TileType.road);
+    game.constructionController.construct(posDimetric: const Point<int>(12, -5), tileType: TileType.road);
+    game.constructionController.construct(posDimetric: const Point<int>(10, -2), tileType: TileType.road);
+    game.constructionController.construct(posDimetric: const Point<int>(10, -3), tileType: TileType.road);
+
+    Truck truck = Truck(truckType: TruckType.blue, truckDirection: Directions.E, startingTile: game.gridController.getTileAtDimetricCoordinates(const Point<int>(8, -1))!);
+    add(truck);
+
+    truck.goToTile(game.gridController.getTileAtDimetricCoordinates(const Point<int>(12, -5))!);
   }
 
   void removeTemporaryBuilding() {
@@ -158,6 +170,7 @@ class GameWorld extends World with HasGameReference<MGame>, TapCallbacks {
               j * MGame.tileWidth + ((i.isEven) ? 0 : MGame.tileHeight) + MGame.tileWidth / 2.6,
               i * (MGame.tileHeight / 2) + (MGame.tileHeight / 2) - 5,
             ),
+            textRenderer: MyTextStyle.debugGridNumber,
             scale: Vector2.all(0.5),
           );
         },
@@ -180,6 +193,7 @@ class GameWorld extends World with HasGameReference<MGame>, TapCallbacks {
 /// Building front : 110
 /// Building back : 90
 /// 
+/// Trucks : 100
 /// 
 /// When dragging building for build : 
 ///   - Door : 511

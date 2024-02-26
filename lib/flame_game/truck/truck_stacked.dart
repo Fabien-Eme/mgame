@@ -20,11 +20,14 @@ class TruckStacked extends PositionComponent with HasGameReference {
   @override
   FutureOr<void> onLoad() {
     spriteSheet = getSpriteSheet();
-    spriteBatch = SpriteBatch(spriteSheet);
+    spriteBatch = SpriteBatch(spriteSheet, useAtlas: false);
     angle = pi / 2;
 
     addSprites();
-    spriteBatchComponent = SpriteBatchComponent(spriteBatch: spriteBatch, paint: Paint()..filterQuality = FilterQuality.low);
+    spriteBatchComponent = SpriteBatchComponent(
+      spriteBatch: spriteBatch,
+      paint: Paint()..filterQuality = FilterQuality.none,
+    );
     add(spriteBatchComponent);
     return super.onLoad();
   }
