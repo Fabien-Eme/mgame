@@ -2,6 +2,7 @@ import 'dart:math';
 
 import 'package:flame/components.dart';
 import 'package:flame_riverpod/flame_riverpod.dart';
+import 'package:flutter_animate/flutter_animate.dart';
 
 import '../game.dart';
 import '../game_world.dart';
@@ -155,6 +156,55 @@ class ConvertRotations extends Component with HasGameReference<MGame>, HasWorldR
 
       case Rotation.piAndHalf:
         return Point(size, 0);
+    }
+  }
+
+  bool? isRightTurn({required Directions initialDirection, required Directions directionAfterTurn}) {
+    switch (initialDirection) {
+      case Directions.S:
+        switch (directionAfterTurn) {
+          case Directions.S:
+            return null;
+          case Directions.W:
+            return true;
+          case Directions.N:
+            return null;
+          case Directions.E:
+            return false;
+        }
+      case Directions.W:
+        switch (directionAfterTurn) {
+          case Directions.S:
+            return false;
+          case Directions.W:
+            return null;
+          case Directions.N:
+            return true;
+          case Directions.E:
+            return null;
+        }
+      case Directions.N:
+        switch (directionAfterTurn) {
+          case Directions.S:
+            return null;
+          case Directions.W:
+            return false;
+          case Directions.N:
+            return null;
+          case Directions.E:
+            return true;
+        }
+      case Directions.E:
+        switch (directionAfterTurn) {
+          case Directions.S:
+            return true;
+          case Directions.W:
+            return null;
+          case Directions.N:
+            return false;
+          case Directions.E:
+            return null;
+        }
     }
   }
 }

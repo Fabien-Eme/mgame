@@ -56,6 +56,8 @@ class TapController extends Component with HasGameReference<MGame>, HasWorldRefe
   }
 
   void onTertiaryTapDown(TapDownInfo info) {
+    // world.truck.goToTile(game.gridController.getTileAtDimetricCoordinates(const Point<int>(24, 0))!);
+
     if (ref.read(constructionModeControllerProvider).buildingType != null) {
       ref.read(constructionModeControllerProvider.notifier).rotateBuilding();
     }

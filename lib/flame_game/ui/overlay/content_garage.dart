@@ -7,6 +7,7 @@ import 'package:mgame/flame_game/truck/truck_model.dart';
 import 'package:mgame/flame_game/ui/overlay/overlay_dialog.dart';
 
 import '../../game.dart';
+import '../../truck/truck.dart';
 import '../../utils/my_text_style.dart';
 import 'dialog_button.dart';
 import 'truck_selector.dart';
@@ -138,7 +139,9 @@ class ContentGarage extends PositionComponent with HasGameReference<MGame>, Rive
   String getTruckDescriptionText() {
     TruckModel currenTruck = currentTruckType!.model;
 
-    return "Price: ${currenTruck.buyCost}\$\nCost per road section: ${currenTruck.costPerTick}\$\n\nFabrication pollution: ${currenTruck.buyPollution}\nPollution per road section: ${currenTruck.pollutionPerTick}\n\nMax Load: ${currenTruck.maxLoad}\n\nOwned: ${ref.read(allTrucksControllerProvider).trucksOwned[currentTruckType] ?? 0}";
+    int quantityOfCurrentTruckOwned = ref.read(allTrucksControllerProvider).trucksOwned.values.where((Truck truck) => truck.truckType == currentTruckType).length;
+
+    return "Price: ${currenTruck.buyCost}\$\nCost per road section: ${currenTruck.costPerTick}\$\n\nFabrication pollution: ${currenTruck.buyPollution}\nPollution per road section: ${currenTruck.pollutionPerTick}\n\nMax Load: ${currenTruck.maxLoad}\n\nOwned: $quantityOfCurrentTruckOwned";
   }
 
   String getTruckTitleText() {

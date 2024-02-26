@@ -16,7 +16,7 @@ final _privateConstructorUsedError = UnsupportedError(
 
 /// @nodoc
 mixin _$AllTrucks {
-  Map<TruckType, int> get trucksOwned => throw _privateConstructorUsedError;
+  Map<String, Truck> get trucksOwned => throw _privateConstructorUsedError;
 
   @JsonKey(ignore: true)
   $AllTrucksCopyWith<AllTrucks> get copyWith =>
@@ -28,7 +28,7 @@ abstract class $AllTrucksCopyWith<$Res> {
   factory $AllTrucksCopyWith(AllTrucks value, $Res Function(AllTrucks) then) =
       _$AllTrucksCopyWithImpl<$Res, AllTrucks>;
   @useResult
-  $Res call({Map<TruckType, int> trucksOwned});
+  $Res call({Map<String, Truck> trucksOwned});
 }
 
 /// @nodoc
@@ -50,7 +50,7 @@ class _$AllTrucksCopyWithImpl<$Res, $Val extends AllTrucks>
       trucksOwned: null == trucksOwned
           ? _value.trucksOwned
           : trucksOwned // ignore: cast_nullable_to_non_nullable
-              as Map<TruckType, int>,
+              as Map<String, Truck>,
     ) as $Val);
   }
 }
@@ -63,7 +63,7 @@ abstract class _$$AllTrucksImplCopyWith<$Res>
       __$$AllTrucksImplCopyWithImpl<$Res>;
   @override
   @useResult
-  $Res call({Map<TruckType, int> trucksOwned});
+  $Res call({Map<String, Truck> trucksOwned});
 }
 
 /// @nodoc
@@ -83,7 +83,7 @@ class __$$AllTrucksImplCopyWithImpl<$Res>
       trucksOwned: null == trucksOwned
           ? _value._trucksOwned
           : trucksOwned // ignore: cast_nullable_to_non_nullable
-              as Map<TruckType, int>,
+              as Map<String, Truck>,
     ));
   }
 }
@@ -91,12 +91,12 @@ class __$$AllTrucksImplCopyWithImpl<$Res>
 /// @nodoc
 
 class _$AllTrucksImpl implements _AllTrucks {
-  _$AllTrucksImpl({required final Map<TruckType, int> trucksOwned})
+  _$AllTrucksImpl({required final Map<String, Truck> trucksOwned})
       : _trucksOwned = trucksOwned;
 
-  final Map<TruckType, int> _trucksOwned;
+  final Map<String, Truck> _trucksOwned;
   @override
-  Map<TruckType, int> get trucksOwned {
+  Map<String, Truck> get trucksOwned {
     if (_trucksOwned is EqualUnmodifiableMapView) return _trucksOwned;
     // ignore: implicit_dynamic_type
     return EqualUnmodifiableMapView(_trucksOwned);
@@ -128,11 +128,11 @@ class _$AllTrucksImpl implements _AllTrucks {
 }
 
 abstract class _AllTrucks implements AllTrucks {
-  factory _AllTrucks({required final Map<TruckType, int> trucksOwned}) =
+  factory _AllTrucks({required final Map<String, Truck> trucksOwned}) =
       _$AllTrucksImpl;
 
   @override
-  Map<TruckType, int> get trucksOwned;
+  Map<String, Truck> get trucksOwned;
   @override
   @JsonKey(ignore: true)
   _$$AllTrucksImplCopyWith<_$AllTrucksImpl> get copyWith =>

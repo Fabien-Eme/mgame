@@ -25,6 +25,8 @@ class GameWorld extends World with HasGameReference<MGame>, TapCallbacks {
   TileCursor tileCursor = TileCursor();
   Building? temporaryBuilding;
 
+  late Truck truck;
+
   @override
   FutureOr<void> onMount() async {
     super.onMount();
@@ -46,23 +48,18 @@ class GameWorld extends World with HasGameReference<MGame>, TapCallbacks {
 
     await game.gridController.internalBuildOnTile(const Point<int>(6, -2), BuildingType.garage, Directions.E);
     await game.gridController.internalBuildOnTile(const Point<int>(32, 3), BuildingType.city, Directions.S);
+    await game.gridController.internalBuildOnTile(const Point<int>(31, 2), BuildingType.garbageLoader, Directions.S);
 
-    game.constructionController.construct(posDimetric: const Point<int>(8, -1), tileType: TileType.road);
-    game.constructionController.construct(posDimetric: const Point<int>(9, -1), tileType: TileType.road);
-    game.constructionController.construct(posDimetric: const Point<int>(10, -1), tileType: TileType.road);
-    game.constructionController.construct(posDimetric: const Point<int>(11, -1), tileType: TileType.road);
-    game.constructionController.construct(posDimetric: const Point<int>(12, -1), tileType: TileType.road);
-    game.constructionController.construct(posDimetric: const Point<int>(12, -2), tileType: TileType.road);
-    game.constructionController.construct(posDimetric: const Point<int>(12, -3), tileType: TileType.road);
-    game.constructionController.construct(posDimetric: const Point<int>(12, -4), tileType: TileType.road);
-    game.constructionController.construct(posDimetric: const Point<int>(12, -5), tileType: TileType.road);
-    game.constructionController.construct(posDimetric: const Point<int>(10, -2), tileType: TileType.road);
-    game.constructionController.construct(posDimetric: const Point<int>(10, -3), tileType: TileType.road);
+    for (int i = 0; i < 25; i++) {
+      game.constructionController.construct(posDimetric: Point<int>(7 + i, -1), tileType: TileType.road);
+    }
+    game.constructionController.construct(posDimetric: const Point<int>(31, 0), tileType: TileType.road);
+    game.constructionController.construct(posDimetric: const Point<int>(31, 1), tileType: TileType.road);
 
-    Truck truck = Truck(truckType: TruckType.blue, truckDirection: Directions.E, startingTile: game.gridController.getTileAtDimetricCoordinates(const Point<int>(8, -1))!);
+    truck = Truck(truckType: TruckType.blue, truckDirection: Directions.E, startingTileAtCreation: game.gridController.getTileAtDimetricCoordinates(const Point<int>(8, -1))!);
     add(truck);
 
-    truck.goToTile(game.gridController.getTileAtDimetricCoordinates(const Point<int>(12, -5))!);
+    // truck.goToTile(game.gridController.getTileAtDimetricCoordinates(const Point<int>(8, -3))!);
   }
 
   void removeTemporaryBuilding() {

@@ -1,0 +1,298 @@
+// import 'dart:async';
+// import 'dart:math';
+// import 'dart:ui';
+
+// import 'package:flame/components.dart';
+// import 'package:flame/extensions.dart';
+// import 'package:flutter/rendering.dart';
+// import 'package:flutter/widgets.dart';
+// import 'package:mgame/flame_game/truck/truck_helper.dart';
+// import 'package:mgame/flame_game/utils/convert_coordinates.dart';
+// import 'package:uuid/uuid.dart';
+
+// import '../game.dart';
+// import '../tile.dart';
+// import '../utils/convert_rotations.dart';
+// import '../utils/palette.dart';
+// import 'truck_model.dart';
+
+// class Truck extends SpriteComponent with HasGameReference<MGame> {
+//   TruckType truckType;
+//   Directions truckDirection;
+//   Tile startingTile;
+//   late String id;
+
+//   Truck({required this.truckType, required this.truckDirection, required this.startingTile});
+
+//   // Vector2 offset = Vector2(MGame.tileWidth / 2, MGame.tileHeight / 2) + Vector2(0, -10);
+//   Vector2 offset = Vector2(MGame.tileWidth / 2, MGame.tileHeight / 2);
+//   late Tile currentTile;
+//   Tile? destinationTile;
+//   Directions? destinationTileDirection;
+
+//   double truckSpeed = 40;
+//   bool isTruckMoving = false;
+//   double baseAcceleration = 1;
+//   double acceleration = 1;
+
+//   double truckAngle = 0;
+//   String spriteImagePath = '';
+
+//   List<Point<int>> pathListCoordinates = [];
+//   Directions? directionAfterDestinationTile;
+
+//   ///
+
+//   bool isTurning = false;
+//   double turnTime = 0;
+
+//   ///
+
+//   @override
+//   FutureOr<void> onLoad() {
+//     id = const Uuid().v4();
+
+//     truckAngle = truckDirection.angle;
+
+//     currentTile = startingTile;
+//     currentTile.listTrucksOnTile.add(this);
+
+//     priority = 100;
+//     anchor = Anchor.center;
+//     scale = Vector2.all(0.6);
+//     spriteImagePath = getTruckAssetPath(truckType: truckType, truckAngle: truckDirection.angle);
+//     sprite = Sprite(game.images.fromCache(spriteImagePath));
+//     position = startingTile.dimetricCoordinates.convertDimetricPointToWorldCoordinates() + offset;
+//     paint = Paint()..filterQuality = FilterQuality.low;
+//     return super.onLoad();
+//   }
+
+//   ///
+//   ///
+//   /// Go to designed [Tile]
+//   void goToTile(Tile finishTile) {
+//     pathListCoordinates = game.aStarController.findPathAStar(currentTile.dimetricCoordinates, finishTile.dimetricCoordinates);
+
+//     if (pathListCoordinates.isNotEmpty) {
+//       startingTile = game.gridController.getTileAtDimetricCoordinates(pathListCoordinates[0])!;
+
+//       startMove();
+//     }
+//   }
+
+//   ///
+//   ///
+//   /// Get Direction that the truck will have exiting destination tile
+//   Directions getDirectionAfterDestinationTile(Tile currentTile, Tile destinationTile, Tile? tileAfterDestinationTile) {
+//     Directions entryDirection = game.gridController.getNeigbhorTileDirection(me: currentTile, neighbor: destinationTile)!;
+//     if (tileAfterDestinationTile == null) {
+//       return entryDirection;
+//     } else {
+//       Directions exitDirection = game.gridController.getNeigbhorTileDirection(me: destinationTile, neighbor: tileAfterDestinationTile)!;
+//       return exitDirection;
+//     }
+//   }
+
+//   ///
+//   ///
+//   /// Update truck sprite according to rotation
+//   void updateTruckSprite(double angle) {
+//     String newSpriteImagePath = getTruckAssetPath(truckType: truckType, truckAngle: angle);
+//     if (spriteImagePath != newSpriteImagePath) {
+//       sprite = Sprite(game.images.fromCache(newSpriteImagePath));
+//     }
+//   }
+
+//   ///
+//   ///
+//   /// Initiate move to a tile
+//   void startMove() {
+//     pathListCoordinates.removeAt(0);
+//     if (pathListCoordinates.isNotEmpty) {
+//       destinationTile = game.gridController.getTileAtDimetricCoordinates(pathListCoordinates[0])!;
+//       directionAfterDestinationTile = getDirectionAfterDestinationTile(
+//         currentTile,
+//         destinationTile!,
+//         game.gridController.getTileAtDimetricCoordinates((pathListCoordinates.length > 1) ? pathListCoordinates[1] : null),
+//       );
+//       isTruckMoving = true;
+//     } else {
+//       endMovement();
+//     }
+//   }
+
+//   ///
+//   ///
+//   /// Complete moving to a tile
+//   void completeMove() {
+//     isTruckMoving = false;
+//     currentTile = destinationTile!;
+//     destinationTile = null;
+
+//     startMove();
+//   }
+
+//   ///
+//   ///
+//   /// End the whole movement
+//   void endMovement() {
+//     startingTile = currentTile;
+//   }
+
+//   /// Helper function to calculate the center of the turning arc
+//   Vector2 calculateOffsetTurnCenter() {
+//     bool? isRightTurn = game.convertRotations.isRightTurn(initialDirection: truckDirection, directionAfterTurn: directionAfterDestinationTile!);
+//     if (isRightTurn == null) return Vector2(0, 0);
+
+//     Vector2 offsetTurnCenter;
+
+//     if (isRightTurn) {
+//       switch (truckDirection) {
+//         case Directions.S:
+//           offsetTurnCenter = Vector2(0, -MGame.tileHeight / 2);
+//           break;
+//         case Directions.W:
+//           offsetTurnCenter = Vector2(MGame.tileWidth / 2, 0);
+//           break;
+//         case Directions.N:
+//           offsetTurnCenter = Vector2(0, MGame.tileHeight / 2);
+//           break;
+//         case Directions.E:
+//           offsetTurnCenter = Vector2(-MGame.tileWidth / 2, 0);
+//           break;
+//       }
+//     } else {
+//       switch (truckDirection) {
+//         case Directions.S:
+//           offsetTurnCenter = Vector2(MGame.tileWidth / 2, 0);
+//           break;
+//         case Directions.W:
+//           offsetTurnCenter = Vector2(0, MGame.tileHeight / 2);
+//           break;
+//         case Directions.N:
+//           offsetTurnCenter = Vector2(-MGame.tileWidth / 2, 0);
+//           break;
+//         case Directions.E:
+//           offsetTurnCenter = Vector2(0, -MGame.tileHeight / 2);
+//           break;
+//       }
+//     }
+//     return offsetTurnCenter;
+//   }
+
+//   Vector2 calculateSemiTileOffset() {
+//     switch (truckDirection) {
+//       case Directions.S:
+//         return Vector2(MGame.tileWidth / 4, -MGame.tileHeight / 4);
+//       case Directions.W:
+//         return Vector2(MGame.tileWidth / 4, MGame.tileHeight / 4);
+//       case Directions.N:
+//         return Vector2(-MGame.tileWidth / 4, MGame.tileHeight / 4);
+//       case Directions.E:
+//         return Vector2(-MGame.tileWidth / 4, -MGame.tileHeight / 4);
+//     }
+//   }
+
+//   int turnPhase = 1;
+//   late Vector2 turnCenter;
+//   double totalAngleTurned = 0;
+//   double initialAngle = 0;
+//   double radius = 0;
+
+//   ///
+//   ///
+//   /// Update every game tick
+//   @override
+//   void update(double dt) {
+//     super.update(dt);
+
+//     if (isTruckMoving) {
+//       if ((truckDirection == directionAfterDestinationTile && turnPhase != 2 && turnPhase != 3) || turnPhase == 4) {
+//         /// Straight movement
+//         Vector2 destinationPosition = destinationTile!.dimetricCoordinates.convertDimetricPointToWorldCoordinates() + offset;
+//         Vector2 movementVector = destinationPosition - position;
+//         if (movementVector.length > truckSpeed * dt) {
+//           moveStraight(movementVector: movementVector, dt: dt);
+//         } else {
+//           position = destinationPosition;
+//           completeMove();
+//           turnPhase = 1;
+//         }
+//       } else {
+//         /// Turn movement
+//         if (turnPhase == 1) {
+//           Vector2 destinationPosition = destinationTile!.dimetricCoordinates.convertDimetricPointToWorldCoordinates() + offset + calculateSemiTileOffset();
+//           Vector2 movementVector = destinationPosition - position;
+
+//           if (movementVector.length > truckSpeed * dt) {
+//             moveStraight(movementVector: movementVector, dt: dt);
+//           } else {
+//             position = destinationPosition;
+//             turnPhase = 2;
+//             totalAngleTurned = 0;
+//             turnCenter = destinationTile!.dimetricCoordinates.convertDimetricPointToWorldCoordinates() + Vector2(MGame.tileWidth / 2, MGame.tileHeight / 2) + calculateOffsetTurnCenter();
+//             Vector2 toTruckVector = position - turnCenter;
+//             initialAngle = atan2(toTruckVector.y, toTruckVector.x);
+//             radius = position.distanceTo(turnCenter);
+//           }
+//         }
+//         if (turnPhase == 2 || turnPhase == 3) {
+//           int turnDirectionSign = (game.convertRotations.isRightTurn(initialDirection: truckDirection, directionAfterTurn: directionAfterDestinationTile!) ?? false) ? 1 : -1;
+
+//           double angularVelocity = truckSpeed / radius;
+
+//           double turnCompletion = angularVelocity * dt * 0.4 * turnDirectionSign;
+
+//           totalAngleTurned += turnCompletion;
+
+//           double currentAngle = atan2(position.y - turnCenter.y, position.x - turnCenter.x);
+
+//           double newAngle = currentAngle + turnCompletion;
+//           double differenceAngle = currentAngle - initialAngle;
+//           position = turnCenter + Vector2(cos(newAngle), sin(newAngle)) * radius;
+
+//           position.x += (pi / 8 - differenceAngle) / (pi / 8) * dt * 50;
+
+//           game.world.add(CircleComponent(
+//             radius: 2,
+//             position: position,
+//             anchor: Anchor.center,
+//             paint: Paint()..color = Palette.red,
+//             priority: 1000,
+//           ));
+
+//           if ((turnDirectionSign > 0 && (totalAngleTurned) >= pi / 24) || (turnDirectionSign < 0 && totalAngleTurned <= -pi / 24)) {
+//             updateTruckSprite(truckAngle + (-pi / 8 * turnDirectionSign));
+//           }
+
+//           if ((turnDirectionSign > 0 && differenceAngle >= pi / 4) || (turnDirectionSign < 0 && totalAngleTurned <= -pi / 8)) {
+//             updateTruckSprite(truckAngle + (-pi / 4 * turnDirectionSign));
+
+//             truckAngle = truckAngle + (-pi / 4 * turnDirectionSign);
+//             totalAngleTurned = 0;
+//             Vector2 toTruckVector = position - turnCenter;
+//             initialAngle = atan2(toTruckVector.y, toTruckVector.x);
+//             radius = position.distanceTo(turnCenter);
+
+//             if (turnPhase == 2) {
+//               turnPhase = 3;
+//               completeMove();
+//             } else if (turnPhase == 3) {
+//               truckDirection = directionAfterDestinationTile!;
+//               turnPhase = 4;
+//               totalAngleTurned = 0;
+//               initialAngle = 0;
+//             }
+//           }
+//         }
+//       }
+//     }
+//   }
+
+//   void moveStraight({required Vector2 movementVector, required double dt}) {
+//     movementVector.normalize();
+//     double truckSpeedCorrected = (startingTile == currentTile || acceleration != 5) ? truckSpeed * acceleration / 5 : truckSpeed;
+//     position += movementVector * truckSpeedCorrected * dt;
+//     acceleration = (acceleration + acceleration * dt).clamp(0, 5);
+//   }
+// }
