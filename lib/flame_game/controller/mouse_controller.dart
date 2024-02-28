@@ -42,9 +42,10 @@ class MouseController extends Component with HasGameRef<MGame>, HasWorldReferenc
     double globalCursorX = (game.mousePosition.x - camera.viewfinder.position.x) * camera.viewfinder.zoom + viewfinderInitialPosition.x;
     double globalCursorY = (game.mousePosition.y - camera.viewfinder.position.y) * camera.viewfinder.zoom + viewfinderInitialPosition.y;
 
-    if ((globalCursorY >= gameHeight - 100 && (globalCursorX < 400 || globalCursorX > MGame.gameWidth - 200)) || (globalCursorY <= 70 && globalCursorX > MGame.gameWidth - 70)) {
+    // if ((globalCursorY >= gameHeight - 100 && (globalCursorX < 400 || globalCursorX > MGame.gameWidth - 200)) || (globalCursorY <= 70 && globalCursorX > MGame.gameWidth - 70)) {
+    if (globalCursorY >= gameHeight - 100 || (globalCursorY <= 70 && globalCursorX > MGame.gameWidth - 70)) {
       game.isMouseHoveringUI = true;
-      game.myMouseCursor.changeMouseCursorType(MouseCursorType.hand);
+      //game.myMouseCursor.changeMouseCursorType(MouseCursorType.hand);
     } else {
       game.isMouseHoveringUI = false;
     }
@@ -66,7 +67,7 @@ class MouseController extends Component with HasGameRef<MGame>, HasWorldReferenc
         int tileX = dimetricX.floor();
         int tileY = dimetricY.floor();
         Point<int> newMouseTilePos = Point(tileX, tileY);
-        if (game.gridController.checkIfWithinGridBoundaries(newMouseTilePos)) {
+        if (game.gridController.checkIfWithinGridBoundaries(newMouseTilePos) && !game.isMouseHoveringUI) {
           if (game.currentMouseTilePos != newMouseTilePos) {
             game.cursorController.cursorIsMovingOnNewTile(newMouseTilePos);
           }

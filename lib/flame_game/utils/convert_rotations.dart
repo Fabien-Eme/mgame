@@ -2,7 +2,6 @@ import 'dart:math';
 
 import 'package:flame/components.dart';
 import 'package:flame_riverpod/flame_riverpod.dart';
-import 'package:flutter_animate/flutter_animate.dart';
 
 import '../game.dart';
 import '../game_world.dart';
@@ -42,6 +41,35 @@ class ConvertRotations extends Component with HasGameReference<MGame>, HasWorldR
         return dimetricGridCoordinates = Point((GameWorld.gridHeight - 1) - dimetricGridCoordinates.x, -dimetricGridCoordinates.y);
       case Rotation.piAndHalf:
         return dimetricGridCoordinates = Point((GameWorld.gridHeight - 1) ~/ 2 - dimetricGridCoordinates.y, dimetricGridCoordinates.x - (GameWorld.gridHeight - 1) ~/ 2);
+    }
+  }
+
+  Vector2 rotateVector(Vector2 vector) {
+    // vector.rotate(rotation.angle, center: Vector2(MGame.gameWidth / 2, MGame.gameHeight / 2));
+    // Vector2 adjustedVector = Vector2((MGame.gameWidth / 2 - vector.x) * 2, (MGame.gameHeight / 2 - vector.y) / 2);
+
+    // return adjustedVector;
+
+    // Vector2 center = Vector2(MGame.gameWidth / 2, MGame.gameHeight / 2);
+    // Vector2 translatedVector = vector - center;
+    // double cosTheta = cos(rotation.angle);
+    // double sinTheta = sin(rotation.angle);
+    // Vector2 rotatedVector = Vector2(
+    //   translatedVector.x * cosTheta - translatedVector.y * sinTheta,
+    //   translatedVector.x * sinTheta + translatedVector.y * cosTheta,
+    // );
+
+    // return rotatedVector + center;
+
+    switch (rotation) {
+      case Rotation.zero:
+        return vector;
+      case Rotation.piAndHalf:
+        return Vector2(MGame.gameWidth / 2 + (MGame.gameHeight / 2 - vector.y) * 2, MGame.gameHeight / 2 - (MGame.gameWidth / 2 - vector.x) / 2);
+      case Rotation.pi:
+        return Vector2(MGame.gameWidth - vector.x, MGame.gameHeight - vector.y);
+      case Rotation.halfPi:
+        return Vector2(MGame.gameWidth / 2 - (MGame.gameHeight / 2 - vector.y) * 2, MGame.gameHeight / 2 + (MGame.gameWidth / 2 - vector.x) / 2);
     }
   }
 

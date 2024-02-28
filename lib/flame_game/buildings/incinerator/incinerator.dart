@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:math';
 import 'dart:ui';
 
 import 'package:flame/components.dart';
@@ -19,6 +20,10 @@ class Incinerator extends Building {
   late final IncineratorDoor incineratorDoor;
   late final Vector2 offset;
 
+  Point<int> deliveryPointDimetric = const Point<int>(0, 0);
+
+  late Timer timer;
+
   @override
   FutureOr<void> onLoad() {
     offset = convertDimetricVectorToWorldCoordinates(Vector2(3, 1)) + Vector2(0, 2);
@@ -33,6 +38,8 @@ class Incinerator extends Building {
       incineratorDoor,
     ]);
 
+    timer = Timer(2, autoStart: false, onTick: () => closeDoor());
+
     return super.onLoad();
   }
 
@@ -41,6 +48,29 @@ class Incinerator extends Building {
     incineratorFront.position = updatedPosition + offset;
     incineratorBack.position = updatedPosition + offset;
     incineratorDoor.position = updatedPosition + offset;
+
+    deliveryPointDimetric = dimetricCoordinates + const Point<int>(-1, 1);
+
+    listTilesWithDoor = [
+      ...switch (direction) {
+        Directions.S => [
+            dimetricCoordinates + const Point<int>(-1, 0),
+            dimetricCoordinates + const Point<int>(-1, -1),
+          ],
+        Directions.W => [
+            dimetricCoordinates + const Point<int>(-2, 1),
+            dimetricCoordinates + const Point<int>(-3, 1),
+          ],
+        Directions.N => [
+            dimetricCoordinates + const Point<int>(-1, 2),
+            dimetricCoordinates + const Point<int>(-1, 3),
+          ],
+        Directions.E => [
+            dimetricCoordinates + const Point<int>(0, 1),
+            dimetricCoordinates + const Point<int>(1, 1),
+          ],
+      }
+    ];
   }
 
   @override
@@ -101,6 +131,9 @@ class Incinerator extends Building {
 
   @override
   void closeDoor() {
+    isDoorClosed = true;
+    isDoorOpen = false;
+
     if (incineratorDoor.isAnimationReversed) {
       int currentIndex = incineratorDoor.animationTicker!.currentIndex;
       incineratorDoor.animation = incineratorDoor.animation!.reversed();
@@ -123,6 +156,12 @@ class Incinerator extends Building {
       incineratorDoor.animationTicker!.paused = false;
       incineratorDoor.isAnimationReversed = true;
     }
+
+    incineratorDoor.animationTicker!.completed.then((_) {
+      isDoorClosed = false;
+      isDoorOpen = true;
+      timer.start();
+    });
   }
 
   @override
@@ -131,5 +170,11 @@ class Incinerator extends Building {
     world.remove(incineratorBack);
     world.remove(incineratorDoor);
     super.onRemove();
+  }
+
+  @override
+  void update(double dt) {
+    timer.update(dt);
+    super.update(dt);
   }
 }

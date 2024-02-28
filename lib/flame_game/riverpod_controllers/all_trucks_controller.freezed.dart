@@ -17,6 +17,7 @@ final _privateConstructorUsedError = UnsupportedError(
 /// @nodoc
 mixin _$AllTrucks {
   Map<String, Truck> get trucksOwned => throw _privateConstructorUsedError;
+  String? get lastTruckAddedId => throw _privateConstructorUsedError;
 
   @JsonKey(ignore: true)
   $AllTrucksCopyWith<AllTrucks> get copyWith =>
@@ -28,7 +29,7 @@ abstract class $AllTrucksCopyWith<$Res> {
   factory $AllTrucksCopyWith(AllTrucks value, $Res Function(AllTrucks) then) =
       _$AllTrucksCopyWithImpl<$Res, AllTrucks>;
   @useResult
-  $Res call({Map<String, Truck> trucksOwned});
+  $Res call({Map<String, Truck> trucksOwned, String? lastTruckAddedId});
 }
 
 /// @nodoc
@@ -45,12 +46,17 @@ class _$AllTrucksCopyWithImpl<$Res, $Val extends AllTrucks>
   @override
   $Res call({
     Object? trucksOwned = null,
+    Object? lastTruckAddedId = freezed,
   }) {
     return _then(_value.copyWith(
       trucksOwned: null == trucksOwned
           ? _value.trucksOwned
           : trucksOwned // ignore: cast_nullable_to_non_nullable
               as Map<String, Truck>,
+      lastTruckAddedId: freezed == lastTruckAddedId
+          ? _value.lastTruckAddedId
+          : lastTruckAddedId // ignore: cast_nullable_to_non_nullable
+              as String?,
     ) as $Val);
   }
 }
@@ -63,7 +69,7 @@ abstract class _$$AllTrucksImplCopyWith<$Res>
       __$$AllTrucksImplCopyWithImpl<$Res>;
   @override
   @useResult
-  $Res call({Map<String, Truck> trucksOwned});
+  $Res call({Map<String, Truck> trucksOwned, String? lastTruckAddedId});
 }
 
 /// @nodoc
@@ -78,12 +84,17 @@ class __$$AllTrucksImplCopyWithImpl<$Res>
   @override
   $Res call({
     Object? trucksOwned = null,
+    Object? lastTruckAddedId = freezed,
   }) {
     return _then(_$AllTrucksImpl(
       trucksOwned: null == trucksOwned
           ? _value._trucksOwned
           : trucksOwned // ignore: cast_nullable_to_non_nullable
               as Map<String, Truck>,
+      lastTruckAddedId: freezed == lastTruckAddedId
+          ? _value.lastTruckAddedId
+          : lastTruckAddedId // ignore: cast_nullable_to_non_nullable
+              as String?,
     ));
   }
 }
@@ -91,7 +102,8 @@ class __$$AllTrucksImplCopyWithImpl<$Res>
 /// @nodoc
 
 class _$AllTrucksImpl implements _AllTrucks {
-  _$AllTrucksImpl({required final Map<String, Truck> trucksOwned})
+  _$AllTrucksImpl(
+      {required final Map<String, Truck> trucksOwned, this.lastTruckAddedId})
       : _trucksOwned = trucksOwned;
 
   final Map<String, Truck> _trucksOwned;
@@ -103,8 +115,11 @@ class _$AllTrucksImpl implements _AllTrucks {
   }
 
   @override
+  final String? lastTruckAddedId;
+
+  @override
   String toString() {
-    return 'AllTrucks(trucksOwned: $trucksOwned)';
+    return 'AllTrucks(trucksOwned: $trucksOwned, lastTruckAddedId: $lastTruckAddedId)';
   }
 
   @override
@@ -113,12 +128,14 @@ class _$AllTrucksImpl implements _AllTrucks {
         (other.runtimeType == runtimeType &&
             other is _$AllTrucksImpl &&
             const DeepCollectionEquality()
-                .equals(other._trucksOwned, _trucksOwned));
+                .equals(other._trucksOwned, _trucksOwned) &&
+            (identical(other.lastTruckAddedId, lastTruckAddedId) ||
+                other.lastTruckAddedId == lastTruckAddedId));
   }
 
   @override
-  int get hashCode => Object.hash(
-      runtimeType, const DeepCollectionEquality().hash(_trucksOwned));
+  int get hashCode => Object.hash(runtimeType,
+      const DeepCollectionEquality().hash(_trucksOwned), lastTruckAddedId);
 
   @JsonKey(ignore: true)
   @override
@@ -128,11 +145,14 @@ class _$AllTrucksImpl implements _AllTrucks {
 }
 
 abstract class _AllTrucks implements AllTrucks {
-  factory _AllTrucks({required final Map<String, Truck> trucksOwned}) =
-      _$AllTrucksImpl;
+  factory _AllTrucks(
+      {required final Map<String, Truck> trucksOwned,
+      final String? lastTruckAddedId}) = _$AllTrucksImpl;
 
   @override
   Map<String, Truck> get trucksOwned;
+  @override
+  String? get lastTruckAddedId;
   @override
   @JsonKey(ignore: true)
   _$$AllTrucksImplCopyWith<_$AllTrucksImpl> get copyWith =>

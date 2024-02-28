@@ -3,8 +3,6 @@ import 'dart:math';
 
 import 'package:flame/components.dart';
 import 'package:flame/events.dart';
-import 'package:mgame/flame_game/truck/truck.dart';
-import 'package:mgame/flame_game/truck/truck_model.dart';
 import 'package:mgame/flame_game/ui/tile_cursor.dart';
 import 'package:mgame/flame_game/game.dart';
 import 'package:mgame/flame_game/utils/convert_coordinates.dart';
@@ -24,8 +22,6 @@ class GameWorld extends World with HasGameReference<MGame>, TapCallbacks {
   bool isDebugGridNumbersOn = true;
   TileCursor tileCursor = TileCursor();
   Building? temporaryBuilding;
-
-  late Truck truck;
 
   @override
   FutureOr<void> onMount() async {
@@ -48,16 +44,13 @@ class GameWorld extends World with HasGameReference<MGame>, TapCallbacks {
 
     await game.gridController.internalBuildOnTile(const Point<int>(6, -2), BuildingType.garage, Directions.E);
     await game.gridController.internalBuildOnTile(const Point<int>(32, 3), BuildingType.city, Directions.S);
-    await game.gridController.internalBuildOnTile(const Point<int>(31, 2), BuildingType.garbageLoader, Directions.S);
+    // await game.gridController.internalBuildOnTile(const Point<int>(31, 2), BuildingType.garbageLoader, Directions.S);
 
     for (int i = 0; i < 25; i++) {
       game.constructionController.construct(posDimetric: Point<int>(7 + i, -1), tileType: TileType.road);
     }
     game.constructionController.construct(posDimetric: const Point<int>(31, 0), tileType: TileType.road);
     game.constructionController.construct(posDimetric: const Point<int>(31, 1), tileType: TileType.road);
-
-    truck = Truck(truckType: TruckType.blue, truckDirection: Directions.E, startingTileAtCreation: game.gridController.getTileAtDimetricCoordinates(const Point<int>(8, -1))!);
-    add(truck);
 
     // truck.goToTile(game.gridController.getTileAtDimetricCoordinates(const Point<int>(8, -3))!);
   }

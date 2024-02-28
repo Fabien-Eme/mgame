@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:math';
 import 'dart:ui';
 
 import 'package:flame/components.dart';
@@ -19,6 +20,8 @@ class GarbageLoader extends Building {
   late final GarbageLoaderFront garbageLoaderFront;
   late final GarbageLoaderBack garbageLoaderBack;
 
+  late Timer timer;
+
   @override
   FutureOr<void> onLoad() async {
     garbageLoaderFront = GarbageLoaderFront(direction: direction, garbageLoaderFlow: garbageLoaderFlow, position: position + offset);
@@ -28,6 +31,8 @@ class GarbageLoader extends Building {
       garbageLoaderBack,
     ]);
 
+    timer = Timer(2, autoStart: false, onTick: () => closeDoor());
+
     return super.onLoad();
   }
 
@@ -35,6 +40,28 @@ class GarbageLoader extends Building {
   void updatePosition(Vector2 updatedPosition) {
     garbageLoaderFront.position = updatedPosition + offset;
     garbageLoaderBack.position = updatedPosition + offset;
+
+    listTilesWithDoor = [
+      dimetricCoordinates,
+      ...switch (direction) {
+        Directions.S => [
+            dimetricCoordinates + const Point<int>(0, -1),
+            dimetricCoordinates + const Point<int>(0, 1),
+          ],
+        Directions.W => [
+            dimetricCoordinates + const Point<int>(-1, 0),
+            dimetricCoordinates + const Point<int>(1, 0),
+          ],
+        Directions.N => [
+            dimetricCoordinates + const Point<int>(0, -1),
+            dimetricCoordinates + const Point<int>(0, 1),
+          ],
+        Directions.E => [
+            dimetricCoordinates + const Point<int>(-1, 0),
+            dimetricCoordinates + const Point<int>(1, 0),
+          ],
+      }
+    ];
   }
 
   @override
@@ -88,6 +115,9 @@ class GarbageLoader extends Building {
 
   @override
   void closeDoor() {
+    isDoorClosed = true;
+    isDoorOpen = false;
+
     if (garbageLoaderFront.isAnimationReversed) {
       int currentIndex = garbageLoaderFront.animationTicker!.currentIndex;
       garbageLoaderFront.animation = garbageLoaderFront.animation!.reversed();
@@ -110,6 +140,12 @@ class GarbageLoader extends Building {
       garbageLoaderFront.animationTicker!.paused = false;
       garbageLoaderFront.isAnimationReversed = true;
     }
+
+    garbageLoaderFront.animationTicker!.completed.then((_) {
+      isDoorClosed = false;
+      isDoorOpen = true;
+      timer.start();
+    });
   }
 
   @override
@@ -117,5 +153,11 @@ class GarbageLoader extends Building {
     world.remove(garbageLoaderFront);
     world.remove(garbageLoaderBack);
     super.onRemove();
+  }
+
+  @override
+  void update(double dt) {
+    timer.update(dt);
+    super.update(dt);
   }
 }

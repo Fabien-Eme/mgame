@@ -29,6 +29,7 @@ class GarbageController extends Component with HasGameReference<MGame>, HasWorld
     String id = uuid.v4();
     GarbageStack garbageStack = GarbageStack(id: id, component: garbage, stackQuantity: 0, anchorBuilding: building);
     listGarbageStack[id] = garbageStack;
+    building.garbageStackId = id;
     await world.add(garbage);
     garbage.position = world.buildings.whereType<City>().first.finalGarbagePosition;
   }

@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:math';
 import 'dart:ui';
 
 import 'package:flame/components.dart';
@@ -19,6 +20,9 @@ class Garage extends Building {
   late final GarageDoor garageDoor;
   late final Vector2 offset;
 
+  Point<int> spawnPointDimetric = const Point<int>(0, 0);
+  late Timer timer;
+
   @override
   FutureOr<void> onLoad() {
     offset = convertDimetricVectorToWorldCoordinates(Vector2(3, 1)) + Vector2(0, 2);
@@ -33,6 +37,8 @@ class Garage extends Building {
       garageDoor,
     ]);
 
+    timer = Timer(2, autoStart: false, onTick: () => closeDoor());
+
     return super.onLoad();
   }
 
@@ -41,6 +47,29 @@ class Garage extends Building {
     garageFront.position = updatedPosition + offset;
     garageBack.position = updatedPosition + offset;
     garageDoor.position = updatedPosition + offset;
+
+    spawnPointDimetric = game.convertRotations.rotateCoordinates(dimetricCoordinates + const Point<int>(-1, 1));
+
+    listTilesWithDoor = [
+      ...switch (direction) {
+        Directions.S => [
+            dimetricCoordinates + const Point<int>(-1, 0),
+            dimetricCoordinates + const Point<int>(-1, 1),
+          ],
+        Directions.W => [
+            dimetricCoordinates + const Point<int>(-2, 1),
+            dimetricCoordinates + const Point<int>(-3, 1),
+          ],
+        Directions.N => [
+            dimetricCoordinates + const Point<int>(-1, 2),
+            dimetricCoordinates + const Point<int>(-1, 3),
+          ],
+        Directions.E => [
+            dimetricCoordinates + const Point<int>(0, 1),
+            dimetricCoordinates + const Point<int>(1, 1),
+          ],
+      }
+    ];
   }
 
   @override
@@ -100,6 +129,9 @@ class Garage extends Building {
 
   @override
   void closeDoor() {
+    isDoorClosed = true;
+    isDoorOpen = false;
+
     if (garageDoor.isAnimationReversed) {
       garageDoor.animationTicker!.paused = false;
     } else {
@@ -122,6 +154,12 @@ class Garage extends Building {
     } else {
       garageDoor.animationTicker!.paused = false;
     }
+
+    garageDoor.animationTicker!.completed.then((_) {
+      isDoorClosed = false;
+      isDoorOpen = true;
+      timer.start();
+    });
   }
 
   @override
@@ -130,5 +168,11 @@ class Garage extends Building {
     world.remove(garageBack);
     world.remove(garageDoor);
     super.onRemove();
+  }
+
+  @override
+  void update(double dt) {
+    timer.update(dt);
+    super.update(dt);
   }
 }

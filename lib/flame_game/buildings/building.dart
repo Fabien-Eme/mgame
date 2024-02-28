@@ -25,8 +25,14 @@ abstract class Building extends PositionComponent with HasGameReference<MGame>, 
 
   Building({this.direction = Directions.E, required this.anchorTile, super.position});
 
+  Point<int> shownDimetricCoordinates = const Point<int>(0, 0);
   List<Vector2> listInitialGarbagePosition = [];
   Vector2 finalGarbagePosition = Vector2(0, 0);
+
+  bool isDoorOpen = false;
+  bool isDoorClosed = true;
+  List<Point<int>> listTilesWithDoor = [];
+  String? garbageStackId;
 
   @override
   void onMount() {
@@ -34,7 +40,10 @@ abstract class Building extends PositionComponent with HasGameReference<MGame>, 
           rotation = value;
           Point<int> offsetSizeInTile = game.convertRotations.rotateOffsetSizeInTile(sizeInTile);
           Vector2 updatedPosition = convertDimetricPointToWorldCoordinates(game.convertRotations.rotateCoordinates(dimetricCoordinates - offsetSizeInTile));
+          shownDimetricCoordinates = game.convertRotations.rotateCoordinates(dimetricCoordinates - offsetSizeInTile);
+
           updatePosition(updatedPosition);
+
           Directions updatedDirection = game.convertRotations.rotateDirections(direction);
           updateDirection(updatedDirection);
           updatePriority(updatedPosition);
@@ -44,14 +53,22 @@ abstract class Building extends PositionComponent with HasGameReference<MGame>, 
   }
 
   void setPosition(Point<int> newPosition) {
-    Point<int> initialOffsetSizeInTile = game.convertRotations.rotateOffsetSizeInTile(sizeInTile);
-    dimetricCoordinates = newPosition + initialOffsetSizeInTile;
+    dimetricCoordinates = newPosition;
+    shownDimetricCoordinates = dimetricCoordinates;
 
-    Point<int> offsetSizeInTile = game.convertRotations.rotateOffsetSizeInTile(sizeInTile);
-    Vector2 updatedPosition = convertDimetricPointToWorldCoordinates(game.convertRotations.rotateCoordinates(dimetricCoordinates - offsetSizeInTile));
+    Vector2 updatedPosition = convertDimetricPointToWorldCoordinates(game.convertRotations.rotateCoordinates(dimetricCoordinates));
     updatePosition(updatedPosition);
     updatePriority(updatedPosition);
   }
+  // void setPosition(Point<int> newPosition) {
+  //   Point<int> initialOffsetSizeInTile = game.convertRotations.rotateOffsetSizeInTile(sizeInTile);
+  //   dimetricCoordinates = newPosition + initialOffsetSizeInTile;
+
+  //   Point<int> offsetSizeInTile = game.convertRotations.rotateOffsetSizeInTile(sizeInTile);
+  //   Vector2 updatedPosition = convertDimetricPointToWorldCoordinates(game.convertRotations.rotateCoordinates(dimetricCoordinates - offsetSizeInTile));
+  //   updatePosition(updatedPosition);
+  //   updatePriority(updatedPosition);
+  // }
 
   void setDirection(Directions newDirection) {
     direction = game.convertRotations.unRotateDirections(newDirection);

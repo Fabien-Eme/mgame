@@ -11,4 +11,5 @@ class Palette {
   static const Color backGroundMenu = Color.fromARGB(255, 199, 210, 186);
   static const Color white = Color.fromARGB(255, 255, 255, 255);
   static const Color darkBlue = Color.fromARGB(255, 36, 80, 225);
+  static const Color blackTransparent = Color.fromARGB(75, 0, 0, 0);
 }

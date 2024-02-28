@@ -2,17 +2,25 @@ import 'dart:math';
 
 import 'package:flame/components.dart';
 import 'package:flame_riverpod/flame_riverpod.dart';
+import 'package:mgame/flame_game/buildings/garbage_loader/garbage_loader.dart';
+import 'package:mgame/flame_game/controller/task_controller.dart';
+import 'package:mgame/flame_game/game_world.dart';
 import 'package:mgame/flame_game/riverpod_controllers/all_trucks_controller.dart';
 import 'package:mgame/flame_game/truck/truck_model.dart';
 
+import '../buildings/city/city.dart';
+import '../buildings/garage/garage.dart';
 import '../game.dart';
 import '../truck/truck.dart';
 
-class TruckController extends Component with HasGameReference<MGame>, RiverpodComponentMixin {
+class TruckController extends Component with HasGameReference<MGame>, HasWorldReference<GameWorld>, RiverpodComponentMixin {
   Map<String, Truck> mapTruck = {};
 
   void buyTruck(TruckType truckType) {
-    ref.read(allTrucksControllerProvider.notifier).addTruck(truckType);
+    Point<int> truckSpawnLocation = world.buildings.whereType<Garage>().first.spawnPointDimetric;
+    ref.read(allTrucksControllerProvider.notifier).addTruck(truckType, truckSpawnLocation);
+
+    Future.delayed(const Duration(milliseconds: 100)).then((value) => game.world.add(ref.read(allTrucksControllerProvider).trucksOwned[ref.read(allTrucksControllerProvider).lastTruckAddedId]!));
   }
 
   void sellTruck(TruckType truckType) {
@@ -47,5 +55,29 @@ class TruckController extends Component with HasGameReference<MGame>, RiverpodCo
     }
 
     return sortedAndRandomized;
+  }
+
+  void completeTask({required Truck truck, required Task task}) async {
+    for (TaskReward taskReward in task.taskReward) {
+      switch (taskReward) {
+        case TaskReward.loadGarbage:
+          await Future.delayed(const Duration(seconds: 2));
+          int stackMax = game.garbageController.listGarbageStack[task.taskBuilding!.garbageStackId]?.stackQuantity ?? 0;
+          int loadMax = truck.maxLoad;
+          int load = min(stackMax, loadMax);
+
+          game.garbageController.listGarbageStack[task.taskBuilding!.garbageStackId]?.stackQuantity = stackMax - load;
+          truck.loadQuantity = load;
+          truck.loadType = LoadType.garbageCan;
+
+          truck.currentTask = null;
+          truck.isCompletingTask = false;
+          break;
+        case TaskReward.unloadGarbage:
+          break;
+        case TaskReward.unloadAll:
+          break;
+      }
+    }
   }
 }

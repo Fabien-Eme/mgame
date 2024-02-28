@@ -64,7 +64,7 @@ class OverlayDialog extends PositionComponent with HasGameReference<MGame> {
       case OverlayDialogType.settings:
         return Vector2(600, 500);
       default:
-        return Vector2(900, 500);
+        return Vector2(900, 525);
     }
   }
 

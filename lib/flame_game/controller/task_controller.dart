@@ -3,6 +3,7 @@ import 'dart:math';
 import 'package:flame/components.dart';
 import 'package:flame_riverpod/flame_riverpod.dart';
 import 'package:mgame/flame_game/buildings/building.dart';
+import 'package:mgame/flame_game/buildings/incinerator/incinerator.dart';
 import 'package:mgame/flame_game/game_world.dart';
 import 'package:mgame/flame_game/truck/truck.dart';
 import 'package:uuid/uuid.dart';
@@ -16,7 +17,16 @@ class TaskController extends Component with HasGameReference<MGame>, HasWorldRef
   ///
   ///
   /// Create a [Task], generate a random Id
-  void createTask({required TaskType taskType, required Point<int> taskCoordinate, int? taskPriority, List<TaskRestriction>? taskRestrictions, String? linkedTaskId, List<String>? vehiculeAffected}) {
+  void createTask({
+    required TaskType taskType,
+    required Point<int> taskCoordinate,
+    int? taskPriority,
+    List<TaskRestriction>? taskRestrictions,
+    List<TaskReward>? taskReward,
+    String? linkedTaskId,
+    List<String>? vehiculeAffected,
+    Building? taskBuilding,
+  }) {
     Uuid uuid = const Uuid();
     String id = uuid.v4();
     Task task = Task(
@@ -25,8 +35,10 @@ class TaskController extends Component with HasGameReference<MGame>, HasWorldRef
         taskCoordinate: taskCoordinate,
         taskPriority: taskPriority ?? 0,
         taskRestrictions: taskRestrictions ?? [],
+        taskReward: taskReward ?? [],
         linkedTaskId: linkedTaskId,
-        vehiculeAffected: vehiculeAffected ?? []);
+        vehiculeAffected: vehiculeAffected ?? [],
+        taskBuilding: taskBuilding);
 
     globalMapTask[id] = task;
   }
@@ -92,7 +104,9 @@ class TaskController extends Component with HasGameReference<MGame>, HasWorldRef
 
     /// Check if Task is available
     for (Task task in listTask) {
-      int? maxVehiculeAffected = task.taskRestrictions.firstWhere((element) => element.taskRestrictionType == TaskRestrictionType.vehiculeQuantity).vehiculeQuantity;
+      int? maxVehiculeAffected;
+      List<TaskRestriction> taskRestriction = task.taskRestrictions.where((element) => element.taskRestrictionType == TaskRestrictionType.vehiculeQuantity).toList();
+      if (taskRestriction.isNotEmpty) maxVehiculeAffected = taskRestriction.first.vehiculeQuantity;
       if (maxVehiculeAffected != null && task.vehiculeAffected.length >= maxVehiculeAffected) {
         listTask.remove(task);
       }
@@ -126,25 +140,34 @@ class TaskController extends Component with HasGameReference<MGame>, HasWorldRef
     return tasksWithRandom.map((e) => e['task']).cast<Task>().toList();
   }
 
-  void loaderUnloaderBuilt(Building building) {
-    for (City city in world.buildings.whereType<City>()) {
-      if (city.loadTileCoordinate == building.anchorTile) {
-        createTask(taskType: TaskType.collection, taskCoordinate: city.loadTileCoordinate, taskRestrictions: [TaskRestriction.simpleCollect()]);
-      }
-    }
-  }
-
-  void loaderUnloaderDestroyed(Building building) {
-    for (City city in world.buildings.whereType<City>()) {
-      if (city.loadTileCoordinate == building.anchorTile) {}
+  void buildingBuilt(Building building) {
+    switch (building.buildingType) {
+      case BuildingType.city:
+        break;
+      case BuildingType.garbageLoader:
+        for (City city in world.buildings.whereType<City>()) {
+          if (city.loadTileCoordinate == building.anchorTile) {
+            createTask(
+                taskType: TaskType.collection, taskCoordinate: city.loadTileCoordinate, taskRestrictions: [TaskRestriction.simpleCollect()], taskReward: [TaskReward.loadGarbage], taskBuilding: city);
+          }
+        }
+      case BuildingType.recycler:
+        break;
+      case BuildingType.incinerator:
+        createTask(
+            taskType: TaskType.delivery, taskCoordinate: (building as Incinerator).deliveryPointDimetric, taskRestrictions: [TaskRestriction.simpleDelivery()], taskReward: [TaskReward.unloadAll]);
+      case BuildingType.garage:
+        break;
     }
   }
 
   doesTruckSatisfyRestriction({required Truck truck, required List<TaskRestriction> restrictions}) {
     for (TaskRestriction taskRestriction in restrictions) {
       switch (taskRestriction.taskRestrictionType) {
-        case TaskRestrictionType.loadQuantity:
+        case TaskRestrictionType.loadMinQuantity:
           if (truck.loadQuantity < taskRestriction.loadQuantity!) return false;
+        case TaskRestrictionType.loadMaxQuantity:
+          if (truck.loadQuantity > taskRestriction.loadQuantity!) return false;
         case TaskRestrictionType.loadType:
           if (truck.loadType != taskRestriction.loadType!) return false;
         case TaskRestrictionType.vehiculeType:
@@ -162,25 +185,28 @@ class TaskController extends Component with HasGameReference<MGame>, HasWorldRef
 
     while (isMatchPossible) {
       List<Task> allTaskAvailableOrdered = getAllTaskAvailableOrdered();
+      if (allTaskAvailableOrdered.isNotEmpty) {
+        do {
+          List<Truck> listTrucksAvailable = game.truckController.getAvailableTrucksOrdered();
+          if (listTrucksAvailable.isEmpty) isMatchPossible = false;
 
-      do {
-        List<Truck> listTrucksAvailable = game.truckController.getAvailableTrucksOrdered();
-        if (listTrucksAvailable.isEmpty) isMatchPossible = false;
+          Task task = allTaskAvailableOrdered.first;
+          List<Truck> listTruck = listTrucksAvailable.where((Truck truck) => doesTruckSatisfyRestriction(truck: truck, restrictions: task.taskRestrictions) == true).toList();
 
-        Task task = allTaskAvailableOrdered.first;
-        List<Truck> listTruck = listTrucksAvailable.where((Truck truck) => doesTruckSatisfyRestriction(truck: truck, restrictions: task.taskRestrictions) == true) as List<Truck>;
-
-        if (listTruck.isNotEmpty) {
-          task.vehiculeAffected.add(listTruck.first.id);
-          globalMapTask[task.id] = task;
-          listTruck.first.currentTask = task;
-          hasMatched = true;
-        } else {
-          allTaskAvailableOrdered.remove(task);
-        }
-      } while (!hasMatched && allTaskAvailableOrdered.isNotEmpty);
-      if (!hasMatched && allTaskAvailableOrdered.isEmpty) isMatchPossible = false;
-      hasMatched = false;
+          if (listTruck.isNotEmpty) {
+            task.vehiculeAffected.add(listTruck.first.id);
+            globalMapTask[task.id] = task;
+            listTruck.first.affectTask(task);
+            hasMatched = true;
+          } else {
+            allTaskAvailableOrdered.remove(task);
+          }
+        } while (!hasMatched && allTaskAvailableOrdered.isNotEmpty);
+        if (!hasMatched && allTaskAvailableOrdered.isEmpty) isMatchPossible = false;
+        hasMatched = false;
+      } else {
+        isMatchPossible = false;
+      }
     }
   }
 
@@ -208,8 +234,10 @@ class Task {
   Point<int> taskCoordinate;
   int taskPriority;
   List<TaskRestriction> taskRestrictions;
+  List<TaskReward> taskReward;
   String? linkedTaskId;
   List<String> vehiculeAffected;
+  Building? taskBuilding;
 
   Task({
     required this.id,
@@ -217,8 +245,10 @@ class Task {
     required this.taskCoordinate,
     required this.taskPriority,
     required this.taskRestrictions,
+    required this.taskReward,
     required this.linkedTaskId,
     required this.vehiculeAffected,
+    required this.taskBuilding,
   });
 }
 
@@ -240,12 +270,17 @@ class TaskRestriction {
   TaskRestriction({required this.taskRestrictionType, this.loadQuantity, this.loadType, this.vehiculeType, this.vehiculeQuantity});
 
   TaskRestriction.simpleCollect()
-      : taskRestrictionType = TaskRestrictionType.loadQuantity,
+      : taskRestrictionType = TaskRestrictionType.loadMaxQuantity,
         loadQuantity = 0;
+
+  TaskRestriction.simpleDelivery()
+      : taskRestrictionType = TaskRestrictionType.loadMinQuantity,
+        loadQuantity = 1;
 }
 
 enum TaskRestrictionType {
-  loadQuantity,
+  loadMaxQuantity,
+  loadMinQuantity,
   loadType,
   vehiculeType,
   vehiculeQuantity,
@@ -257,4 +292,10 @@ enum LoadType {
 
 enum VehiculeType {
   truck,
+}
+
+enum TaskReward {
+  loadGarbage,
+  unloadGarbage,
+  unloadAll,
 }

@@ -59,13 +59,13 @@ String getTruckAssetPath({required TruckType truckType, required double truckAng
   int spriteOffset = 0;
   switch (truckType) {
     case TruckType.yellow:
-      spriteOffset = 16;
+      spriteOffset = 32;
       break;
     case TruckType.blue:
       spriteOffset = 0;
       break;
     case TruckType.purple:
-      spriteOffset = 32;
+      spriteOffset = 16;
       break;
   }
 

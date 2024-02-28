@@ -1,3 +1,5 @@
+import 'dart:math' as math;
+
 import 'package:mgame/flame_game/ui/ui_rotate.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
@@ -43,4 +45,22 @@ class RotationController extends _$RotationController {
   }
 }
 
-enum Rotation { zero, halfPi, pi, piAndHalf }
+enum Rotation {
+  zero,
+  halfPi,
+  pi,
+  piAndHalf;
+
+  double get angle {
+    switch (this) {
+      case Rotation.zero:
+        return 0;
+      case Rotation.halfPi:
+        return math.pi / 2;
+      case Rotation.pi:
+        return math.pi;
+      case Rotation.piAndHalf:
+        return 3 / 2 * math.pi;
+    }
+  }
+}
