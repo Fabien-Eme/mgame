@@ -41,9 +41,10 @@ class ConstructionController extends Component with HasGameRef<MGame>, HasWorldR
     Tile? tile = game.gridController.getTileAtDimetricCoordinates(posDimetric);
 
     /// Destroy building on tile
-
     if (tile?.buildingOnTile != null) {
-      world.remove(tile!.buildingOnTile!);
+      game.taskController.buildingDestroyed(tile!.buildingOnTile!);
+
+      world.remove(tile.buildingOnTile!);
       world.buildings.remove(tile.buildingOnTile);
       for (Tile? element in tile.buildingOnTile!.tilesIAmOn) {
         element?.destroyBuilding();

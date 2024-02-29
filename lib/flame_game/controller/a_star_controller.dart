@@ -106,8 +106,8 @@ class AStarController extends Component with HasGameReference<MGame>, HasWorldRe
 
     for (Point<int> neighborDimetricCoordinates in neighborsDimetricPoint) {
       if (game.gridController.checkIfWithinGridBoundaries(neighborDimetricCoordinates)) {
-        Tile me = game.gridController.getTileAtDimetricCoordinates(myDimetricCoordinates)!;
-        Tile neighbor = game.gridController.getTileAtDimetricCoordinates(neighborDimetricCoordinates)!;
+        Tile me = game.gridController.getRealTileAtDimetricCoordinates(myDimetricCoordinates)!;
+        Tile neighbor = game.gridController.getRealTileAtDimetricCoordinates(neighborDimetricCoordinates)!;
 
         if (me.canTileConnectWithMe(neighbor)) {
           validatedNeighborsDimetricPoint.add(neighborDimetricCoordinates);

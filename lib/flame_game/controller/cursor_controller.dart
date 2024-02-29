@@ -15,7 +15,7 @@ class CursorController extends Component with HasGameRef<MGame>, HasWorldReferen
   bool hasConstructed = false;
   bool hasbuild = false;
 
-  void cursorIsMovingOnNewTile(Point<int> newMouseTilePos) async {
+  void cursorIsMovingOnNewTile(Point<int> newMouseTilePos) {
     ConstructionState constructionState = ref.read(constructionModeControllerProvider);
 
     /// Reset previous Tile if construction mode
@@ -55,7 +55,7 @@ class CursorController extends Component with HasGameRef<MGame>, HasWorldReferen
       _handleRoadConstructionByDragging();
 
       /// Handle building
-      await game.buildingController.projectBuildingOnTile(newMouseTilePos);
+      game.buildingController.projectBuildingOnTile(newMouseTilePos);
 
       /// Project construction on current Tile and Current Neighbors
       game.constructionController.projectConstructionOnTileAndNeighbors(newMouseTilePos);

@@ -107,6 +107,7 @@ class GarbageController extends Component with HasGameReference<MGame>, HasWorld
     );
     garbage.position = startingPosition + offset;
   }
+  // }
 }
 
 ///

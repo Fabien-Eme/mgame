@@ -68,7 +68,7 @@ class GarbageCanComponent extends SpriteComponent with HasGameReference {
   FutureOr<void> onLoad() {
     anchor = Anchor.center;
     size = Vector2(36, 50);
-    priority = 160;
+    priority = 200;
     sprite = Sprite(game.images.fromCache(Assets.images.garbage.garbageCanSmall.path));
 
     paint = Paint()..filterQuality = FilterQuality.low;

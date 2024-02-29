@@ -67,6 +67,7 @@ class MouseController extends Component with HasGameRef<MGame>, HasWorldReferenc
         int tileX = dimetricX.floor();
         int tileY = dimetricY.floor();
         Point<int> newMouseTilePos = Point(tileX, tileY);
+
         if (game.gridController.checkIfWithinGridBoundaries(newMouseTilePos) && !game.isMouseHoveringUI) {
           if (game.currentMouseTilePos != newMouseTilePos) {
             game.cursorController.cursorIsMovingOnNewTile(newMouseTilePos);

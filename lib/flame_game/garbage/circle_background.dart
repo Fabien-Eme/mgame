@@ -13,7 +13,7 @@ class CircleBackground extends PositionComponent {
 
   @override
   FutureOr<void> onLoad() {
-    priority = 159;
+    priority = 199;
     circleComponent = CircleComponent(
       radius: radius,
       anchor: Anchor.center,

@@ -38,9 +38,9 @@ class RotationController extends _$RotationController {
 
   void rotate(RotateDirection rotateDirection) {
     if (rotateDirection == RotateDirection.left) {
-      rotateRight();
-    } else if (rotateDirection == RotateDirection.right) {
       rotateLeft();
+    } else if (rotateDirection == RotateDirection.right) {
+      rotateRight();
     }
   }
 }

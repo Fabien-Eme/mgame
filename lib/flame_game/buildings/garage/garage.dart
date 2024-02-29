@@ -48,7 +48,7 @@ class Garage extends Building {
     garageBack.position = updatedPosition + offset;
     garageDoor.position = updatedPosition + offset;
 
-    spawnPointDimetric = game.convertRotations.rotateCoordinates(dimetricCoordinates + const Point<int>(-1, 1));
+    spawnPointDimetric = dimetricCoordinates + const Point<int>(-1, 1);
 
     listTilesWithDoor = [
       ...switch (direction) {

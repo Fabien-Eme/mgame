@@ -342,4 +342,19 @@ class GridController extends Component with HasGameRef<MGame>, HasWorldReference
       return world.grid[posGrid.x][posGrid.y];
     }
   }
+
+  ///
+  ///
+  /// Get the Tile at Dimetric coordinates Without Unrotating
+  ///
+  Tile? getRealTileAtDimetricCoordinates(Point<int>? dimetricCoordinates) {
+    if (dimetricCoordinates == null) return null;
+    if (!checkIfWithinGridBoundaries(dimetricCoordinates)) {
+      return null;
+    } else {
+      Point<int> posGrid = convertDimetricPointToGridPoint(dimetricCoordinates);
+
+      return world.grid[posGrid.x][posGrid.y];
+    }
+  }
 }

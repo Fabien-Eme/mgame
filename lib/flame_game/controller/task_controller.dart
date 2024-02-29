@@ -155,9 +155,36 @@ class TaskController extends Component with HasGameReference<MGame>, HasWorldRef
         break;
       case BuildingType.incinerator:
         createTask(
-            taskType: TaskType.delivery, taskCoordinate: (building as Incinerator).deliveryPointDimetric, taskRestrictions: [TaskRestriction.simpleDelivery()], taskReward: [TaskReward.unloadAll]);
+            taskType: TaskType.delivery,
+            taskCoordinate: (building as Incinerator).deliveryPointDimetric,
+            taskRestrictions: [TaskRestriction.simpleDelivery()],
+            taskReward: [TaskReward.unloadAll],
+            taskBuilding: building);
       case BuildingType.garage:
         break;
+    }
+  }
+
+  void buildingDestroyed(Building building) {
+    List<Task> listTaskToRemove = [];
+    if (building.buildingType == BuildingType.garbageLoader) {
+      List<Task> listTaskWithCity = globalMapTask.values.where((Task task) => task.taskBuilding?.buildingType == BuildingType.city).toList();
+      for (Task task in listTaskWithCity) {
+        if ((task.taskBuilding as City).loadTileCoordinate == building.anchorTile) listTaskToRemove.add(task);
+      }
+    } else {
+      listTaskToRemove.addAll(globalMapTask.values.where((Task task) => task.taskBuilding == building).toList());
+    }
+    for (Task task in listTaskToRemove) {
+      globalMapTask.remove(task.id);
+    }
+    verifyTrucksTaskStillExist();
+  }
+
+  void verifyTrucksTaskStillExist() {
+    List<Truck> listTrucks = game.truckController.getAllTrucks();
+    for (Truck truck in listTrucks) {
+      if (truck.currentTask != null && !globalMapTask.containsKey(truck.currentTask!.id)) truck.currentTask = null;
     }
   }
 

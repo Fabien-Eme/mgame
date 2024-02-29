@@ -2,13 +2,11 @@ import 'dart:math';
 
 import 'package:flame/components.dart';
 import 'package:flame_riverpod/flame_riverpod.dart';
-import 'package:mgame/flame_game/buildings/garbage_loader/garbage_loader.dart';
 import 'package:mgame/flame_game/controller/task_controller.dart';
 import 'package:mgame/flame_game/game_world.dart';
 import 'package:mgame/flame_game/riverpod_controllers/all_trucks_controller.dart';
 import 'package:mgame/flame_game/truck/truck_model.dart';
 
-import '../buildings/city/city.dart';
 import '../buildings/garage/garage.dart';
 import '../game.dart';
 import '../truck/truck.dart';
@@ -57,6 +55,12 @@ class TruckController extends Component with HasGameReference<MGame>, HasWorldRe
     return sortedAndRandomized;
   }
 
+  List<Truck> getAllTrucks() {
+    Map<String, Truck> mapTrucksOwned = ref.read(allTrucksControllerProvider).trucksOwned;
+
+    return mapTrucksOwned.values.toList();
+  }
+
   void completeTask({required Truck truck, required Task task}) async {
     for (TaskReward taskReward in task.taskReward) {
       switch (taskReward) {
@@ -76,6 +80,12 @@ class TruckController extends Component with HasGameReference<MGame>, HasWorldRe
         case TaskReward.unloadGarbage:
           break;
         case TaskReward.unloadAll:
+          await Future.delayed(const Duration(seconds: 2));
+
+          truck.loadQuantity = 0;
+
+          truck.currentTask = null;
+          truck.isCompletingTask = false;
           break;
       }
     }

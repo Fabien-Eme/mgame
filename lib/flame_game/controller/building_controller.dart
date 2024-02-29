@@ -25,7 +25,7 @@ class BuildingController extends Component with HasGameReference<MGame>, HasWorl
   ///
   /// Project selected building on Tile while mouving mouse
   ///
-  Future<void> projectBuildingOnTile(Point<int> dimetricTilePos) async {
+  void projectBuildingOnTile(Point<int> dimetricTilePos) {
     final constructionState = ref.read(constructionModeControllerProvider);
 
     ///Project the building
@@ -33,7 +33,7 @@ class BuildingController extends Component with HasGameReference<MGame>, HasWorl
       if (world.temporaryBuilding == null) {
         _addTemporaryBuildingOnWorld(constructionState, game.convertRotations.unRotateCoordinates(dimetricTilePos));
       } else if (world.temporaryBuilding!.buildingType != constructionState.buildingType!) {
-        await removeTemporaryBuilding();
+        removeTemporaryBuilding();
         _addTemporaryBuildingOnWorld(constructionState, game.convertRotations.unRotateCoordinates(dimetricTilePos));
       } else {
         world.temporaryBuilding!.setPosition(game.convertRotations.unRotateCoordinates(dimetricTilePos));

@@ -235,6 +235,19 @@ class ConvertRotations extends Component with HasGameReference<MGame>, HasWorldR
         }
     }
   }
+
+  double rotateAngle(double angle) {
+    switch (rotation) {
+      case Rotation.zero:
+        return angle;
+      case Rotation.halfPi:
+        return angle + pi / 2;
+      case Rotation.pi:
+        return angle + pi;
+      case Rotation.piAndHalf:
+        return angle + 3 * pi / 2;
+    }
+  }
 }
 
 enum Directions {

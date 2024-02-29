@@ -67,6 +67,7 @@ class GarageDoor extends SpriteAnimationComponent with HasGameRef {
       game.images.fromCache(asset),
       spriteAnimationData,
     );
+    if (isAnimationReversed) animation = animation!.reversed();
 
     if (hasPreviousAnimation) {
       animationTicker!.paused = isPaused;
