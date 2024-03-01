@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:logging/logging.dart';
 
-import '../style/palette.dart';
 import 'initializer.dart';
 import 'router.dart';
 
@@ -27,11 +26,7 @@ class Launcher extends ConsumerWidget {
       child: MaterialApp.router(
         routerConfig: router,
         title: "M Game",
-        theme: ThemeData(useMaterial3: true).copyWith(
-            colorScheme: ColorScheme.fromSeed(
-          seedColor: ref.watch(paletteProvider).primary,
-          background: ref.watch(paletteProvider).backgroundMain,
-        )),
+        theme: ThemeData(useMaterial3: true),
         debugShowCheckedModeBanner: false,
       ),
     );
