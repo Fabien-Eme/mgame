@@ -12,8 +12,18 @@
   },
   "functions": [
     {
-      "source": "functions",
-      "codebase": "default",
+      "source": "functions/list_elements",
+      "codebase": "list_elements",
+      "ignore": [
+        "node_modules",
+        ".git",
+        "firebase-debug.log",
+        "firebase-debug.*.log"
+      ]
+    },
+    {
+      "source": "functions/update_elements",
+      "codebase": "update_elements",
       "ignore": [
         "node_modules",
         ".git",

@@ -19,7 +19,7 @@ class GameWorld extends World with HasGameReference<MGame>, TapCallbacks {
   List<List<Tile>> grid = [];
   List<Building> buildings = [];
 
-  bool isDebugGridNumbersOn = true;
+  bool isDebugGridNumbersOn = false;
   TileCursor tileCursor = TileCursor();
   Building? temporaryBuilding;
 

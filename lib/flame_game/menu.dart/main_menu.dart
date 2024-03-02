@@ -18,14 +18,20 @@ class MainMenu extends PositionComponent with HasGameReference<MGame>, RiverpodC
     add(DialogButton(
       text: 'Play',
       onPressed: () => game.gameController.startGame(),
-      buttonSize: Vector2(150, 50),
-      position: Vector2(0, 0),
+      buttonSize: Vector2(125, 50),
+      position: Vector2(0, -50),
     ));
     add(DialogButton(
       text: 'Settings',
       onPressed: () => ref.read(overlayControllerProvider.notifier).overlayOpen(overlayDialogType: OverlayDialogType.settings),
       buttonSize: Vector2(150, 50),
-      position: Vector2(0, 100),
+      position: Vector2(0, 50),
+    ));
+    add(DialogButton(
+      text: 'Achievements',
+      onPressed: () => ref.read(overlayControllerProvider.notifier).overlayOpen(overlayDialogType: OverlayDialogType.achievements),
+      buttonSize: Vector2(225, 50),
+      position: Vector2(0, 150),
     ));
 
     return super.onLoad();

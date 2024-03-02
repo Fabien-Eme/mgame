@@ -1,33 +1,18 @@
-import 'dart:developer' as dev;
-
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:logging/logging.dart';
-
+import 'package:mgame/flame_game/flame_game_widget.dart';
 import 'initializer.dart';
-import 'router.dart';
 
-class Launcher extends ConsumerWidget {
+class Launcher extends StatelessWidget {
   const Launcher({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    // Basic logging setup.
-    Logger.root.level = Level.ALL;
-    Logger.root.onRecord.listen((record) {
-      dev.log(
-        record.message,
-        time: record.time,
-        level: record.level.value,
-        name: record.loggerName,
-      );
-    });
+  Widget build(BuildContext context) {
     return Initializer(
-      child: MaterialApp.router(
-        routerConfig: router,
+      child: MaterialApp(
         title: "M Game",
         theme: ThemeData(useMaterial3: true),
         debugShowCheckedModeBanner: false,
+        home: const FlameGameWidget(),
       ),
     );
   }

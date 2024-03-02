@@ -3,6 +3,7 @@ import 'dart:ui';
 
 import 'package:flame/components.dart';
 import 'package:flame/palette.dart';
+import 'package:mgame/flame_game/ui/overlay/content_achievements.dart';
 import 'package:mgame/flame_game/ui/overlay/content_garage.dart';
 import 'package:mgame/flame_game/ui/overlay/content_settings.dart';
 
@@ -14,7 +15,7 @@ import 'package:mgame/gen/assets.gen.dart';
 import '../../game.dart';
 import 'tabs_garage.dart';
 
-enum OverlayDialogType { settings, garage, garbageLoader, recycler, incinerator, city, truck }
+enum OverlayDialogType { achievements, settings, garage, garbageLoader, recycler, incinerator, city, truck }
 
 class OverlayDialog extends PositionComponent with HasGameReference<MGame> {
   OverlayDialogType overlayDialogType;
@@ -30,6 +31,7 @@ class OverlayDialog extends PositionComponent with HasGameReference<MGame> {
 
   ContentGarage? contentGarage;
   ContentSettings? contentSettings;
+  ContentAchievements? contentAchievements;
 
   @override
   Future<void> onLoad() async {
@@ -63,6 +65,8 @@ class OverlayDialog extends PositionComponent with HasGameReference<MGame> {
     switch (overlayDialogType) {
       case OverlayDialogType.settings:
         return Vector2(600, 500);
+      case OverlayDialogType.achievements:
+        return Vector2(900, 800);
       default:
         return Vector2(900, 525);
     }
@@ -81,6 +85,10 @@ class OverlayDialog extends PositionComponent with HasGameReference<MGame> {
       case OverlayDialogType.city:
         contentGarage = ContentGarage(boxSize: boxSize);
         add(contentGarage!);
+        break;
+      case OverlayDialogType.achievements:
+        contentAchievements = ContentAchievements(boxSize: boxSize);
+        add(contentAchievements!);
         break;
       default:
         break;

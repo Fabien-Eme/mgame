@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_native_splash/flutter_native_splash.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mgame/core/shared_preferences.dart';
 
@@ -15,9 +14,6 @@ class Initializer extends ConsumerWidget {
           if (snapshot.hasError) {
             return somethingWentWrong();
           } else if (snapshot.hasData) {
-            // ref.watch(audioControllerProvider);
-            // ref.watch(gameControllerProvider);
-            FlutterNativeSplash.remove();
             return child;
           } else {
             return loading();

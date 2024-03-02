@@ -139,7 +139,7 @@ class MGame extends FlameGame with MouseMovementDetector, ScrollDetector, MultiT
 
     add(OverlayListener());
 
-    gameController.startGame();
+    //gameController.startGame();
     return super.onLoad();
   }
 
