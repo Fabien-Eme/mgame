@@ -9,7 +9,7 @@ import 'package:flame/game.dart';
 import 'package:flame_audio/flame_audio.dart';
 import 'package:flame_riverpod/flame_riverpod.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter/widgets.dart';
+import 'package:flutter/widgets.dart' hide Route;
 
 import 'package:mgame/flame_game/controller/a_star_controller.dart';
 import 'package:mgame/flame_game/controller/building_controller.dart';
@@ -67,15 +67,13 @@ class MGame extends FlameGame with MouseMovementDetector, ScrollDetector, MultiT
   Vector2 mousePosition = Vector2.zero();
 
   double musicVolume = 0.0;
-  double soundVolume = 1.0;
+  double soundVolume = 0.4;
 
   bool isMouseDragging = false;
   bool isMouseHoveringUI = false;
   bool isMouseHoveringBuilding = false;
   bool isMouseHoveringOverlay = false;
   bool isMouseHoveringOverlayButton = false;
-
-  late final RouterComponent router;
 
   bool isMainMenu = true;
 
@@ -105,6 +103,8 @@ class MGame extends FlameGame with MouseMovementDetector, ScrollDetector, MultiT
   TaskController taskController = TaskController();
   AStarController aStarController = AStarController();
 
+  late final RouterComponent router;
+
   ///
   ///
   /// Game Load
@@ -124,7 +124,6 @@ class MGame extends FlameGame with MouseMovementDetector, ScrollDetector, MultiT
 
     /// Show Menu
     mainMenu = MainMenu(position: Vector2(gameWidth / 2, gameHeight / 2));
-    camera.viewport.add(mainMenu);
 
     /// Hide system mouse cursor before adding custom one
     mouseCursor = SystemMouseCursors.none;
@@ -135,9 +134,19 @@ class MGame extends FlameGame with MouseMovementDetector, ScrollDetector, MultiT
     /// Add Audio controller
     add(audioController);
 
-    add(gameController);
+    //add(gameController);
 
-    add(OverlayListener());
+    //add(OverlayListener());
+
+    add(
+      router = RouterComponent(
+        routes: {
+          //'splash': Route(SplashScreenPage.new),
+          'mainMenu': Route(MainMenu.new),
+        },
+        initialRoute: 'mainMenu',
+      ),
+    );
 
     //gameController.startGame();
     return super.onLoad();

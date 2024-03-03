@@ -14,7 +14,7 @@ import '../../riverpod_controllers/overlay_controller.dart';
 import '../../utils/my_text_style.dart';
 import 'dialog_button.dart';
 
-class ContentAchievements extends PositionComponent with HasGameReference<MGame>, RiverpodComponentMixin {
+class ContentAchievements extends PositionComponent with HasGameReference<MGame>, RiverpodComponentMixin, TapCallbacks {
   Vector2 boxSize;
   ContentAchievements({required this.boxSize, super.position});
 
@@ -162,5 +162,17 @@ class ContentAchievements extends PositionComponent with HasGameReference<MGame>
 
   void onDragCancel() {
     sliderCurrentlyDragged = null;
+  }
+
+  @override
+  void onTapDown(TapDownEvent event) {
+    event.continuePropagation = false;
+    super.onTapDown(event);
+  }
+
+  @override
+  void onTapUp(TapUpEvent event) {
+    // TODO: implement onTapUp
+    super.onTapUp(event);
   }
 }
