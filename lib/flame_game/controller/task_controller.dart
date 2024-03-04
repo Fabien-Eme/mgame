@@ -4,14 +4,14 @@ import 'package:flame/components.dart';
 import 'package:flame_riverpod/flame_riverpod.dart';
 import 'package:mgame/flame_game/buildings/building.dart';
 import 'package:mgame/flame_game/buildings/incinerator/incinerator.dart';
-import 'package:mgame/flame_game/game_world.dart';
+import 'package:mgame/flame_game/level_world.dart';
 import 'package:mgame/flame_game/truck/truck.dart';
 import 'package:uuid/uuid.dart';
 
 import '../buildings/city/city.dart';
 import '../game.dart';
 
-class TaskController extends Component with HasGameReference<MGame>, HasWorldReference<GameWorld>, RiverpodComponentMixin {
+class TaskController extends Component with HasGameReference<MGame>, HasWorldReference<LevelWorld>, RiverpodComponentMixin {
   Map<String, Task> globalMapTask = {};
 
   ///
@@ -182,7 +182,7 @@ class TaskController extends Component with HasGameReference<MGame>, HasWorldRef
   }
 
   void verifyTrucksTaskStillExist() {
-    List<Truck> listTrucks = game.truckController.getAllTrucks();
+    List<Truck> listTrucks = world.truckController.getAllTrucks();
     for (Truck truck in listTrucks) {
       if (truck.currentTask != null && !globalMapTask.containsKey(truck.currentTask!.id)) truck.currentTask = null;
     }
@@ -214,7 +214,7 @@ class TaskController extends Component with HasGameReference<MGame>, HasWorldRef
       List<Task> allTaskAvailableOrdered = getAllTaskAvailableOrdered();
       if (allTaskAvailableOrdered.isNotEmpty) {
         do {
-          List<Truck> listTrucksAvailable = game.truckController.getAvailableTrucksOrdered();
+          List<Truck> listTrucksAvailable = world.truckController.getAvailableTrucksOrdered();
           if (listTrucksAvailable.isEmpty) isMatchPossible = false;
 
           Task task = allTaskAvailableOrdered.first;

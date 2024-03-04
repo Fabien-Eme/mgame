@@ -1,5 +1,5 @@
-import '../gen/assets.gen.dart';
-import 'riverpod_controllers/rotation_controller.dart';
+import '../../gen/assets.gen.dart';
+import '../riverpod_controllers/rotation_controller.dart';
 import 'dart:math';
 
 TileType getShownTileType(TileType tileType, Rotation rotation) {

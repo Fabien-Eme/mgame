@@ -9,9 +9,11 @@ import 'package:mgame/flame_game/riverpod_controllers/overlay_controller.dart';
 import 'package:mgame/flame_game/ui/overlay/overlay_dialog.dart';
 
 import '../game.dart';
+import '../level.dart';
+import '../level_world.dart';
 import '../ui/mouse_cursor.dart';
 
-class DragZoomController extends Component with HasGameRef<MGame>, RiverpodComponentMixin {
+class DragZoomController extends Component with HasGameRef<MGame>, HasWorldReference<LevelWorld>, RiverpodComponentMixin {
   final double gameWidth = MGame.gameWidth;
   final double gameHeight = MGame.gameHeight;
   final double minZoom = MGame.minZoom;
@@ -28,11 +30,10 @@ class DragZoomController extends Component with HasGameRef<MGame>, RiverpodCompo
 
   @override
   FutureOr<void> onLoad() {
-    camera = game.camera;
-    viewfinderInitialPosition = game.viewfinderInitialPosition;
     myMouseCursor = game.myMouseCursor;
     isDesktop = game.isDesktop;
-
+    camera = (world.parent as Level).cameraComponent;
+    viewfinderInitialPosition = Vector2.zero();
     return super.onLoad();
   }
 
@@ -43,11 +44,11 @@ class DragZoomController extends Component with HasGameRef<MGame>, RiverpodCompo
   void onScroll(PointerScrollInfo info) {
     if (info.scrollDelta.global.y < 0) {
       if (camera.viewfinder.zoom < maxZoom) {
-        zoomWithMouse(0.5);
+        zoomWithMouse(0.1 + camera.viewfinder.zoom * 0.2);
       }
     } else {
       if (camera.viewfinder.zoom > minZoom) {
-        zoomWithMouse(-0.5);
+        zoomWithMouse(-0.1 - camera.viewfinder.zoom * 0.2);
       }
     }
   }
@@ -60,26 +61,17 @@ class DragZoomController extends Component with HasGameRef<MGame>, RiverpodCompo
     Vector2 mousePosition = game.mousePosition;
     camera.viewfinder.zoom += amount;
     if (camera.viewfinder.zoom <= minZoom) {
+      camera.viewfinder.zoom = minZoom;
       camera.viewfinder.position = viewfinderInitialPosition;
     } else {
-      camera.viewfinder.position = mousePosition;
-
-      if (mousePosition.x < (viewfinderInitialPosition.x / camera.viewfinder.zoom + tileWidth / 2)) {
-        camera.viewfinder.position = Vector2((viewfinderInitialPosition.x / camera.viewfinder.zoom + tileWidth / 2), mousePosition.y);
-        mousePosition = camera.viewfinder.position;
-      }
-      if (mousePosition.x > (gameWidth - viewfinderInitialPosition.x / camera.viewfinder.zoom - tileWidth / 2)) {
-        camera.viewfinder.position = Vector2((gameWidth - viewfinderInitialPosition.x / camera.viewfinder.zoom - tileWidth / 2), mousePosition.y);
-        mousePosition = camera.viewfinder.position;
-      }
-      if (mousePosition.y < (viewfinderInitialPosition.y / camera.viewfinder.zoom + tileHeight / 2)) {
-        camera.viewfinder.position = Vector2(mousePosition.x, (viewfinderInitialPosition.y / camera.viewfinder.zoom + tileHeight / 2));
-        mousePosition = camera.viewfinder.position;
-      }
-      if (mousePosition.y > (gameHeight - viewfinderInitialPosition.y / camera.viewfinder.zoom - tileHeight / 2)) {
-        camera.viewfinder.position = Vector2(mousePosition.x, (gameHeight - viewfinderInitialPosition.y / camera.viewfinder.zoom - tileHeight / 2));
-        game.mousePosition = camera.viewfinder.position;
-      }
+      Vector2 newViewfinderPosition = (amount >= 0)
+          ? mousePosition - mousePosition / camera.viewfinder.zoom
+          : camera.viewfinder.position -
+              (Vector2(MGame.gameWidth - MGame.gameWidth / camera.viewfinder.zoom, MGame.gameHeight - MGame.gameHeight / camera.viewfinder.zoom) -
+                      Vector2(MGame.gameWidth - MGame.gameWidth / (camera.viewfinder.zoom + amount), MGame.gameHeight - MGame.gameHeight / (camera.viewfinder.zoom + amount))) /
+                  (2 * camera.viewfinder.zoom);
+      newViewfinderPosition.clamp(Vector2(0, 0), Vector2(MGame.gameWidth, MGame.gameHeight) - Vector2(MGame.gameWidth, MGame.gameHeight) / (camera.viewfinder.zoom));
+      camera.viewfinder.position = newViewfinderPosition;
     }
   }
 
@@ -88,22 +80,17 @@ class DragZoomController extends Component with HasGameRef<MGame>, RiverpodCompo
     Vector2 middlePointPosition = Vector2((dragPoints[0].startPosition.x + dragPoints[1].startPosition.x), (dragPoints[0].startPosition.y + dragPoints[1].startPosition.y));
     camera.viewfinder.zoom += amount;
     if (camera.viewfinder.zoom <= minZoom) {
+      camera.viewfinder.zoom = minZoom;
       camera.viewfinder.position = viewfinderInitialPosition;
     } else {
-      if (middlePointPosition.x < (viewfinderInitialPosition.x / camera.viewfinder.zoom + tileWidth / 2)) {
-        middlePointPosition = Vector2((viewfinderInitialPosition.x / camera.viewfinder.zoom + tileWidth / 2), middlePointPosition.y);
-      }
-      if (middlePointPosition.x > (gameWidth - viewfinderInitialPosition.x / camera.viewfinder.zoom - tileWidth / 2)) {
-        middlePointPosition = Vector2((gameWidth - viewfinderInitialPosition.x / camera.viewfinder.zoom - tileWidth / 2), middlePointPosition.y);
-      }
-      if (middlePointPosition.y < (viewfinderInitialPosition.y / camera.viewfinder.zoom + tileHeight / 2)) {
-        middlePointPosition = Vector2(middlePointPosition.x, (viewfinderInitialPosition.y / camera.viewfinder.zoom + tileHeight / 2));
-      }
-      if (middlePointPosition.y > (gameHeight - viewfinderInitialPosition.y / camera.viewfinder.zoom)) {
-        middlePointPosition = Vector2(middlePointPosition.x, (gameHeight - viewfinderInitialPosition.y / camera.viewfinder.zoom - tileHeight / 2));
-      }
-
-      camera.viewfinder.position = middlePointPosition;
+      Vector2 newViewfinderPosition = (amount >= 0)
+          ? middlePointPosition - middlePointPosition / camera.viewfinder.zoom
+          : camera.viewfinder.position -
+              (Vector2(MGame.gameWidth - MGame.gameWidth / camera.viewfinder.zoom, MGame.gameHeight - MGame.gameHeight / camera.viewfinder.zoom) -
+                      Vector2(MGame.gameWidth - MGame.gameWidth / (camera.viewfinder.zoom + amount), MGame.gameHeight - MGame.gameHeight / (camera.viewfinder.zoom + amount))) /
+                  (2 * camera.viewfinder.zoom);
+      newViewfinderPosition.clamp(Vector2(0, 0), Vector2(MGame.gameWidth, MGame.gameHeight) - Vector2(MGame.gameWidth, MGame.gameHeight) / (camera.viewfinder.zoom));
+      camera.viewfinder.position = newViewfinderPosition;
     }
   }
 
@@ -116,24 +103,23 @@ class DragZoomController extends Component with HasGameRef<MGame>, RiverpodCompo
       _drags[pointerId] = DragInfo(startPosition: info.eventPosition.global);
       _updateGesture();
     } else if (ref.read(overlayControllerProvider).overlayDialogType == OverlayDialogType.settings) {
-      game.overlayDialog?.contentSettings?.onDragStart(info);
+      //game.overlayDialog?.contentSettings?.onDragStart(info);
     }
   }
 
   void onDragUpdate(int pointerId, DragUpdateInfo info) {
-    myMouseCursor.position =
-        camera.globalToLocal(info.eventPosition.global) * camera.viewfinder.zoom + (viewfinderInitialPosition / camera.viewfinder.zoom - camera.viewfinder.position) * camera.viewfinder.zoom;
+    myMouseCursor.position = camera.globalToLocal(info.eventPosition.global) * camera.viewfinder.zoom - camera.viewfinder.position * camera.viewfinder.zoom;
     if (!ref.read(overlayControllerProvider).isVisible) {
       _drags[pointerId]?.updatePosition(info.eventPosition.global);
 
       _updateGesture();
       if (_drags.length == 1) {
         if (!isDesktop) {
-          Vector2 projectedViewfinderPosition = camera.viewfinder.position - Vector2(info.delta.global.x / camera.viewfinder.zoom, info.delta.global.y / camera.viewfinder.zoom);
-          if (projectedViewfinderPosition.x < (viewfinderInitialPosition.x / camera.viewfinder.zoom + tileWidth / 2) ||
-              projectedViewfinderPosition.x > (gameWidth - viewfinderInitialPosition.x / camera.viewfinder.zoom - tileWidth / 2) ||
-              projectedViewfinderPosition.y < (viewfinderInitialPosition.y / camera.viewfinder.zoom + tileHeight / 2) ||
-              projectedViewfinderPosition.y > (gameHeight - viewfinderInitialPosition.y / camera.viewfinder.zoom - tileHeight / 2) ||
+          Vector2 projectedViewfinderPosition = camera.viewfinder.position - Vector2(info.delta.global.x, info.delta.global.y);
+          if (projectedViewfinderPosition.x < 0 ||
+              projectedViewfinderPosition.x > gameWidth - gameWidth / camera.viewfinder.zoom ||
+              projectedViewfinderPosition.y < 0 ||
+              projectedViewfinderPosition.y > gameHeight - gameHeight / camera.viewfinder.zoom ||
               camera.viewfinder.zoom == minZoom) {
           } else {
             camera.viewfinder.position = projectedViewfinderPosition;
@@ -153,14 +139,14 @@ class DragZoomController extends Component with HasGameRef<MGame>, RiverpodCompo
             int tileY = dimetricY.floor();
             Point<int> newMouseTilePos = Point(tileX, tileY);
 
-            if (game.currentMouseTilePos != newMouseTilePos) {
-              game.cursorController.cursorIsMovingOnNewTile(newMouseTilePos);
+            if (world.currentMouseTilePos != newMouseTilePos) {
+              world.cursorController.cursorIsMovingOnNewTile(newMouseTilePos);
             }
           }
         }
       }
     } else if (ref.read(overlayControllerProvider).overlayDialogType == OverlayDialogType.settings) {
-      game.overlayDialog?.contentSettings?.onDragUpdate(info);
+      //game.overlayDialog?.contentSettings?.onDragUpdate(info);
     }
   }
 
@@ -168,10 +154,10 @@ class DragZoomController extends Component with HasGameRef<MGame>, RiverpodCompo
     if (!ref.read(overlayControllerProvider).isVisible) {
       _drags.remove(pointerId);
       _updateGesture();
-      game.cursorController.cursorIsMovingOnNewTile(game.currentMouseTilePos);
+      world.cursorController.cursorIsMovingOnNewTile(world.currentMouseTilePos);
       game.isMouseDragging = false;
     } else if (ref.read(overlayControllerProvider).overlayDialogType == OverlayDialogType.settings) {
-      game.overlayDialog?.contentSettings?.onDragEnd(info);
+      //game.overlayDialog?.contentSettings?.onDragEnd(info);
     }
   }
 
@@ -179,22 +165,21 @@ class DragZoomController extends Component with HasGameRef<MGame>, RiverpodCompo
     if (!ref.read(overlayControllerProvider).isVisible) {
       _drags.remove(pointerId);
       _updateGesture();
-      game.cursorController.cursorIsMovingOnNewTile(game.currentMouseTilePos);
+      world.cursorController.cursorIsMovingOnNewTile(world.currentMouseTilePos);
       game.isMouseDragging = false;
     } else if (ref.read(overlayControllerProvider).overlayDialogType == OverlayDialogType.settings) {
-      game.overlayDialog?.contentSettings?.onDragCancel();
+      // game.overlayDialog?.contentSettings?.onDragCancel();
     }
   }
 
   void onSecondaryButtonDragUpdate(DragUpdateDetails details) {
-    myMouseCursor.position = camera.globalToLocal(Vector2(details.localPosition.dx, details.localPosition.dy)) * camera.viewfinder.zoom +
-        (viewfinderInitialPosition / camera.viewfinder.zoom - camera.viewfinder.position) * camera.viewfinder.zoom;
+    myMouseCursor.position = camera.globalToLocal(Vector2(details.localPosition.dx, details.localPosition.dy)) * camera.viewfinder.zoom - camera.viewfinder.position * camera.viewfinder.zoom;
 
-    Vector2 projectedViewfinderPosition = camera.viewfinder.position - Vector2(details.delta.dx / camera.viewfinder.zoom, details.delta.dy / camera.viewfinder.zoom);
-    if (projectedViewfinderPosition.x < (viewfinderInitialPosition.x / camera.viewfinder.zoom) ||
-        projectedViewfinderPosition.x > (gameWidth - viewfinderInitialPosition.x / camera.viewfinder.zoom) ||
-        projectedViewfinderPosition.y < (viewfinderInitialPosition.y / camera.viewfinder.zoom) ||
-        projectedViewfinderPosition.y > (gameHeight - viewfinderInitialPosition.y / camera.viewfinder.zoom) ||
+    Vector2 projectedViewfinderPosition = camera.viewfinder.position - Vector2(details.delta.dx, details.delta.dy);
+    if (projectedViewfinderPosition.x < 0 ||
+        projectedViewfinderPosition.x > gameWidth - gameWidth / camera.viewfinder.zoom ||
+        projectedViewfinderPosition.y < 0 ||
+        projectedViewfinderPosition.y > gameHeight - gameHeight / camera.viewfinder.zoom ||
         camera.viewfinder.zoom == minZoom) {
     } else {
       camera.viewfinder.position = projectedViewfinderPosition;

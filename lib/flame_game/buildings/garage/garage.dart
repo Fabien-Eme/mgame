@@ -3,6 +3,7 @@ import 'dart:math';
 import 'dart:ui';
 
 import 'package:flame/components.dart';
+import 'package:flame/events.dart';
 import 'package:mgame/flame_game/buildings/building.dart';
 
 import '../../game.dart';
@@ -12,7 +13,7 @@ import 'garage_back.dart';
 import 'garage_door.dart';
 import 'garage_front.dart';
 
-class Garage extends Building {
+class Garage extends Building with HoverCallbacks {
   Garage({super.direction, super.position, required super.anchorTile});
 
   late final GarageFront garageFront;

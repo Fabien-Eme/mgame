@@ -7,19 +7,19 @@ import 'package:flame_riverpod/flame_riverpod.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/widgets.dart';
 import 'package:mgame/flame_game/controller/task_controller.dart';
-import 'package:mgame/flame_game/game_world.dart';
 import 'package:mgame/flame_game/truck/truck_helper.dart';
 import 'package:mgame/flame_game/utils/convert_coordinates.dart';
 
 import '../buildings/building.dart';
 import '../buildings/garage/garage.dart';
 import '../game.dart';
+import '../level_world.dart';
 import '../riverpod_controllers/rotation_controller.dart';
-import '../tile.dart';
+import '../tile/tile.dart';
 import '../utils/convert_rotations.dart';
 import 'truck_model.dart';
 
-class Truck extends SpriteComponent with HasGameReference<MGame>, HasWorldReference<GameWorld>, RiverpodComponentMixin {
+class Truck extends SpriteComponent with HasGameReference<MGame>, HasWorldReference<LevelWorld>, RiverpodComponentMixin {
   TruckType truckType;
   Directions truckDirection;
 
@@ -63,7 +63,7 @@ class Truck extends SpriteComponent with HasGameReference<MGame>, HasWorldRefere
   /// Load Component
   @override
   FutureOr<void> onLoad() {
-    startingTileAtCreation ??= game.gridController.getRealTileAtDimetricCoordinates(startingTileCoordinatesAtCreation!)!;
+    startingTileAtCreation ??= world.gridController.getRealTileAtDimetricCoordinates(startingTileCoordinatesAtCreation!)!;
     startingTileCoordinatesAtCreation ??= startingTileAtCreation!.dimetricCoordinates;
 
     startingTile = startingTileAtCreation!;
@@ -112,20 +112,20 @@ class Truck extends SpriteComponent with HasGameReference<MGame>, HasWorldRefere
   void setPosition(Vector2 newPosition) {
     realPosition = newPosition;
 
-    position = game.convertRotations.rotateVector(newPosition + offset);
+    position = world.convertRotations.rotateVector(newPosition + offset);
   }
 
   void updatePosition(Vector2 newPosition) {
     realPosition = newPosition;
 
-    position = game.convertRotations.rotateVector(newPosition);
+    position = world.convertRotations.rotateVector(newPosition);
   }
 
   ///
   ///
   /// Go to Depot
   void goToDepot() {
-    goToTile(finishTile: game.gridController.getRealTileAtDimetricCoordinates(world.buildings.whereType<Garage>().first.spawnPointDimetric)!, toDepot: true);
+    goToTile(finishTile: world.gridController.getRealTileAtDimetricCoordinates(world.buildings.whereType<Garage>().first.spawnPointDimetric)!, toDepot: true);
   }
 
   ///
@@ -134,10 +134,10 @@ class Truck extends SpriteComponent with HasGameReference<MGame>, HasWorldRefere
   bool goToTile({required Tile finishTile, bool toDepot = false}) {
     isGoingToDepot = toDepot;
     // print('start: ${currentTile.dimetricCoordinates} , finish: ${finishTile.dimetricCoordinates}');
-    pathListCoordinates = game.aStarController.findPathAStar(currentTile.dimetricCoordinates, finishTile.dimetricCoordinates);
+    pathListCoordinates = world.aStarController.findPathAStar(currentTile.dimetricCoordinates, finishTile.dimetricCoordinates);
     // print(pathListCoordinates);
     if (pathListCoordinates.isNotEmpty) {
-      currentTile = game.gridController.getRealTileAtDimetricCoordinates(pathListCoordinates[0])!;
+      currentTile = world.gridController.getRealTileAtDimetricCoordinates(pathListCoordinates[0])!;
       startMove();
       return true;
     }
@@ -148,7 +148,7 @@ class Truck extends SpriteComponent with HasGameReference<MGame>, HasWorldRefere
   ///
   /// Update truck sprite according to rotation
   void updateTruckSprite(double angle) {
-    String newSpriteImagePath = getTruckAssetPath(truckType: truckType, truckAngle: game.convertRotations.rotateAngle(angle));
+    String newSpriteImagePath = getTruckAssetPath(truckType: truckType, truckAngle: world.convertRotations.rotateAngle(angle));
 
     if (spriteImagePath != newSpriteImagePath) {
       spriteImagePath = newSpriteImagePath;
@@ -165,8 +165,8 @@ class Truck extends SpriteComponent with HasGameReference<MGame>, HasWorldRefere
     } else {
       pathListCoordinates.removeAt(0);
       if (pathListCoordinates.isNotEmpty) {
-        destinationTile = game.gridController.getRealTileAtDimetricCoordinates(pathListCoordinates[0])!;
-        Directions destinationTileDirection = game.gridController.getNeigbhorTileDirection(me: currentTile, neighbor: destinationTile!)!;
+        destinationTile = world.gridController.getRealTileAtDimetricCoordinates(pathListCoordinates[0])!;
+        Directions destinationTileDirection = world.gridController.getNeigbhorTileDirection(me: currentTile, neighbor: destinationTile!)!;
 
         if (destinationTileDirection != truckDirection) {
           truckDirection = destinationTileDirection;
@@ -198,7 +198,7 @@ class Truck extends SpriteComponent with HasGameReference<MGame>, HasWorldRefere
     startingTile = currentTile;
     if (currentTask != null && !isCompletingTask) {
       isCompletingTask = true;
-      game.truckController.completeTask(truck: this, task: currentTask!);
+      world.truckController.completeTask(truck: this, task: currentTask!);
     }
   }
 
@@ -224,7 +224,7 @@ class Truck extends SpriteComponent with HasGameReference<MGame>, HasWorldRefere
 
     if (!isTruckMoving) {
       if (currentTask != null) {
-        if (goToTile(finishTile: game.gridController.getRealTileAtDimetricCoordinates(currentTask!.taskCoordinate)!)) {
+        if (goToTile(finishTile: world.gridController.getRealTileAtDimetricCoordinates(currentTask!.taskCoordinate)!)) {
           timerGoToDepot.stop();
         }
       } else {

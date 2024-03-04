@@ -2,14 +2,12 @@ import 'dart:async';
 
 import 'package:flame/components.dart';
 import 'package:flame/events.dart';
-import 'package:flame_riverpod/flame_riverpod.dart';
 import 'package:mgame/flame_game/game.dart';
 
 import '../../gen/assets.gen.dart';
-import '../riverpod_controllers/overlay_controller.dart';
-import 'overlay/overlay_dialog.dart';
+import '../menu/menu_settings.dart';
 
-class SettingsButton extends SpriteComponent with HasGameReference<MGame>, RiverpodComponentMixin, TapCallbacks {
+class SettingsButton extends SpriteComponent with HasGameReference<MGame>, TapCallbacks {
   SettingsButton({super.position});
   @override
   FutureOr<void> onLoad() {
@@ -25,7 +23,7 @@ class SettingsButton extends SpriteComponent with HasGameReference<MGame>, River
   @override
   void onTapDown(TapDownEvent event) {
     game.audioController.playClickButton();
-    ref.read(overlayControllerProvider.notifier).overlayOpen(overlayDialogType: OverlayDialogType.settings);
+    game.router.pushRoute(MenuSettingsRoute());
     super.onTapDown(event);
   }
 }

@@ -7,16 +7,17 @@ import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:mgame/flame_game/buildings/garbage_loader/garbage_loader.dart';
 import 'package:mgame/flame_game/buildings/garbage_loader/garbage_loader_front.dart';
 import 'package:mgame/flame_game/buildings/incinerator/incinerator.dart';
+import 'package:mgame/flame_game/level_world.dart';
 import 'package:mgame/flame_game/utils/convert_coordinates.dart';
 
 import '../game.dart';
 import '../riverpod_controllers/rotation_controller.dart';
-import '../tile.dart';
+import '../tile/tile.dart';
 import '../utils/convert_rotations.dart';
 import 'city/city.dart';
 import 'garage/garage.dart';
 
-abstract class Building extends PositionComponent with HasGameReference<MGame>, HasWorldReference, RiverpodComponentMixin {
+abstract class Building extends PositionComponent with HasGameReference<MGame>, HasWorldReference<LevelWorld>, RiverpodComponentMixin {
   Directions direction;
   Point<int> anchorTile;
   Point<int> dimetricCoordinates = const Point<int>(0, 0);
@@ -38,13 +39,13 @@ abstract class Building extends PositionComponent with HasGameReference<MGame>, 
   void onMount() {
     addToGameWidgetBuild(() => ref.listen(rotationControllerProvider, (previous, value) {
           rotation = value;
-          Point<int> offsetSizeInTile = game.convertRotations.rotateOffsetSizeInTile(sizeInTile);
-          Vector2 updatedPosition = convertDimetricPointToWorldCoordinates(game.convertRotations.rotateCoordinates(dimetricCoordinates - offsetSizeInTile));
-          shownDimetricCoordinates = game.convertRotations.rotateCoordinates(dimetricCoordinates - offsetSizeInTile);
+          Point<int> offsetSizeInTile = world.convertRotations.rotateOffsetSizeInTile(sizeInTile);
+          Vector2 updatedPosition = convertDimetricPointToWorldCoordinates(world.convertRotations.rotateCoordinates(dimetricCoordinates - offsetSizeInTile));
+          shownDimetricCoordinates = world.convertRotations.rotateCoordinates(dimetricCoordinates - offsetSizeInTile);
 
           updatePosition(updatedPosition);
 
-          Directions updatedDirection = game.convertRotations.rotateDirections(direction);
+          Directions updatedDirection = world.convertRotations.rotateDirections(direction);
           updateDirection(updatedDirection);
           updatePriority(updatedPosition);
         }));
@@ -56,22 +57,22 @@ abstract class Building extends PositionComponent with HasGameReference<MGame>, 
     dimetricCoordinates = newPosition;
     shownDimetricCoordinates = dimetricCoordinates;
 
-    Vector2 updatedPosition = convertDimetricPointToWorldCoordinates(game.convertRotations.rotateCoordinates(dimetricCoordinates));
+    Vector2 updatedPosition = convertDimetricPointToWorldCoordinates(world.convertRotations.rotateCoordinates(dimetricCoordinates));
     updatePosition(updatedPosition);
     updatePriority(updatedPosition);
   }
   // void setPosition(Point<int> newPosition) {
-  //   Point<int> initialOffsetSizeInTile = game.convertRotations.rotateOffsetSizeInTile(sizeInTile);
+  //   Point<int> initialOffsetSizeInTile = world.convertRotations.rotateOffsetSizeInTile(sizeInTile);
   //   dimetricCoordinates = newPosition + initialOffsetSizeInTile;
 
-  //   Point<int> offsetSizeInTile = game.convertRotations.rotateOffsetSizeInTile(sizeInTile);
-  //   Vector2 updatedPosition = convertDimetricPointToWorldCoordinates(game.convertRotations.rotateCoordinates(dimetricCoordinates - offsetSizeInTile));
+  //   Point<int> offsetSizeInTile = world.convertRotations.rotateOffsetSizeInTile(sizeInTile);
+  //   Vector2 updatedPosition = convertDimetricPointToWorldCoordinates(world.convertRotations.rotateCoordinates(dimetricCoordinates - offsetSizeInTile));
   //   updatePosition(updatedPosition);
   //   updatePriority(updatedPosition);
   // }
 
   void setDirection(Directions newDirection) {
-    direction = game.convertRotations.unRotateDirections(newDirection);
+    direction = world.convertRotations.unRotateDirections(newDirection);
     updateDirection(newDirection);
   }
 

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:mgame/flame_game/flame_game_widget.dart';
+import 'package:mgame/flame_game_widget.dart';
 import 'initializer.dart';
 
 class Launcher extends StatelessWidget {

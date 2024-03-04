@@ -1,12 +1,12 @@
 import 'package:flame/components.dart';
 import 'package:flame_riverpod/flame_riverpod.dart';
+import 'package:mgame/flame_game/level_world.dart';
 import 'package:mgame/flame_game/riverpod_controllers/overlay_controller.dart';
 import 'package:mgame/flame_game/ui/overlay/overlay_dialog.dart';
 
 import '../game.dart';
-import '../game_world.dart';
 
-class OverlayListener extends Component with HasGameRef<MGame>, HasWorldReference<GameWorld>, RiverpodComponentMixin {
+class OverlayListener extends Component with HasGameRef<MGame>, HasWorldReference<LevelWorld>, RiverpodComponentMixin {
   @override
   void onMount() {
     addToGameWidgetBuild(() => ref.listen(overlayControllerProvider, (previous, overlayState) {

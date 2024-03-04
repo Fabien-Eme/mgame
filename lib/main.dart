@@ -5,7 +5,7 @@ import 'package:flutter/material.dart';
 
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:mgame/flame_game/flame_game_widget.dart';
+import 'package:mgame/flame_game_widget.dart';
 import 'package:wakelock_plus/wakelock_plus.dart';
 
 void main() async {

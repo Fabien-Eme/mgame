@@ -1,12 +1,12 @@
 import 'dart:math';
 
 import 'package:flame/components.dart';
+import 'package:mgame/flame_game/level_world.dart';
 
 import '../game.dart';
-import '../game_world.dart';
-import '../tile.dart';
+import '../tile/tile.dart';
 
-class AStarController extends Component with HasGameReference<MGame>, HasWorldReference<GameWorld> {
+class AStarController extends Component with HasGameReference<MGame>, HasWorldReference<LevelWorld> {
   // Heuristic function for A*
   int manhattanDistance(Point<int> a, Point<int> b) {
     return (a.x - b.x).abs() + (a.y - b.y).abs();
@@ -105,9 +105,9 @@ class AStarController extends Component with HasGameReference<MGame>, HasWorldRe
     ];
 
     for (Point<int> neighborDimetricCoordinates in neighborsDimetricPoint) {
-      if (game.gridController.checkIfWithinGridBoundaries(neighborDimetricCoordinates)) {
-        Tile me = game.gridController.getRealTileAtDimetricCoordinates(myDimetricCoordinates)!;
-        Tile neighbor = game.gridController.getRealTileAtDimetricCoordinates(neighborDimetricCoordinates)!;
+      if (world.gridController.checkIfWithinGridBoundaries(neighborDimetricCoordinates)) {
+        Tile me = world.gridController.getRealTileAtDimetricCoordinates(myDimetricCoordinates)!;
+        Tile neighbor = world.gridController.getRealTileAtDimetricCoordinates(neighborDimetricCoordinates)!;
 
         if (me.canTileConnectWithMe(neighbor)) {
           validatedNeighborsDimetricPoint.add(neighborDimetricCoordinates);

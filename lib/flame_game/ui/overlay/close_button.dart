@@ -2,13 +2,12 @@ import 'dart:async';
 
 import 'package:flame/components.dart';
 import 'package:flame/events.dart';
-import 'package:flame_riverpod/flame_riverpod.dart';
-import 'package:mgame/flame_game/riverpod_controllers/overlay_controller.dart';
 
 import '../../../gen/assets.gen.dart';
 import '../../game.dart';
+import '../mouse_cursor.dart';
 
-class CloseButton extends SpriteComponent with HasGameReference<MGame>, TapCallbacks, RiverpodComponentMixin {
+class CloseButton extends SpriteComponent with HasGameReference<MGame>, TapCallbacks {
   CloseButton({super.position});
 
   @override
@@ -22,6 +21,18 @@ class CloseButton extends SpriteComponent with HasGameReference<MGame>, TapCallb
   @override
   void onTapDown(TapDownEvent event) {
     super.onTapDown(event);
-    ref.read(overlayControllerProvider.notifier).overlayClose();
+    game.router.pop();
   }
+
+  // @override
+  // void onHoverEnter() {
+  //   game.myMouseCursor.hoverEnterButton();
+  //   super.onHoverEnter();
+  // }
+
+  // @override
+  // void onHoverExit() {
+  //   game.myMouseCursor.hoverExitButton();
+  //   super.onHoverExit();
+  // }
 }

@@ -5,7 +5,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 
-import 'game.dart';
+import 'flame_game/game.dart';
 
 final GlobalKey<RiverpodAwareGameWidgetState> gameWidgetKey = GlobalKey<RiverpodAwareGameWidgetState>();
 

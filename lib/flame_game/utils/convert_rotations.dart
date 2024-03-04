@@ -4,10 +4,10 @@ import 'package:flame/components.dart';
 import 'package:flame_riverpod/flame_riverpod.dart';
 
 import '../game.dart';
-import '../game_world.dart';
+import '../level_world.dart';
 import '../riverpod_controllers/rotation_controller.dart';
 
-class ConvertRotations extends Component with HasGameReference<MGame>, HasWorldReference<GameWorld>, RiverpodComponentMixin {
+class ConvertRotations extends Component with HasGameReference<MGame>, HasWorldReference<LevelWorld>, RiverpodComponentMixin {
   Rotation rotation = Rotation.zero;
 
   @override
@@ -18,16 +18,16 @@ class ConvertRotations extends Component with HasGameReference<MGame>, HasWorldR
     super.onMount();
   }
 
-  Point<int> rotateCoordinates(Point<int> dimetricGridCoordinates) {
+  Point<int> rotateCoordinates(Point<int> dimetricCoordinates) {
     switch (rotation) {
       case Rotation.zero:
-        return dimetricGridCoordinates;
+        return dimetricCoordinates;
       case Rotation.halfPi:
-        return dimetricGridCoordinates = Point((GameWorld.gridHeight - 1) ~/ 2 - dimetricGridCoordinates.y, dimetricGridCoordinates.x - (GameWorld.gridHeight - 1) ~/ 2);
+        return dimetricCoordinates = Point((LevelWorld.gridHeight - 1) ~/ 2 - dimetricCoordinates.y, dimetricCoordinates.x - (LevelWorld.gridHeight - 1) ~/ 2);
       case Rotation.pi:
-        return dimetricGridCoordinates = Point((GameWorld.gridHeight - 1) - dimetricGridCoordinates.x, -dimetricGridCoordinates.y);
+        return dimetricCoordinates = Point((LevelWorld.gridHeight - 1) - dimetricCoordinates.x, -dimetricCoordinates.y);
       case Rotation.piAndHalf:
-        return dimetricGridCoordinates = Point((GameWorld.gridHeight - 1) ~/ 2 + dimetricGridCoordinates.y, (GameWorld.gridHeight - 1) ~/ 2 - dimetricGridCoordinates.x);
+        return dimetricCoordinates = Point((LevelWorld.gridHeight - 1) ~/ 2 + dimetricCoordinates.y, (LevelWorld.gridHeight - 1) ~/ 2 - dimetricCoordinates.x);
     }
   }
 
@@ -36,11 +36,11 @@ class ConvertRotations extends Component with HasGameReference<MGame>, HasWorldR
       case Rotation.zero:
         return dimetricGridCoordinates;
       case Rotation.halfPi:
-        return dimetricGridCoordinates = Point((GameWorld.gridHeight - 1) ~/ 2 + dimetricGridCoordinates.y, (GameWorld.gridHeight - 1) ~/ 2 - dimetricGridCoordinates.x);
+        return dimetricGridCoordinates = Point((LevelWorld.gridHeight - 1) ~/ 2 + dimetricGridCoordinates.y, (LevelWorld.gridHeight - 1) ~/ 2 - dimetricGridCoordinates.x);
       case Rotation.pi:
-        return dimetricGridCoordinates = Point((GameWorld.gridHeight - 1) - dimetricGridCoordinates.x, -dimetricGridCoordinates.y);
+        return dimetricGridCoordinates = Point((LevelWorld.gridHeight - 1) - dimetricGridCoordinates.x, -dimetricGridCoordinates.y);
       case Rotation.piAndHalf:
-        return dimetricGridCoordinates = Point((GameWorld.gridHeight - 1) ~/ 2 - dimetricGridCoordinates.y, dimetricGridCoordinates.x - (GameWorld.gridHeight - 1) ~/ 2);
+        return dimetricGridCoordinates = Point((LevelWorld.gridHeight - 1) ~/ 2 - dimetricGridCoordinates.y, dimetricGridCoordinates.x - (LevelWorld.gridHeight - 1) ~/ 2);
     }
   }
 

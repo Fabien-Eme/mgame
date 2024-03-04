@@ -3,16 +3,16 @@ import 'dart:math';
 import 'package:flame/components.dart';
 import 'package:flame_riverpod/flame_riverpod.dart';
 import 'package:mgame/flame_game/buildings/building.dart';
-import 'package:mgame/flame_game/game_world.dart';
 import 'package:mgame/flame_game/riverpod_controllers/construction_mode_controller.dart';
-import 'package:mgame/flame_game/tile_helper.dart';
+import 'package:mgame/flame_game/tile/tile_helper.dart';
 
 import '../game.dart';
-import '../tile.dart';
+import '../level_world.dart';
+import '../tile/tile.dart';
 import '../utils/convert_coordinates.dart';
 import '../utils/convert_rotations.dart';
 
-class GridController extends Component with HasGameRef<MGame>, HasWorldReference<GameWorld>, RiverpodComponentMixin {
+class GridController extends Component with HasGameRef<MGame>, HasWorldReference<LevelWorld>, RiverpodComponentMixin {
   Map<Directions, Tile?> getAllNeigbhorsTile(Tile? tile) {
     if (tile == null) return {};
     return {
@@ -107,7 +107,7 @@ class GridController extends Component with HasGameRef<MGame>, HasWorldReference
     building.setPosition(coordinates);
     building.setDirection(constructionState.buildingDirection!);
     building.initialize();
-    markTilesAsBuilt(game.convertRotations.rotateCoordinates(coordinates), building);
+    markTilesAsBuilt(world.convertRotations.rotateCoordinates(coordinates), building);
   }
 
   Future<void> internalBuildOnTile(Point<int> coordinates, BuildingType buildingType, Directions direction) async {
@@ -117,25 +117,25 @@ class GridController extends Component with HasGameRef<MGame>, HasWorldReference
     world.buildings.last.setPosition(coordinates);
     world.buildings.last.setDirection(direction);
     building.initialize();
-    markTilesAsBuilt(game.convertRotations.rotateCoordinates(coordinates), building);
+    markTilesAsBuilt(world.convertRotations.rotateCoordinates(coordinates), building);
   }
 
   void markTilesAsBuilt(Point<int> coordinates, Building building) {
     int buildingSizeInTile = building.sizeInTile;
-    Directions buildingDirection = game.convertRotations.rotateDirections(building.direction);
+    Directions buildingDirection = world.convertRotations.rotateDirections(building.direction);
 
     /// GARBAGE LOADER
     if (building.buildingType == BuildingType.garbageLoader) {
       if (buildingDirection == Directions.E || buildingDirection == Directions.W) {
         getTileAtDimetricCoordinates(coordinates)
           ?..markAsBuiltAndConstructible(building)
-          ..listConnectionRestriction = [game.convertRotations.unRotateDirections(Directions.S), game.convertRotations.unRotateDirections(Directions.N)];
-        game.constructionController.construct(posDimetric: coordinates, tileType: TileType.road, isLoader: true);
+          ..listConnectionRestriction = [world.convertRotations.unRotateDirections(Directions.S), world.convertRotations.unRotateDirections(Directions.N)];
+        world.constructionController.construct(posDimetric: coordinates, tileType: TileType.road, isLoader: true);
       } else {
         getTileAtDimetricCoordinates(coordinates)
           ?..markAsBuiltAndConstructible(building)
-          ..listConnectionRestriction = [game.convertRotations.unRotateDirections(Directions.E), game.convertRotations.unRotateDirections(Directions.W)];
-        game.constructionController.construct(posDimetric: coordinates, tileType: TileType.road, isLoader: true);
+          ..listConnectionRestriction = [world.convertRotations.unRotateDirections(Directions.E), world.convertRotations.unRotateDirections(Directions.W)];
+        world.constructionController.construct(posDimetric: coordinates, tileType: TileType.road, isLoader: true);
       }
       building.tilesIAmOn = [getTileAtDimetricCoordinates(coordinates)];
     }
@@ -149,62 +149,62 @@ class GridController extends Component with HasGameRef<MGame>, HasWorldReference
           if (buildingDirection == Directions.S && Point<int>(-i, j) == const Point<int>(-1, 0)) {
             getTileAtDimetricCoordinates(coordinates + Point<int>(-i, j))
               ?..markAsBuiltAndConstructible(building)
-              ..listConnectionRestriction = [game.convertRotations.unRotateDirections(Directions.E), game.convertRotations.unRotateDirections(Directions.W)];
-            game.constructionController.construct(posDimetric: coordinates + Point<int>(-i, j), tileType: TileType.road);
+              ..listConnectionRestriction = [world.convertRotations.unRotateDirections(Directions.E), world.convertRotations.unRotateDirections(Directions.W)];
+            world.constructionController.construct(posDimetric: coordinates + Point<int>(-i, j), tileType: TileType.road);
           } else if (buildingDirection == Directions.W && Point<int>(-i, j) == const Point<int>(-2, 1)) {
             getTileAtDimetricCoordinates(coordinates + Point<int>(-i, j))
               ?..markAsBuiltAndConstructible(building)
-              ..listConnectionRestriction = [game.convertRotations.unRotateDirections(Directions.N), game.convertRotations.unRotateDirections(Directions.S)];
-            game.constructionController.construct(posDimetric: coordinates + Point<int>(-i, j), tileType: TileType.road);
+              ..listConnectionRestriction = [world.convertRotations.unRotateDirections(Directions.N), world.convertRotations.unRotateDirections(Directions.S)];
+            world.constructionController.construct(posDimetric: coordinates + Point<int>(-i, j), tileType: TileType.road);
           } else if (buildingDirection == Directions.N && Point<int>(-i, j) == const Point<int>(-1, 2)) {
             getTileAtDimetricCoordinates(coordinates + Point<int>(-i, j))
               ?..markAsBuiltAndConstructible(building)
-              ..listConnectionRestriction = [game.convertRotations.unRotateDirections(Directions.E), game.convertRotations.unRotateDirections(Directions.W)];
-            game.constructionController.construct(posDimetric: coordinates + Point<int>(-i, j), tileType: TileType.road);
+              ..listConnectionRestriction = [world.convertRotations.unRotateDirections(Directions.E), world.convertRotations.unRotateDirections(Directions.W)];
+            world.constructionController.construct(posDimetric: coordinates + Point<int>(-i, j), tileType: TileType.road);
           } else if (buildingDirection == Directions.E && Point<int>(-i, j) == const Point<int>(0, 1)) {
             getTileAtDimetricCoordinates(coordinates + Point<int>(-i, j))
               ?..markAsBuiltAndConstructible(building)
               ..listConnectionRestriction = [
-                game.convertRotations.unRotateDirections(Directions.N),
-                game.convertRotations.unRotateDirections(Directions.S),
+                world.convertRotations.unRotateDirections(Directions.N),
+                world.convertRotations.unRotateDirections(Directions.S),
               ];
-            game.constructionController.construct(posDimetric: coordinates + Point<int>(-i, j), tileType: TileType.road);
+            world.constructionController.construct(posDimetric: coordinates + Point<int>(-i, j), tileType: TileType.road);
           } else if (buildingDirection == Directions.S && Point<int>(-i, j) == const Point<int>(-1, 1)) {
             getTileAtDimetricCoordinates(coordinates + Point<int>(-i, j))
               ?..markAsBuiltAndConstructibleAndBuildingIndestructible(building)
               ..listConnectionRestriction = [
-                game.convertRotations.unRotateDirections(Directions.N),
-                game.convertRotations.unRotateDirections(Directions.E),
-                game.convertRotations.unRotateDirections(Directions.W),
+                world.convertRotations.unRotateDirections(Directions.N),
+                world.convertRotations.unRotateDirections(Directions.E),
+                world.convertRotations.unRotateDirections(Directions.W),
               ];
-            game.constructionController.construct(posDimetric: coordinates + Point<int>(-i, j), tileType: TileType.road);
+            world.constructionController.construct(posDimetric: coordinates + Point<int>(-i, j), tileType: TileType.road);
           } else if (buildingDirection == Directions.W && Point<int>(-i, j) == const Point<int>(-1, 1)) {
             getTileAtDimetricCoordinates(coordinates + Point<int>(-i, j))
               ?..markAsBuiltAndConstructibleAndBuildingIndestructible(building)
               ..listConnectionRestriction = [
-                game.convertRotations.unRotateDirections(Directions.N),
-                game.convertRotations.unRotateDirections(Directions.E),
-                game.convertRotations.unRotateDirections(Directions.S),
+                world.convertRotations.unRotateDirections(Directions.N),
+                world.convertRotations.unRotateDirections(Directions.E),
+                world.convertRotations.unRotateDirections(Directions.S),
               ];
-            game.constructionController.construct(posDimetric: coordinates + Point<int>(-i, j), tileType: TileType.road);
+            world.constructionController.construct(posDimetric: coordinates + Point<int>(-i, j), tileType: TileType.road);
           } else if (buildingDirection == Directions.N && Point<int>(-i, j) == const Point<int>(-1, 1)) {
             getTileAtDimetricCoordinates(coordinates + Point<int>(-i, j))
               ?..markAsBuiltAndConstructibleAndBuildingIndestructible(building)
               ..listConnectionRestriction = [
-                game.convertRotations.unRotateDirections(Directions.S),
-                game.convertRotations.unRotateDirections(Directions.E),
-                game.convertRotations.unRotateDirections(Directions.W),
+                world.convertRotations.unRotateDirections(Directions.S),
+                world.convertRotations.unRotateDirections(Directions.E),
+                world.convertRotations.unRotateDirections(Directions.W),
               ];
-            game.constructionController.construct(posDimetric: coordinates + Point<int>(-i, j), tileType: TileType.road);
+            world.constructionController.construct(posDimetric: coordinates + Point<int>(-i, j), tileType: TileType.road);
           } else if (buildingDirection == Directions.E && Point<int>(-i, j) == const Point<int>(-1, 1)) {
             getTileAtDimetricCoordinates(coordinates + Point<int>(-i, j))
               ?..markAsBuiltAndConstructibleAndBuildingIndestructible(building)
               ..listConnectionRestriction = [
-                game.convertRotations.unRotateDirections(Directions.N),
-                game.convertRotations.unRotateDirections(Directions.S),
-                game.convertRotations.unRotateDirections(Directions.W),
+                world.convertRotations.unRotateDirections(Directions.N),
+                world.convertRotations.unRotateDirections(Directions.S),
+                world.convertRotations.unRotateDirections(Directions.W),
               ];
-            game.constructionController.construct(posDimetric: coordinates + Point<int>(-i, j), tileType: TileType.road);
+            world.constructionController.construct(posDimetric: coordinates + Point<int>(-i, j), tileType: TileType.road);
           } else {
             getTileAtDimetricCoordinates(coordinates + Point<int>(-i, j))?.markAsBuilt(building);
           }
@@ -222,70 +222,70 @@ class GridController extends Component with HasGameRef<MGame>, HasWorldReference
             getTileAtDimetricCoordinates(coordinates + Point<int>(-i, j))
               ?..markAsBuiltAndConstructibleAndBuildingIndestructible(building)
               ..listConnectionRestriction = [
-                game.convertRotations.unRotateDirections(Directions.E),
-                game.convertRotations.unRotateDirections(Directions.W),
+                world.convertRotations.unRotateDirections(Directions.E),
+                world.convertRotations.unRotateDirections(Directions.W),
               ];
-            game.constructionController.construct(posDimetric: coordinates + Point<int>(-i, j), tileType: TileType.roadN, isIndestructible: true);
+            world.constructionController.construct(posDimetric: coordinates + Point<int>(-i, j), tileType: TileType.roadN, isIndestructible: true);
           } else if (buildingDirection == Directions.W && Point<int>(-i, j) == const Point<int>(-2, 1)) {
             getTileAtDimetricCoordinates(coordinates + Point<int>(-i, j))
               ?..markAsBuiltAndConstructibleAndBuildingIndestructible(building)
               ..listConnectionRestriction = [
-                game.convertRotations.unRotateDirections(Directions.N),
-                game.convertRotations.unRotateDirections(Directions.S),
+                world.convertRotations.unRotateDirections(Directions.N),
+                world.convertRotations.unRotateDirections(Directions.S),
               ];
-            game.constructionController.construct(posDimetric: coordinates + Point<int>(-i, j), tileType: TileType.roadE, isIndestructible: true);
+            world.constructionController.construct(posDimetric: coordinates + Point<int>(-i, j), tileType: TileType.roadE, isIndestructible: true);
           } else if (buildingDirection == Directions.N && Point<int>(-i, j) == const Point<int>(-1, 2)) {
             getTileAtDimetricCoordinates(coordinates + Point<int>(-i, j))
               ?..markAsBuiltAndConstructibleAndBuildingIndestructible(building)
               ..listConnectionRestriction = [
-                game.convertRotations.unRotateDirections(Directions.E),
-                game.convertRotations.unRotateDirections(Directions.W),
+                world.convertRotations.unRotateDirections(Directions.E),
+                world.convertRotations.unRotateDirections(Directions.W),
               ];
-            game.constructionController.construct(posDimetric: coordinates + Point<int>(-i, j), tileType: TileType.roadS, isIndestructible: true);
+            world.constructionController.construct(posDimetric: coordinates + Point<int>(-i, j), tileType: TileType.roadS, isIndestructible: true);
           } else if (buildingDirection == Directions.E && Point<int>(-i, j) == const Point<int>(0, 1)) {
             getTileAtDimetricCoordinates(coordinates + Point<int>(-i, j))
               ?..markAsBuiltAndConstructibleAndBuildingIndestructible(building)
               ..listConnectionRestriction = [
-                game.convertRotations.unRotateDirections(Directions.N),
-                game.convertRotations.unRotateDirections(Directions.S),
+                world.convertRotations.unRotateDirections(Directions.N),
+                world.convertRotations.unRotateDirections(Directions.S),
               ];
-            game.constructionController.construct(posDimetric: coordinates + Point<int>(-i, j), tileType: TileType.roadW, isIndestructible: true);
+            world.constructionController.construct(posDimetric: coordinates + Point<int>(-i, j), tileType: TileType.roadW, isIndestructible: true);
           } else if (buildingDirection == Directions.S && Point<int>(-i, j) == const Point<int>(-1, 1)) {
             getTileAtDimetricCoordinates(coordinates + Point<int>(-i, j))
               ?..markAsBuiltAndConstructibleAndBuildingIndestructible(building)
               ..listConnectionRestriction = [
-                game.convertRotations.unRotateDirections(Directions.N),
-                game.convertRotations.unRotateDirections(Directions.E),
-                game.convertRotations.unRotateDirections(Directions.W),
+                world.convertRotations.unRotateDirections(Directions.N),
+                world.convertRotations.unRotateDirections(Directions.E),
+                world.convertRotations.unRotateDirections(Directions.W),
               ];
-            game.constructionController.construct(posDimetric: coordinates + Point<int>(-i, j), tileType: TileType.roadS, isIndestructible: true);
+            world.constructionController.construct(posDimetric: coordinates + Point<int>(-i, j), tileType: TileType.roadS, isIndestructible: true);
           } else if (buildingDirection == Directions.W && Point<int>(-i, j) == const Point<int>(-1, 1)) {
             getTileAtDimetricCoordinates(coordinates + Point<int>(-i, j))
               ?..markAsBuiltAndConstructibleAndBuildingIndestructible(building)
               ..listConnectionRestriction = [
-                game.convertRotations.unRotateDirections(Directions.N),
-                game.convertRotations.unRotateDirections(Directions.E),
-                game.convertRotations.unRotateDirections(Directions.S),
+                world.convertRotations.unRotateDirections(Directions.N),
+                world.convertRotations.unRotateDirections(Directions.E),
+                world.convertRotations.unRotateDirections(Directions.S),
               ];
-            game.constructionController.construct(posDimetric: coordinates + Point<int>(-i, j), tileType: TileType.roadW, isIndestructible: true);
+            world.constructionController.construct(posDimetric: coordinates + Point<int>(-i, j), tileType: TileType.roadW, isIndestructible: true);
           } else if (buildingDirection == Directions.N && Point<int>(-i, j) == const Point<int>(-1, 1)) {
             getTileAtDimetricCoordinates(coordinates + Point<int>(-i, j))
               ?..markAsBuiltAndConstructibleAndBuildingIndestructible(building)
               ..listConnectionRestriction = [
-                game.convertRotations.unRotateDirections(Directions.S),
-                game.convertRotations.unRotateDirections(Directions.E),
-                game.convertRotations.unRotateDirections(Directions.W),
+                world.convertRotations.unRotateDirections(Directions.S),
+                world.convertRotations.unRotateDirections(Directions.E),
+                world.convertRotations.unRotateDirections(Directions.W),
               ];
-            game.constructionController.construct(posDimetric: coordinates + Point<int>(-i, j), tileType: TileType.roadN, isIndestructible: true);
+            world.constructionController.construct(posDimetric: coordinates + Point<int>(-i, j), tileType: TileType.roadN, isIndestructible: true);
           } else if (buildingDirection == Directions.E && Point<int>(-i, j) == const Point<int>(-1, 1)) {
             getTileAtDimetricCoordinates(coordinates + Point<int>(-i, j))
               ?..markAsBuiltAndConstructibleAndBuildingIndestructible(building)
               ..listConnectionRestriction = [
-                game.convertRotations.unRotateDirections(Directions.N),
-                game.convertRotations.unRotateDirections(Directions.S),
-                game.convertRotations.unRotateDirections(Directions.W),
+                world.convertRotations.unRotateDirections(Directions.N),
+                world.convertRotations.unRotateDirections(Directions.S),
+                world.convertRotations.unRotateDirections(Directions.W),
               ];
-            game.constructionController.construct(posDimetric: coordinates + Point<int>(-i, j), tileType: TileType.roadE, isIndestructible: true);
+            world.constructionController.construct(posDimetric: coordinates + Point<int>(-i, j), tileType: TileType.roadE, isIndestructible: true);
           } else {
             getTileAtDimetricCoordinates(coordinates + Point<int>(-i, j))?.markAsBuiltAndIndestructible(building);
           }
@@ -324,7 +324,7 @@ class GridController extends Component with HasGameRef<MGame>, HasWorldReference
             ..marksAsLoadPoint();
       }
     }
-    game.taskController.buildingBuilt(building);
+    world.taskController.buildingBuilt(building);
   }
 
   ///
@@ -333,7 +333,7 @@ class GridController extends Component with HasGameRef<MGame>, HasWorldReference
   ///
   Tile? getTileAtDimetricCoordinates(Point<int>? dimetricCoordinates) {
     if (dimetricCoordinates == null) return null;
-    dimetricCoordinates = game.convertRotations.unRotateCoordinates(dimetricCoordinates);
+    dimetricCoordinates = world.convertRotations.unRotateCoordinates(dimetricCoordinates);
     if (!checkIfWithinGridBoundaries(dimetricCoordinates)) {
       return null;
     } else {

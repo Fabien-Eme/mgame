@@ -3,14 +3,14 @@ import 'dart:math';
 import 'package:flame/components.dart';
 import 'package:flame_riverpod/flame_riverpod.dart';
 import 'package:mgame/flame_game/buildings/city/city.dart';
-import 'package:mgame/flame_game/game_world.dart';
 import 'package:mgame/flame_game/garbage/garbage.dart';
+import 'package:mgame/flame_game/level_world.dart';
 import 'package:uuid/uuid.dart';
 
 import '../buildings/building.dart';
 import '../game.dart';
 
-class GarbageController extends Component with HasGameReference<MGame>, HasWorldReference<GameWorld>, RiverpodComponentMixin {
+class GarbageController extends Component with HasGameReference<MGame>, HasWorldReference<LevelWorld>, RiverpodComponentMixin {
   double timeElapsedToAddGarbage = 0;
   final double deltaTimeToAddGarbage = 2;
 

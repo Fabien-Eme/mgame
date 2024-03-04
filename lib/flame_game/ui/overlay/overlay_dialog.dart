@@ -5,7 +5,6 @@ import 'package:flame/components.dart';
 import 'package:flame/palette.dart';
 import 'package:mgame/flame_game/ui/overlay/content_achievements.dart';
 import 'package:mgame/flame_game/ui/overlay/content_garage.dart';
-import 'package:mgame/flame_game/ui/overlay/content_settings.dart';
 
 import 'package:mgame/flame_game/ui/overlay/dialog_tabs.dart';
 
@@ -30,7 +29,6 @@ class OverlayDialog extends PositionComponent with HasGameReference<MGame> {
   List<DialogTab> listTabs = [];
 
   ContentGarage? contentGarage;
-  ContentSettings? contentSettings;
   ContentAchievements? contentAchievements;
 
   @override
@@ -77,10 +75,6 @@ class OverlayDialog extends PositionComponent with HasGameReference<MGame> {
       case OverlayDialogType.garage:
         contentGarage = ContentGarage(boxSize: boxSize);
         add(contentGarage!);
-        break;
-      case OverlayDialogType.settings:
-        contentSettings = ContentSettings(boxSize: boxSize);
-        add(contentSettings!);
         break;
       case OverlayDialogType.city:
         contentGarage = ContentGarage(boxSize: boxSize);

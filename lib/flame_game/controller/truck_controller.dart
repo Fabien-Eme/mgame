@@ -3,7 +3,7 @@ import 'dart:math';
 import 'package:flame/components.dart';
 import 'package:flame_riverpod/flame_riverpod.dart';
 import 'package:mgame/flame_game/controller/task_controller.dart';
-import 'package:mgame/flame_game/game_world.dart';
+import 'package:mgame/flame_game/level_world.dart';
 import 'package:mgame/flame_game/riverpod_controllers/all_trucks_controller.dart';
 import 'package:mgame/flame_game/truck/truck_model.dart';
 
@@ -11,7 +11,7 @@ import '../buildings/garage/garage.dart';
 import '../game.dart';
 import '../truck/truck.dart';
 
-class TruckController extends Component with HasGameReference<MGame>, HasWorldReference<GameWorld>, RiverpodComponentMixin {
+class TruckController extends Component with HasGameReference<MGame>, HasWorldReference<LevelWorld>, RiverpodComponentMixin {
   Map<String, Truck> mapTruck = {};
 
   void buyTruck(TruckType truckType) {
@@ -66,11 +66,11 @@ class TruckController extends Component with HasGameReference<MGame>, HasWorldRe
       switch (taskReward) {
         case TaskReward.loadGarbage:
           await Future.delayed(const Duration(seconds: 2));
-          int stackMax = game.garbageController.listGarbageStack[task.taskBuilding!.garbageStackId]?.stackQuantity ?? 0;
+          int stackMax = world.garbageController.listGarbageStack[task.taskBuilding!.garbageStackId]?.stackQuantity ?? 0;
           int loadMax = truck.maxLoad;
           int load = min(stackMax, loadMax);
 
-          game.garbageController.listGarbageStack[task.taskBuilding!.garbageStackId]?.stackQuantity = stackMax - load;
+          world.garbageController.listGarbageStack[task.taskBuilding!.garbageStackId]?.stackQuantity = stackMax - load;
           truck.loadQuantity = load;
           truck.loadType = LoadType.garbageCan;
 

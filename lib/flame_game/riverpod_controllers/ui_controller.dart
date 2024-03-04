@@ -1,7 +1,7 @@
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import '../../gen/assets.gen.dart';
 import '../buildings/building.dart';
-import '../tile_helper.dart';
+import '../tile/tile_helper.dart';
 import '../utils/convert_rotations.dart';
 import 'construction_mode_controller.dart';
 

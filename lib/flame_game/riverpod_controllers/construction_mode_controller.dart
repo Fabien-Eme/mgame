@@ -2,7 +2,7 @@ import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 import '../buildings/building.dart';
-import '../tile_helper.dart';
+import '../tile/tile_helper.dart';
 import '../utils/convert_rotations.dart';
 
 part 'construction_mode_controller.g.dart';

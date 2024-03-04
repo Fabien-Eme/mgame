@@ -10,30 +10,18 @@ import 'package:flame_audio/flame_audio.dart';
 import 'package:flame_riverpod/flame_riverpod.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart' hide Route;
+import 'package:mgame/flame_game/level_world.dart';
 
-import 'package:mgame/flame_game/controller/a_star_controller.dart';
-import 'package:mgame/flame_game/controller/building_controller.dart';
-import 'package:mgame/flame_game/controller/game_controller.dart';
-import 'package:mgame/flame_game/controller/garbage_controller.dart';
-import 'package:mgame/flame_game/controller/task_controller.dart';
-import 'package:mgame/flame_game/controller/truck_controller.dart';
-import 'package:mgame/flame_game/controller/grid_controller.dart';
-import 'package:mgame/flame_game/controller/mouse_controller.dart';
-import 'package:mgame/flame_game/listener/overlay_listener.dart';
-import 'package:mgame/flame_game/menu.dart/main_menu.dart';
+import 'package:mgame/flame_game/menu/main_menu.dart';
+import 'package:mgame/flame_game/router/route_can_ignore_events.dart';
 import 'package:mgame/flame_game/ui/overlay/overlay_dialog.dart';
-import 'package:mgame/flame_game/ui/settings_button.dart';
-import 'package:mgame/flame_game/ui/ui_rotate.dart';
-import 'package:mgame/flame_game/utils/convert_rotations.dart';
+
 import 'package:mgame/flame_game/utils/game_assets.dart';
-import 'package:mgame/flame_game/ui/ui_bottom_bar.dart';
 
 import '../gen/assets.gen.dart';
 import 'controller/audio_controller.dart';
-import 'controller/construction_controller.dart';
-import 'controller/cursor_controller.dart';
-import 'controller/drag_zoom_controller.dart';
-import 'controller/tap_controller.dart';
+
+import 'level.dart';
 import 'ui/mouse_cursor.dart';
 import 'utils/palette.dart';
 
@@ -55,15 +43,12 @@ class MGame extends FlameGame with MouseMovementDetector, ScrollDetector, MultiT
           camera: CameraComponent.withFixedResolution(
             width: gameWidth,
             height: gameHeight,
-            viewfinder: Viewfinder()
-              ..position = Vector2(gameWidth / 2, gameHeight / 2)
-              ..zoom = minZoom,
+            viewfinder: Viewfinder()..anchor = Anchor.topLeft,
           ),
         );
 
   Color customBackgroundColor = Palette.backGroundMenu;
 
-  Point<int> currentMouseTilePos = const Point(0, 0);
   Vector2 mousePosition = Vector2.zero();
 
   double musicVolume = 0.0;
@@ -81,27 +66,10 @@ class MGame extends FlameGame with MouseMovementDetector, ScrollDetector, MultiT
 
   OverlayDialog? overlayDialog;
 
-  final GameController gameController = GameController();
+  //final GameController gameController = GameController();
 
   final MyMouseCursor myMouseCursor = MyMouseCursor();
   final AudioController audioController = AudioController();
-
-  UIBottomBar uiBottomBar = UIBottomBar();
-  UIRotate uiRotate = UIRotate();
-  SettingsButton settingsButton = SettingsButton();
-
-  MouseController mouseController = MouseController();
-  DragZoomController dragZoomController = DragZoomController();
-  TapController tapController = TapController();
-  GridController gridController = GridController();
-  ConstructionController constructionController = ConstructionController();
-  CursorController cursorController = CursorController();
-  BuildingController buildingController = BuildingController();
-  ConvertRotations convertRotations = ConvertRotations();
-  TruckController truckController = TruckController();
-  GarbageController garbageController = GarbageController();
-  TaskController taskController = TaskController();
-  AStarController aStarController = AStarController();
 
   late final RouterComponent router;
 
@@ -119,11 +87,9 @@ class MGame extends FlameGame with MouseMovementDetector, ScrollDetector, MultiT
     /// Preload all images
     images.prefix = '';
     final futurePreLoadImages = preLoadAssetsImages().map((loadableBuilder) => loadableBuilder());
-
     await Future.wait<void>(futurePreLoadImages);
 
-    /// Show Menu
-    mainMenu = MainMenu(position: Vector2(gameWidth / 2, gameHeight / 2));
+    children.register<LevelWorld>();
 
     /// Hide system mouse cursor before adding custom one
     mouseCursor = SystemMouseCursors.none;
@@ -134,19 +100,18 @@ class MGame extends FlameGame with MouseMovementDetector, ScrollDetector, MultiT
     /// Add Audio controller
     add(audioController);
 
-    //add(gameController);
-
-    //add(OverlayListener());
-
     add(
       router = RouterComponent(
         routes: {
           //'splash': Route(SplashScreenPage.new),
-          'mainMenu': Route(MainMenu.new),
+          'mainMenu': RouteCanIgnoreEvents(MainMenu.new, maintainState: false),
+          'level1': RouteCanIgnoreEvents(() => Level(1), maintainState: false),
         },
         initialRoute: 'mainMenu',
       ),
     );
+
+    add(FpsTextComponent());
 
     //gameController.startGame();
     return super.onLoad();
@@ -157,13 +122,14 @@ class MGame extends FlameGame with MouseMovementDetector, ScrollDetector, MultiT
   /// Move [myMouseCursor] to follow mouse
   ///
   void moveMouseCursor(Vector2 pos) {
-    Vector2 futureMouseCursorPosition = camera.globalToLocal(pos) * camera.viewfinder.zoom + (viewfinderInitialPosition - camera.viewfinder.position * camera.viewfinder.zoom);
-    if (futureMouseCursorPosition.x < 0) futureMouseCursorPosition.x = 0;
-    if (futureMouseCursorPosition.x > gameWidth) futureMouseCursorPosition.x = gameWidth;
-    if (futureMouseCursorPosition.y < 0) futureMouseCursorPosition.y = 0;
-    if (futureMouseCursorPosition.y > gameHeight) futureMouseCursorPosition.y = gameHeight;
+    Vector2 futureMouseCursorPosition = camera.globalToLocal(pos);
 
-    myMouseCursor.position = futureMouseCursorPosition;
+    if (futureMouseCursorPosition.x < 0) futureMouseCursorPosition.x = 0;
+    if (futureMouseCursorPosition.x > gameWidth - 5) futureMouseCursorPosition.x = gameWidth - 5;
+    if (futureMouseCursorPosition.y < 0) futureMouseCursorPosition.y = 0;
+    if (futureMouseCursorPosition.y > gameHeight - 5) futureMouseCursorPosition.y = gameHeight - 5;
+
+    myMouseCursor.updatePosition(futureMouseCursorPosition);
   }
 
   ///
@@ -183,19 +149,25 @@ class MGame extends FlameGame with MouseMovementDetector, ScrollDetector, MultiT
 
   @override
   void onTertiaryTapDown(TapDownInfo info) {
-    if (!isMainMenu) tapController.onTertiaryTapDown(info);
+    if (router.currentRoute.name?.contains('level') ?? false) {
+      (router.currentRoute.children.first as Level).levelWorld.tapController.onTertiaryTapDown(info);
+    }
     super.onTertiaryTapDown(info);
   }
 
   @override
   void onSecondaryTapUp(TapUpInfo info) {
-    if (!isMainMenu) tapController.onSecondaryTapUp(info);
+    if (router.currentRoute.name?.contains('level') ?? false) {
+      (router.currentRoute.children.first as Level).levelWorld.tapController.onSecondaryTapUp(info);
+    }
     super.onSecondaryTapUp(info);
   }
 
   @override
   void onTapDown(TapDownInfo info) {
-    if (!isMainMenu) tapController.onTapDown(info);
+    if (router.currentRoute.name?.contains('level') ?? false) {
+      (router.currentRoute.children.first as Level).levelWorld.tapController.onTapDown(info);
+    }
     super.onTapDown(info);
   }
 
@@ -203,12 +175,12 @@ class MGame extends FlameGame with MouseMovementDetector, ScrollDetector, MultiT
   ///
   /// Forward Mouse movement to Controller
   ///
-
-  // @override
   @override
   void onMouseMove(PointerHoverInfo info) {
     if (isDesktop) moveMouseCursor(info.eventPosition.global);
-    if (!isMainMenu) mouseController.onMouseMove(info);
+    if (router.currentRoute.name?.contains('level') ?? false) {
+      (router.currentRoute.children.first as Level).levelWorld.mouseController.onMouseMove(info);
+    }
     super.onMouseMove(info);
   }
 
@@ -218,7 +190,9 @@ class MGame extends FlameGame with MouseMovementDetector, ScrollDetector, MultiT
 
   @override
   void onScroll(PointerScrollInfo info) {
-    if (!isMainMenu) dragZoomController.onScroll(info);
+    if (router.currentRoute.name?.contains('level') ?? false) {
+      (router.currentRoute.children.first as Level).levelWorld.dragZoomController.onScroll(info);
+    }
     super.onScroll(info);
   }
 
@@ -228,26 +202,36 @@ class MGame extends FlameGame with MouseMovementDetector, ScrollDetector, MultiT
 
   @override
   void onDragStart(int pointerId, DragStartInfo info) {
-    if (!isMainMenu) dragZoomController.onDragStart(pointerId, info);
+    if (router.currentRoute.name?.contains('level') ?? false) {
+      (router.currentRoute.children.first as Level).levelWorld.dragZoomController.onDragStart(pointerId, info);
+    }
   }
 
   @override
   void onDragUpdate(int pointerId, DragUpdateInfo info) {
-    if (!isMainMenu) dragZoomController.onDragUpdate(pointerId, info);
+    if (router.currentRoute.name?.contains('level') ?? false) {
+      (router.currentRoute.children.first as Level).levelWorld.dragZoomController.onDragUpdate(pointerId, info);
+    }
   }
 
   @override
   void onDragEnd(int pointerId, DragEndInfo info) {
-    if (!isMainMenu) dragZoomController.onDragEnd(pointerId, info);
+    if (router.currentRoute.name?.contains('level') ?? false) {
+      (router.currentRoute.children.first as Level).levelWorld.dragZoomController.onDragEnd(pointerId, info);
+    }
   }
 
   @override
   void onDragCancel(int pointerId) {
-    if (!isMainMenu) dragZoomController.onDragCancel(pointerId);
+    if (router.currentRoute.name?.contains('level') ?? false) {
+      (router.currentRoute.children.first as Level).levelWorld.dragZoomController.onDragCancel(pointerId);
+    }
   }
 
   void onSecondaryButtonDragUpdate(DragUpdateDetails details) {
-    if (!isMainMenu) dragZoomController.onSecondaryButtonDragUpdate(details);
+    if (router.currentRoute.name?.contains('level') ?? false) {
+      (router.currentRoute.children.first as Level).levelWorld.dragZoomController.onSecondaryButtonDragUpdate(details);
+    }
   }
 
   ///

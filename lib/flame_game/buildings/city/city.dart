@@ -28,7 +28,7 @@ class City extends Building {
     world.add(
       cityComponent,
     );
-    game.garbageController.createGarbageStack(building: this);
+    world.garbageController.createGarbageStack(building: this);
     return super.onLoad();
   }
 
@@ -50,7 +50,7 @@ class City extends Building {
 
     ///
     /// Update garbages anchored to this
-    for (GarbageStack garbageStack in game.garbageController.listGarbageStack.values) {
+    for (GarbageStack garbageStack in world.garbageController.listGarbageStack.values) {
       if (garbageStack.component.anchorBuilding == this) {
         garbageStack.component.position = finalGarbagePosition;
       }
@@ -93,12 +93,6 @@ class City extends Building {
   @override
   void makeTransparent() {
     cityComponent.opacity = 0.8;
-  }
-
-  @override
-  void onRemove() {
-    world.remove(cityComponent);
-    super.onRemove();
   }
 
   @override

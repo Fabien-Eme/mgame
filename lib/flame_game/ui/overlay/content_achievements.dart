@@ -49,7 +49,7 @@ class ContentAchievements extends PositionComponent with HasGameReference<MGame>
       final buttonMenu = DialogButton(
         text: 'Main Menu',
         onPressed: () {
-          game.gameController.goToMainMenu();
+          //game.gameController.goToMainMenu();
         },
         textStyle: MyTextStyle.buttonRed,
         buttonSize: Vector2(200, 50),

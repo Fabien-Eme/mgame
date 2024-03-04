@@ -217,7 +217,7 @@ class ContentGarage extends PositionComponent with HasGameReference<MGame>, Rive
     final buttonBuy = DialogButton(
       text: 'Buy Truck',
       onPressed: () {
-        game.truckController.buyTruck(currentTruckType!);
+        //game.truckController.buyTruck(currentTruckType!);
       },
       buttonSize: Vector2(200, 50),
       position: Vector2(boxSize.x / 5, boxSize.y / 2 - 50),
@@ -228,7 +228,7 @@ class ContentGarage extends PositionComponent with HasGameReference<MGame>, Rive
     final buttonSell = DialogButton(
       text: 'Sell Truck',
       onPressed: () {
-        game.truckController.sellTruck(currentTruckType!);
+        // game.truckController.sellTruck(currentTruckType!);
       },
       textStyle: MyTextStyle.buttonRed,
       buttonSize: Vector2(200, 50),

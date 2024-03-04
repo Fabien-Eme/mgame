@@ -1,5 +1,7 @@
 import 'package:flame/components.dart' hide ButtonState;
 import 'package:flame/events.dart';
+import 'package:flame/extensions.dart';
+import 'package:mgame/flame_game/ui/mouse_cursor.dart';
 import 'package:mgame/flame_game/utils/my_text_style.dart';
 
 import '../../../gen/assets.gen.dart';
@@ -15,6 +17,7 @@ class DialogButton extends PositionComponent with HasGameReference<MGame>, TapCa
 
   late NineTileBoxComponent button;
   late NineTileBoxComponent buttonDown;
+  late TextBoxComponent textComponent;
 
   @override
   void onLoad() {
@@ -31,7 +34,7 @@ class DialogButton extends PositionComponent with HasGameReference<MGame>, TapCa
       priority: 1,
     );
 
-    TextBoxComponent textComponent = TextBoxComponent(
+    textComponent = TextBoxComponent(
       text: text.toUpperCase(),
       textRenderer: textStyle ?? MyTextStyle.button,
       priority: 3,
@@ -45,6 +48,13 @@ class DialogButton extends PositionComponent with HasGameReference<MGame>, TapCa
       textComponent,
     ]);
     super.onLoad();
+  }
+
+  void reSize(Vector2 newSize) {
+    size = newSize;
+    button.size = newSize;
+    buttonDown.size = newSize;
+    textComponent.size = newSize;
   }
 
   @override
@@ -73,4 +83,16 @@ class DialogButton extends PositionComponent with HasGameReference<MGame>, TapCa
     buttonDown.priority = 1;
     super.onTapCancel(event);
   }
+
+  // @override
+  // void onHoverEnter() {
+  //   game.myMouseCursor.hoverEnterButton();
+  //   super.onHoverEnter();
+  // }
+
+  // @override
+  // void onHoverExit() {
+  //   game.myMouseCursor.hoverExitButton();
+  //   super.onHoverExit();
+  // }
 }

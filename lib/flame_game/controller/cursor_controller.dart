@@ -2,16 +2,16 @@ import 'dart:math';
 
 import 'package:flame/components.dart';
 import 'package:flame_riverpod/flame_riverpod.dart';
-import 'package:mgame/flame_game/game_world.dart';
+import 'package:mgame/flame_game/level_world.dart';
 import 'package:mgame/flame_game/riverpod_controllers/construction_mode_controller.dart';
 import 'package:mgame/flame_game/ui/mouse_cursor.dart';
 
 import '../game.dart';
-import '../tile.dart';
+import '../tile/tile.dart';
 import '../utils/convert_coordinates.dart';
 import '../utils/convert_rotations.dart';
 
-class CursorController extends Component with HasGameRef<MGame>, HasWorldReference<GameWorld>, RiverpodComponentMixin {
+class CursorController extends Component with HasGameRef<MGame>, HasWorldReference<LevelWorld>, RiverpodComponentMixin {
   bool hasConstructed = false;
   bool hasbuild = false;
 
@@ -20,19 +20,19 @@ class CursorController extends Component with HasGameRef<MGame>, HasWorldReferen
 
     /// Reset previous Tile if construction mode
     if (constructionState.status == ConstructionMode.construct) {
-      game.constructionController.resetTile(game.currentMouseTilePos);
+      world.constructionController.resetTile(world.currentMouseTilePos);
     }
     if (constructionState.status == ConstructionMode.destruct) {
-      game.gridController.getBuildingOnTile(game.currentMouseTilePos)?.resetColor();
+      world.gridController.getBuildingOnTile(world.currentMouseTilePos)?.resetColor();
     }
 
     /// If Player as constructed a road, keep neighbors change, otherwise discard change
     _keepOrDiscardNeighborsChanges();
 
     /// Trigger only if cursor is on World grid
-    if (game.gridController.checkIfWithinGridBoundaries(newMouseTilePos)) {
+    if (world.gridController.checkIfWithinGridBoundaries(newMouseTilePos)) {
       /// Change mouse cursor appearance
-      if (game.gridController.getTileAtDimetricCoordinates(newMouseTilePos)?.buildingOnTile != null) {
+      if (world.gridController.getTileAtDimetricCoordinates(newMouseTilePos)?.buildingOnTile != null) {
         if (constructionState.status != ConstructionMode.construct && constructionState.status != ConstructionMode.destruct) {
           game.isMouseHoveringBuilding = true;
           game.myMouseCursor.changeMouseCursorType(MouseCursorType.hand);
@@ -55,14 +55,14 @@ class CursorController extends Component with HasGameRef<MGame>, HasWorldReferen
       _handleRoadConstructionByDragging();
 
       /// Handle building
-      game.buildingController.projectBuildingOnTile(newMouseTilePos);
+      world.buildingController.projectBuildingOnTile(newMouseTilePos);
 
       /// Project construction on current Tile and Current Neighbors
-      game.constructionController.projectConstructionOnTileAndNeighbors(newMouseTilePos);
+      world.constructionController.projectConstructionOnTileAndNeighbors(newMouseTilePos);
     }
 
     /// Store current Tile to access it next move
-    game.currentMouseTilePos = newMouseTilePos;
+    world.currentMouseTilePos = newMouseTilePos;
   }
 
   ///
@@ -78,7 +78,7 @@ class CursorController extends Component with HasGameRef<MGame>, HasWorldReferen
     if (hasConstructed) {
       hasConstructed = false;
     } else {
-      Map<Directions, Tile?> mapPrecedentNeighbors = game.gridController.getAllNeigbhorsTile(game.gridController.getTileAtDimetricCoordinates(game.currentMouseTilePos));
+      Map<Directions, Tile?> mapPrecedentNeighbors = world.gridController.getAllNeigbhorsTile(world.gridController.getTileAtDimetricCoordinates(world.currentMouseTilePos));
       for (Tile? tile in mapPrecedentNeighbors.values) {
         tile?.cancelProjectedTileChange();
       }
@@ -95,16 +95,16 @@ class CursorController extends Component with HasGameRef<MGame>, HasWorldReferen
     if (game.isMouseDragging) {
       if (constructionState.status == ConstructionMode.construct) {
         if (constructionState.tileType != null) {
-          game.constructionController.construct(posDimetric: game.currentMouseTilePos, tileType: constructionState.tileType!, isMouseDragging: true);
-          Map<Directions, Tile?> mapNeighbors = game.gridController.getAllNeigbhorsTile(game.gridController.getTileAtDimetricCoordinates(game.currentMouseTilePos));
+          world.constructionController.construct(posDimetric: world.currentMouseTilePos, tileType: constructionState.tileType!, isMouseDragging: true);
+          Map<Directions, Tile?> mapNeighbors = world.gridController.getAllNeigbhorsTile(world.gridController.getTileAtDimetricCoordinates(world.currentMouseTilePos));
           for (Tile? tile in mapNeighbors.values) {
             tile?.projectTileChange();
             tile?.propagateTileChange();
           }
           hasConstructed = true;
         }
-      } else if (constructionState.status == ConstructionMode.destruct && game.gridController.isTileDestructible(game.currentMouseTilePos)) {
-        game.constructionController.destroy(posDimetric: game.currentMouseTilePos, isMouseDragging: true);
+      } else if (constructionState.status == ConstructionMode.destruct && world.gridController.isTileDestructible(world.currentMouseTilePos)) {
+        world.constructionController.destroy(posDimetric: world.currentMouseTilePos, isMouseDragging: true);
       }
     }
   }

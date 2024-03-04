@@ -1,15 +1,15 @@
-import 'dart:async';
 import 'dart:math';
 
 import 'package:flame/components.dart';
 import 'package:flame/events.dart';
 import 'package:flame_riverpod/flame_riverpod.dart';
+import 'package:mgame/flame_game/level_world.dart';
 
 import '../game.dart';
-import '../game_world.dart';
+import '../level.dart';
 import '../ui/mouse_cursor.dart';
 
-class MouseController extends Component with HasGameRef<MGame>, HasWorldReference<GameWorld>, RiverpodComponentMixin {
+class MouseController extends Component with HasGameRef<MGame>, HasWorldReference<LevelWorld>, RiverpodComponentMixin {
   final double gameWidth = MGame.gameWidth;
   final double gameHeight = MGame.gameHeight;
   final double tileWidth = MGame.tileWidth;
@@ -19,13 +19,12 @@ class MouseController extends Component with HasGameRef<MGame>, HasWorldReferenc
   late final bool isDesktop;
 
   @override
-  FutureOr<void> onLoad() {
-    camera = game.camera;
-    viewfinderInitialPosition = game.viewfinderInitialPosition;
+  void onLoad() {
+    camera = (world.parent as Level).cameraComponent;
+    viewfinderInitialPosition = Vector2.zero();
     myMouseCursor = game.myMouseCursor;
     isDesktop = game.isDesktop;
-
-    return super.onLoad();
+    super.onLoad();
   }
 
   ///
@@ -68,9 +67,9 @@ class MouseController extends Component with HasGameRef<MGame>, HasWorldReferenc
         int tileY = dimetricY.floor();
         Point<int> newMouseTilePos = Point(tileX, tileY);
 
-        if (game.gridController.checkIfWithinGridBoundaries(newMouseTilePos) && !game.isMouseHoveringUI) {
-          if (game.currentMouseTilePos != newMouseTilePos) {
-            game.cursorController.cursorIsMovingOnNewTile(newMouseTilePos);
+        if (world.gridController.checkIfWithinGridBoundaries(newMouseTilePos) && !game.isMouseHoveringUI) {
+          if (world.currentMouseTilePos != newMouseTilePos) {
+            world.cursorController.cursorIsMovingOnNewTile(newMouseTilePos);
           }
         }
       }

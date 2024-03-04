@@ -4,20 +4,21 @@ import 'dart:ui';
 
 import 'package:flame/components.dart';
 import 'package:flame/effects.dart';
+import 'package:flame/events.dart';
 import 'package:flame_riverpod/flame_riverpod.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
-import 'package:mgame/flame_game/game_world.dart';
+import 'package:mgame/flame_game/level_world.dart';
 import 'package:mgame/flame_game/riverpod_controllers/rotation_controller.dart';
 
-import 'buildings/building.dart';
-import 'game.dart';
+import '../buildings/building.dart';
+import '../game.dart';
 import 'tile_helper.dart';
-import 'truck/truck.dart';
-import 'utils/convert_coordinates.dart';
-import 'utils/convert_rotations.dart';
+import '../truck/truck.dart';
+import '../utils/convert_coordinates.dart';
+import '../utils/convert_rotations.dart';
 
-class Tile extends SpriteComponent with HasGameRef<MGame>, HasWorldReference<GameWorld>, RiverpodComponentMixin {
+class Tile extends SpriteComponent with HasGameRef<MGame>, HasWorldReference<LevelWorld>, RiverpodComponentMixin, IgnoreEvents {
   TileType tileType;
   Point<int> dimetricCoordinates;
   Point<int> gridCoordinates;
@@ -78,18 +79,13 @@ class Tile extends SpriteComponent with HasGameRef<MGame>, HasWorldReference<Gam
     super.onMount();
   }
 
-  void setPosition(Vector2 newPosition) {
-    dimetricCoordinates = convertVectorToPoint(newPosition);
-    updatePosition();
-  }
-
   void setTileType(TileType newTileType) {
     tileType = newTileType;
     updateSprite();
   }
 
   void updatePosition() {
-    shownDimetricGridCoordinates = game.convertRotations.rotateCoordinates(dimetricCoordinates);
+    shownDimetricGridCoordinates = world.convertRotations.rotateCoordinates(dimetricCoordinates);
     priority = convertDimetricPointToGridPoint(shownDimetricGridCoordinates).x;
     position = convertDimetricVectorToWorldCoordinates(Vector2(shownDimetricGridCoordinates.x.toDouble(), shownDimetricGridCoordinates.y.toDouble())) + Vector2(50, 64);
   }
@@ -198,7 +194,7 @@ class Tile extends SpriteComponent with HasGameRef<MGame>, HasWorldReference<Gam
 
   bool canTileConnectWithMe(Tile? neighborTile) {
     if (neighborTile == null) return false;
-    Directions? neighborDirection = game.gridController.getNeigbhorTileDirection(me: this, neighbor: neighborTile);
+    Directions? neighborDirection = world.gridController.getNeigbhorTileDirection(me: this, neighbor: neighborTile);
     if (neighborTile.tileType.canConnect &&
         neighborDirection != null &&
         !listConnectionRestriction.contains(neighborDirection) &&
@@ -210,7 +206,7 @@ class Tile extends SpriteComponent with HasGameRef<MGame>, HasWorldReference<Gam
   }
 
   TileType determineMyRoadType() {
-    Map<Directions, Tile?> mapNeighbors = game.gridController.getAllNeigbhorsTile(this);
+    Map<Directions, Tile?> mapNeighbors = world.gridController.getAllNeigbhorsTile(this);
 
     int numberOfConnections = 0;
     for (Tile? neighborTile in mapNeighbors.values) {

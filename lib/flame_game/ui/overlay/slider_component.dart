@@ -42,17 +42,15 @@ class SliderComponent extends PositionComponent with HasGameReference {
       ));
     }
 
-    selector = SelectorCursor(
-      position: Vector2(-7, -30) + Vector2(size.x * initialValue, 0),
-    );
-
     addAll([
       sliderStart,
       sliderFirstBar,
       ...listSliderMiddle,
       sliderEnd,
-      selector,
+      selector = SelectorCursor(),
     ]);
+
+    selector.position = Vector2(-7 + initialValue * 4 * 49, -30);
 
     return super.onLoad();
   }

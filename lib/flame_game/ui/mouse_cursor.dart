@@ -14,6 +14,8 @@ class MyMouseCursor extends SpriteComponent with HasGameRef<MGame>, RiverpodComp
   MouseCursorType mouseCursorType;
   ConstructionState? constructionState;
 
+  Vector2 offset = Vector2.zero();
+
   @override
   FutureOr<void> onLoad() {
     sprite = Sprite(game.images.fromCache(mouseCursorType.path));
@@ -62,11 +64,31 @@ class MyMouseCursor extends SpriteComponent with HasGameRef<MGame>, RiverpodComp
     if (mouseCursorType != newMouseCursorType) {
       mouseCursorType = newMouseCursorType;
       sprite = Sprite(game.images.fromCache(mouseCursorType.path));
+
+      if (mouseCursorType == MouseCursorType.hand) {
+        offset = Vector2(-5, 0);
+        updatePosition(position);
+      } else {
+        updatePosition(position - offset * 2);
+        offset = Vector2.zero();
+      }
     }
+  }
+
+  void hoverEnterButton() {
+    changeMouseCursorType(MouseCursorType.hand);
+  }
+
+  void hoverExitButton() {
+    changeMouseCursorType(MouseCursorType.base);
   }
 
   void resetMouseCursor() {
     _handleNewConstructionState();
+  }
+
+  void updatePosition(Vector2 newPosition) {
+    position = newPosition + offset;
   }
 }
 

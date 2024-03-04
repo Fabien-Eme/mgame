@@ -1,23 +1,31 @@
 import 'dart:async';
-import 'dart:ui';
 
+import 'package:flame/camera.dart';
 import 'package:flame/components.dart';
 import 'package:flame/events.dart';
 import 'package:flame_audio/flame_audio.dart';
 import 'package:flame_riverpod/flame_riverpod.dart';
-import 'package:mgame/flame_game/ui/overlay/overlay_dialog.dart';
-import 'package:mgame/flame_game/ui/overlay/slider_component.dart';
-import 'package:mgame/flame_game/utils/convert_coordinates.dart';
-import '../../../gen/assets.gen.dart';
-import '../../game.dart';
-import '../../riverpod_controllers/overlay_controller.dart';
-import '../../utils/my_text_style.dart';
-import 'dialog_button.dart';
+import 'package:flutter/painting.dart';
 
-class ContentSettings extends PositionComponent with HasGameReference<MGame>, RiverpodComponentMixin {
-  Vector2 boxSize;
-  ContentSettings({required this.boxSize, super.position});
+import '../../gen/assets.gen.dart';
+import '../game.dart';
+import '../riverpod_controllers/overlay_controller.dart';
+import '../ui/overlay/close_button.dart';
+import '../router/route_make_other_ignore_events.dart';
+import '../ui/overlay/dialog_button.dart';
+import '../ui/overlay/slider_component.dart';
+import '../utils/convert_coordinates.dart';
+import '../utils/my_text_style.dart';
 
+class MenuSettingsRoute extends RouteMakeOtherIgnoreEvents {
+  MenuSettingsRoute() : super(MenuSettings.new, transparent: true);
+}
+
+class MenuSettings extends PositionComponent with HasGameReference<MGame>, RiverpodComponentMixin {
+  late final World world;
+  late final CameraComponent cameraComponent;
+
+  final Vector2 boxSize = Vector2(600, 500);
   late SliderComponent musicSlider;
   late SliderComponent soundSlider;
 
@@ -25,31 +33,58 @@ class ContentSettings extends PositionComponent with HasGameReference<MGame>, Ri
 
   @override
   FutureOr<void> onLoad() {
+    add(world = World());
+    add(cameraComponent = CameraComponent.withFixedResolution(
+      width: MGame.gameWidth,
+      height: MGame.gameHeight,
+      viewfinder: Viewfinder(),
+      world: world,
+    ));
+
+    world.add(
+      NineTileBoxComponent(
+        nineTileBox: NineTileBox(
+          Sprite(game.images.fromCache(Assets.images.ui.dialog.complete.path)),
+          tileSize: 50,
+          destTileSize: 50,
+        ),
+        size: boxSize,
+        anchor: Anchor.center,
+      ),
+    );
+
+    world.add(CloseButton(position: Vector2(boxSize.x / 2 - 40, -boxSize.y / 2 + 40)));
+
+    ///
+    ///
+    /// TITLE
     final title = TextComponent(
       text: "SETTINGS",
       textRenderer: MyTextStyle.title,
       anchor: Anchor.topCenter,
       position: Vector2(0, -boxSize.y / 2 + 20),
     );
-    add(title);
+    world.add(title);
 
+    ///
+    ///
+    /// BUTTONS
     final buttonConfirm = DialogButton(
       text: 'Confirm',
       onPressed: () {
         FlameAudio.bgm.audioPlayer.setVolume(game.musicVolume);
-        ref.read(overlayControllerProvider.notifier).overlayClose();
+        game.router.pop();
       },
       buttonSize: Vector2(150, 50),
-      position: Vector2((game.isMainMenu) ? 0 : boxSize.x / 5, boxSize.y / 2 - 50),
+      position: Vector2((game.router.previousRoute?.name == "mainMenu") ? 0 : boxSize.x / 5, boxSize.y / 2 - 50),
     );
-    add(buttonConfirm);
-    (parent as OverlayDialog).listButtons.add({'coordinates': buttonConfirm.position, 'size': buttonConfirm.buttonSize});
+    world.add(buttonConfirm);
 
-    if (!game.isMainMenu) {
+    if (game.router.previousRoute?.name != "mainMenu") {
       final buttonMenu = DialogButton(
         text: 'Main Menu',
         onPressed: () {
-          game.gameController.goToMainMenu();
+          game.router.popUntilNamed('mainMenu');
         },
         textStyle: MyTextStyle.buttonRed,
         buttonSize: Vector2(200, 50),
@@ -57,8 +92,7 @@ class ContentSettings extends PositionComponent with HasGameReference<MGame>, Ri
         position: Vector2(-boxSize.x / 5, boxSize.y / 2 - 50),
       );
 
-      add(buttonMenu);
-      (parent as OverlayDialog).listButtons.add({'coordinates': buttonMenu.position, 'size': buttonMenu.buttonSize});
+      world.add(buttonMenu);
     }
 
     ///
@@ -70,7 +104,7 @@ class ContentSettings extends PositionComponent with HasGameReference<MGame>, Ri
       anchor: Anchor.topCenter,
       position: Vector2(0, -boxSize.y / 2 + 100),
     );
-    add(musicHeader);
+    world.add(musicHeader);
 
     final musicOff = SpriteComponent(
       sprite: Sprite(game.images.fromCache(Assets.images.ui.dialog.musicOff.path)),
@@ -79,7 +113,7 @@ class ContentSettings extends PositionComponent with HasGameReference<MGame>, Ri
       anchor: Anchor.center,
       position: Vector2(-175, -boxSize.y / 2 + 160),
     );
-    add(musicOff);
+    world.add(musicOff);
 
     final musicOn = SpriteComponent(
       sprite: Sprite(game.images.fromCache(Assets.images.ui.dialog.musicOn.path)),
@@ -88,7 +122,7 @@ class ContentSettings extends PositionComponent with HasGameReference<MGame>, Ri
       anchor: Anchor.center,
       position: Vector2(175, -boxSize.y / 2 + 160),
     );
-    add(musicOn);
+    world.add(musicOn);
 
     musicSlider = SliderComponent(
       numberOfSteps: 5,
@@ -98,18 +132,18 @@ class ContentSettings extends PositionComponent with HasGameReference<MGame>, Ri
         game.musicVolume = value;
       },
     );
-    add(musicSlider);
+    world.add(musicSlider);
 
     ///
     ///
-    /// Sound Effect
+    /// SOUND EFFECT
     final soundHeader = TextComponent(
       text: "SOUND EFFECT",
       textRenderer: MyTextStyle.header,
       anchor: Anchor.topCenter,
       position: Vector2(0, -boxSize.y / 2 + 250),
     );
-    add(soundHeader);
+    world.add(soundHeader);
 
     final soundOff = SpriteComponent(
       sprite: Sprite(game.images.fromCache(Assets.images.ui.dialog.audioOff.path)),
@@ -118,7 +152,7 @@ class ContentSettings extends PositionComponent with HasGameReference<MGame>, Ri
       anchor: Anchor.center,
       position: Vector2(-175, -boxSize.y / 2 + 310),
     );
-    add(soundOff);
+    world.add(soundOff);
 
     final soundOn = SpriteComponent(
       sprite: Sprite(game.images.fromCache(Assets.images.ui.dialog.audioOn.path)),
@@ -127,7 +161,7 @@ class ContentSettings extends PositionComponent with HasGameReference<MGame>, Ri
       anchor: Anchor.center,
       position: Vector2(175, -boxSize.y / 2 + 310),
     );
-    add(soundOn);
+    world.add(soundOn);
 
     soundSlider = SliderComponent(
       numberOfSteps: 5,
@@ -137,30 +171,30 @@ class ContentSettings extends PositionComponent with HasGameReference<MGame>, Ri
         game.soundVolume = value;
       },
     );
-    add(soundSlider);
+    world.add(soundSlider);
 
     return super.onLoad();
   }
 
-  void onDragStart(DragStartInfo info) {
-    Vector2 touchPosition = game.camera.globalToLocal(info.eventPosition.global) - (parent as OverlayDialog).position;
-    if (isVectorInsideObject(vector: touchPosition - musicSlider.position + musicSlider.size / 2, objectPosition: musicSlider.selector.position, objectSize: musicSlider.selector.size)) {
-      sliderCurrentlyDragged = musicSlider;
-    }
-    if (isVectorInsideObject(vector: touchPosition - soundSlider.position + soundSlider.size / 2, objectPosition: soundSlider.selector.position, objectSize: soundSlider.selector.size)) {
-      sliderCurrentlyDragged = soundSlider;
-    }
-  }
+  //   void onDragStart(DragStartInfo info) {
+  //   Vector2 touchPosition = game.camera.globalToLocal(info.eventPosition.global) - (parent as OverlayDialog).position;
+  //   if (isVectorInsideObject(vector: touchPosition - musicSlider.position + musicSlider.size / 2, objectPosition: musicSlider.selector.position, objectSize: musicSlider.selector.size)) {
+  //     sliderCurrentlyDragged = musicSlider;
+  //   }
+  //   if (isVectorInsideObject(vector: touchPosition - soundSlider.position + soundSlider.size / 2, objectPosition: soundSlider.selector.position, objectSize: soundSlider.selector.size)) {
+  //     sliderCurrentlyDragged = soundSlider;
+  //   }
+  // }
 
-  void onDragUpdate(DragUpdateInfo info) {
-    sliderCurrentlyDragged?.changeSelectorPosition(info.delta.global.x);
-  }
+  // void onDragUpdate(DragUpdateInfo info) {
+  //   sliderCurrentlyDragged?.changeSelectorPosition(info.delta.global.x);
+  // }
 
-  void onDragEnd(DragEndInfo info) {
-    sliderCurrentlyDragged = null;
-  }
+  // void onDragEnd(DragEndInfo info) {
+  //   sliderCurrentlyDragged = null;
+  // }
 
-  void onDragCancel() {
-    sliderCurrentlyDragged = null;
-  }
+  // void onDragCancel() {
+  //   sliderCurrentlyDragged = null;
+  // }
 }
