@@ -4,7 +4,6 @@ import 'dart:ui';
 
 import 'package:flame/components.dart';
 import 'package:flame/effects.dart';
-import 'package:flame/events.dart';
 import 'package:flame_riverpod/flame_riverpod.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
@@ -18,7 +17,7 @@ import '../truck/truck.dart';
 import '../utils/convert_coordinates.dart';
 import '../utils/convert_rotations.dart';
 
-class Tile extends SpriteComponent with HasGameRef<MGame>, HasWorldReference<LevelWorld>, RiverpodComponentMixin, IgnoreEvents {
+class Tile extends SpriteComponent with HasGameReference<MGame>, HasWorldReference<LevelWorld>, RiverpodComponentMixin, IgnoreEvents {
   TileType tileType;
   Point<int> dimetricCoordinates;
   Point<int> gridCoordinates;

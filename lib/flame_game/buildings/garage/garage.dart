@@ -38,7 +38,7 @@ class Garage extends Building with HoverCallbacks {
       garageDoor,
     ]);
 
-    timer = Timer(2, autoStart: false, onTick: () => closeDoor());
+    timer = Timer(1, autoStart: false, onTick: () => closeDoor());
 
     return super.onLoad();
   }
@@ -165,9 +165,11 @@ class Garage extends Building with HoverCallbacks {
 
   @override
   void onRemove() {
-    world.remove(garageFront);
-    world.remove(garageBack);
-    world.remove(garageDoor);
+    if (garageFront.ancestors().isNotEmpty) {
+      world.remove(garageFront);
+      world.remove(garageBack);
+      world.remove(garageDoor);
+    }
     super.onRemove();
   }
 

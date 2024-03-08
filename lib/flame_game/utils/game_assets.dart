@@ -49,6 +49,18 @@ extension MGameAssets on MGame {
       ///
       /// UTILS
       () => images.load(Assets.images.buildings.empty.path),
+
+      ///
+      /// POLLUTION
+      for (AssetGenImage element in Assets.images.pollution.values) () => images.load(element.path),
+
+      ///
+      /// AVATAR
+      for (AssetGenImage element in Assets.images.avatar.values) () => images.load(element.path),
+
+      ///
+      /// EMOTE
+      for (AssetGenImage element in Assets.images.emote.values) () => images.load(element.path),
     ];
   }
 

@@ -53,24 +53,13 @@ class MouseController extends Component with HasGameRef<MGame>, HasWorldReferenc
       double dimetricX = (cursorX + 2 * cursorY) / tileWidth - 0.5;
       double dimetricY = (cursorX - 2 * cursorY) / tileWidth + 0.5;
 
-      /// Overlay navigation
-      if (game.overlayDialog != null) {
-        if (game.overlayDialog!.isCoordinatesOverButton(Vector2(globalCursorX, globalCursorY))) {
-          game.isMouseHoveringOverlayButton = true;
-          game.myMouseCursor.changeMouseCursorType(MouseCursorType.hand);
-        } else {
-          game.isMouseHoveringOverlayButton = false;
-          game.myMouseCursor.resetMouseCursor();
-        }
-      } else {
-        int tileX = dimetricX.floor();
-        int tileY = dimetricY.floor();
-        Point<int> newMouseTilePos = Point(tileX, tileY);
+      int tileX = dimetricX.floor();
+      int tileY = dimetricY.floor();
+      Point<int> newMouseTilePos = Point(tileX, tileY);
 
-        if (world.gridController.checkIfWithinGridBoundaries(newMouseTilePos) && !game.isMouseHoveringUI) {
-          if (world.currentMouseTilePos != newMouseTilePos) {
-            world.cursorController.cursorIsMovingOnNewTile(newMouseTilePos);
-          }
+      if (world.gridController.checkIfWithinGridBoundaries(newMouseTilePos) && !game.isMouseHoveringUI) {
+        if (world.currentMouseTilePos != newMouseTilePos) {
+          world.cursorController.cursorIsMovingOnNewTile(newMouseTilePos);
         }
       }
     }

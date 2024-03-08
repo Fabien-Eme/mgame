@@ -31,7 +31,7 @@ class GarbageLoader extends Building {
       garbageLoaderBack,
     ]);
 
-    timer = Timer(2, autoStart: false, onTick: () => closeDoor());
+    timer = Timer(1, autoStart: false, onTick: () => closeDoor());
 
     return super.onLoad();
   }
@@ -150,8 +150,10 @@ class GarbageLoader extends Building {
 
   @override
   void onRemove() {
-    world.remove(garbageLoaderFront);
-    world.remove(garbageLoaderBack);
+    if (garbageLoaderFront.ancestors().isNotEmpty) {
+      world.remove(garbageLoaderFront);
+      world.remove(garbageLoaderBack);
+    }
     super.onRemove();
   }
 

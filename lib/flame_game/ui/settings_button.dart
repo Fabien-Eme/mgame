@@ -5,9 +5,8 @@ import 'package:flame/events.dart';
 import 'package:mgame/flame_game/game.dart';
 
 import '../../gen/assets.gen.dart';
-import '../menu/menu_settings.dart';
 
-class SettingsButton extends SpriteComponent with HasGameReference<MGame>, TapCallbacks {
+class SettingsButton extends SpriteComponent with HasGameReference<MGame>, TapCallbacks, HoverCallbacks {
   SettingsButton({super.position});
   @override
   FutureOr<void> onLoad() {
@@ -23,7 +22,21 @@ class SettingsButton extends SpriteComponent with HasGameReference<MGame>, TapCa
   @override
   void onTapDown(TapDownEvent event) {
     game.audioController.playClickButton();
-    game.router.pushRoute(MenuSettingsRoute());
+    game.router.pushNamed('menuSettings');
     super.onTapDown(event);
+  }
+
+  @override
+  void onHoverEnter() {
+    game.isMouseHoveringUI = true;
+    game.myMouseCursor.hoverEnterButton();
+    super.onHoverEnter();
+  }
+
+  @override
+  void onHoverExit() {
+    game.isMouseHoveringUI = false;
+    game.myMouseCursor.hoverExitButton();
+    super.onHoverExit();
   }
 }

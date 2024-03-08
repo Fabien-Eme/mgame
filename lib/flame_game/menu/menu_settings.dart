@@ -1,59 +1,24 @@
-import 'dart:async';
-
-import 'package:flame/camera.dart';
 import 'package:flame/components.dart';
-import 'package:flame/events.dart';
 import 'package:flame_audio/flame_audio.dart';
-import 'package:flame_riverpod/flame_riverpod.dart';
 import 'package:flutter/painting.dart';
+import 'package:mgame/flame_game/menu/menu_without_tabs.dart';
 
 import '../../gen/assets.gen.dart';
-import '../game.dart';
-import '../riverpod_controllers/overlay_controller.dart';
-import '../ui/overlay/close_button.dart';
-import '../router/route_make_other_ignore_events.dart';
-import '../ui/overlay/dialog_button.dart';
-import '../ui/overlay/slider_component.dart';
-import '../utils/convert_coordinates.dart';
+import 'dialog_button.dart';
+import 'slider_component.dart';
 import '../utils/my_text_style.dart';
 
-class MenuSettingsRoute extends RouteMakeOtherIgnoreEvents {
-  MenuSettingsRoute() : super(MenuSettings.new, transparent: true);
-}
+class MenuSettings extends MenuWithoutTabs {
+  MenuSettings() : super(boxSize: Vector2(600, 500));
 
-class MenuSettings extends PositionComponent with HasGameReference<MGame>, RiverpodComponentMixin {
-  late final World world;
-  late final CameraComponent cameraComponent;
-
-  final Vector2 boxSize = Vector2(600, 500);
   late SliderComponent musicSlider;
   late SliderComponent soundSlider;
 
   SliderComponent? sliderCurrentlyDragged;
 
   @override
-  FutureOr<void> onLoad() {
-    add(world = World());
-    add(cameraComponent = CameraComponent.withFixedResolution(
-      width: MGame.gameWidth,
-      height: MGame.gameHeight,
-      viewfinder: Viewfinder(),
-      world: world,
-    ));
-
-    world.add(
-      NineTileBoxComponent(
-        nineTileBox: NineTileBox(
-          Sprite(game.images.fromCache(Assets.images.ui.dialog.complete.path)),
-          tileSize: 50,
-          destTileSize: 50,
-        ),
-        size: boxSize,
-        anchor: Anchor.center,
-      ),
-    );
-
-    world.add(CloseButton(position: Vector2(boxSize.x / 2 - 40, -boxSize.y / 2 + 40)));
+  void onLoad() {
+    super.onLoad();
 
     ///
     ///
@@ -172,8 +137,6 @@ class MenuSettings extends PositionComponent with HasGameReference<MGame>, River
       },
     );
     world.add(soundSlider);
-
-    return super.onLoad();
   }
 
   //   void onDragStart(DragStartInfo info) {

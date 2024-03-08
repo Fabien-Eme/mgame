@@ -40,9 +40,11 @@ class GarbageCan extends Garbage {
 
   @override
   void onRemove() {
-    world.remove(garbageCanComponent);
-    world.remove(circleBackground);
-    if (hasNumber) world.remove(numberDisplay!);
+    if (garbageCanComponent.ancestors().isNotEmpty) {
+      world.remove(garbageCanComponent);
+      world.remove(circleBackground);
+      if (hasNumber) world.remove(numberDisplay!);
+    }
     super.onRemove();
   }
 

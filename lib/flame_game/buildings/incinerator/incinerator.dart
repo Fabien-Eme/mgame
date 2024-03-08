@@ -6,6 +6,7 @@ import 'package:flame/components.dart';
 import 'package:mgame/flame_game/buildings/building.dart';
 import 'package:mgame/flame_game/buildings/incinerator/incinerator_back.dart';
 import 'package:mgame/flame_game/buildings/incinerator/incinerator_front.dart';
+import 'package:mgame/flame_game/particle/incinerator_smoke.dart';
 
 import '../../game.dart';
 import '../../utils/convert_coordinates.dart';
@@ -19,14 +20,18 @@ class Incinerator extends Building {
   late final IncineratorBack incineratorBack;
   late final IncineratorDoor incineratorDoor;
   late final Vector2 offset;
+  late final Vector2 smokeOffset;
 
   Point<int> deliveryPointDimetric = const Point<int>(0, 0);
 
   late Timer timer;
 
+  final IncineratorSmoke incineratorSmoke = IncineratorSmoke();
+
   @override
   FutureOr<void> onLoad() {
     offset = convertDimetricVectorToWorldCoordinates(Vector2(3, 1)) + Vector2(0, 2);
+    smokeOffset = convertDimetricVectorToWorldCoordinates(Vector2(-4, 5)) + Vector2(12, 0);
 
     incineratorFront = IncineratorFront(direction: direction, position: position + offset);
     incineratorBack = IncineratorBack(direction: direction, position: position + offset);
@@ -38,7 +43,9 @@ class Incinerator extends Building {
       incineratorDoor,
     ]);
 
-    timer = Timer(2, autoStart: false, onTick: () => closeDoor());
+    timer = Timer(1, autoStart: false, onTick: () => closeDoor());
+
+    add(incineratorSmoke..position = position + smokeOffset);
 
     return super.onLoad();
   }
@@ -71,6 +78,8 @@ class Incinerator extends Building {
           ],
       }
     ];
+
+    incineratorSmoke.position = updatedPosition + smokeOffset;
   }
 
   @override
@@ -120,7 +129,7 @@ class Incinerator extends Building {
   void makeTransparent() {
     incineratorFront.opacity = 0.8;
     incineratorBack.opacity = 0.8;
-    incineratorDoor.opacity = 0.8;
+    incineratorDoor.opacity = 0.0;
   }
 
   @override
@@ -166,9 +175,11 @@ class Incinerator extends Building {
 
   @override
   void onRemove() {
-    world.remove(incineratorFront);
-    world.remove(incineratorBack);
-    world.remove(incineratorDoor);
+    if (incineratorBack.ancestors().isNotEmpty) {
+      world.remove(incineratorFront);
+      world.remove(incineratorBack);
+      world.remove(incineratorDoor);
+    }
     super.onRemove();
   }
 

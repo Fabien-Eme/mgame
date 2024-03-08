@@ -103,6 +103,12 @@ class City extends Building {
 
   @override
   void openDoor() {}
+
+  @override
+  void onRemove() {
+    //
+    super.onRemove();
+  }
 }
 
 Point<int> getCityLoadTileCoordinate({required Point<int> anchorTile, required Directions direction}) {

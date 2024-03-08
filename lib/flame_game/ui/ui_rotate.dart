@@ -7,7 +7,7 @@ import 'package:mgame/flame_game/riverpod_controllers/rotation_controller.dart';
 
 import '../../gen/assets.gen.dart';
 
-class UIRotate extends PositionComponent with HasGameRef<MGame>, RiverpodComponentMixin {
+class UIRotate extends PositionComponent with HasGameRef<MGame>, RiverpodComponentMixin, HoverCallbacks {
   @override
   Future<void> onLoad() async {
     priority = 500;
@@ -21,17 +21,19 @@ class UIRotate extends PositionComponent with HasGameRef<MGame>, RiverpodCompone
     super.onLoad();
   }
 
-  // @override
-  // void onHoverEnter() {
-  //   game.isMouseHoveringUI = true;
-  //   super.onHoverEnter();
-  // }
+  @override
+  void onHoverEnter() {
+    game.isMouseHoveringUI = true;
+    game.myMouseCursor.hoverEnterButton();
+    super.onHoverEnter();
+  }
 
-  // @override
-  // void onHoverExit() {
-  //   game.isMouseHoveringUI = false;
-  //   super.onHoverExit();
-  // }
+  @override
+  void onHoverExit() {
+    game.isMouseHoveringUI = false;
+    game.myMouseCursor.hoverExitButton();
+    super.onHoverExit();
+  }
 }
 
 class UIRotateButton extends SpriteComponent with HasGameReference, RiverpodComponentMixin, TapCallbacks {

@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:math';
 
 import 'package:flame/camera.dart';
 import 'package:flame/components.dart';
@@ -10,20 +9,31 @@ import 'package:flame_audio/flame_audio.dart';
 import 'package:flame_riverpod/flame_riverpod.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart' hide Route;
+import 'package:mgame/flame_game/dialog/dialog_window.dart';
 import 'package:mgame/flame_game/level_world.dart';
 
+// ignore: implementation_imports
+import 'package:flame/src/events/flame_game_mixins/multi_drag_dispatcher.dart';
+
 import 'package:mgame/flame_game/menu/main_menu.dart';
+import 'package:mgame/flame_game/menu/menu_garage/menu_garage.dart';
 import 'package:mgame/flame_game/router/route_can_ignore_events.dart';
-import 'package:mgame/flame_game/ui/overlay/overlay_dialog.dart';
 
 import 'package:mgame/flame_game/utils/game_assets.dart';
 
 import '../gen/assets.gen.dart';
 import 'controller/audio_controller.dart';
 
+import 'dialog/tutorial.dart';
 import 'level.dart';
+import 'menu/menu_achievement.dart';
+import 'menu/menu_level_won.dart';
+import 'menu/menu_settings.dart';
+import 'router/route_make_other_ignore_events.dart';
 import 'ui/mouse_cursor.dart';
 import 'utils/palette.dart';
+
+/// Possibilité d'organiser event irl. L'owner reçoit un achievemnt organiser + un pass à faire scanner au participants. Callback sur le pass -> reward pour les participants et pour l'owner selon le nombre de participant
 
 class MGame extends FlameGame with MouseMovementDetector, ScrollDetector, MultiTouchDragDetector, TapDetector, SecondaryTapDetector, TertiaryTapDetector, KeyboardEvents, RiverpodGameMixin {
   static const double gameWidth = 2000;
@@ -60,14 +70,6 @@ class MGame extends FlameGame with MouseMovementDetector, ScrollDetector, MultiT
   bool isMouseHoveringOverlay = false;
   bool isMouseHoveringOverlayButton = false;
 
-  bool isMainMenu = true;
-
-  late MainMenu mainMenu;
-
-  OverlayDialog? overlayDialog;
-
-  //final GameController gameController = GameController();
-
   final MyMouseCursor myMouseCursor = MyMouseCursor();
   final AudioController audioController = AudioController();
 
@@ -82,7 +84,7 @@ class MGame extends FlameGame with MouseMovementDetector, ScrollDetector, MultiT
     /// Load Sounds
     await preLoadAudio();
     FlameAudio.bgm.initialize();
-    FlameAudio.bgm.play(Assets.music.forestal).then((value) => FlameAudio.bgm.audioPlayer.setVolume(musicVolume));
+    FlameAudio.bgm.play(Assets.music.wallpaper).then((value) => FlameAudio.bgm.audioPlayer.setVolume(musicVolume));
 
     /// Preload all images
     images.prefix = '';
@@ -100,14 +102,21 @@ class MGame extends FlameGame with MouseMovementDetector, ScrollDetector, MultiT
     /// Add Audio controller
     add(audioController);
 
+    children.register<Level>();
+
     add(
       router = RouterComponent(
         routes: {
           //'splash': Route(SplashScreenPage.new),
           'mainMenu': RouteCanIgnoreEvents(MainMenu.new, maintainState: false),
-          'level1': RouteCanIgnoreEvents(() => Level(1), maintainState: false),
+          'level1': RouteCanIgnoreEvents(() => Level(level: 1, key: ComponentKey.named('level')), maintainState: false),
+          'menuSettings': RouteMakeOtherIgnoreEvents(MenuSettings.new, transparent: true, maintainState: false),
+          'menuGarage': RouteMakeOtherIgnoreEvents(MenuGarage.new, doesPutGameInPause: false, transparent: true, maintainState: false),
+          'levelWon': RouteMakeOtherIgnoreEvents(MenuLevelWon.new, transparent: true, maintainState: false),
+          'menuAchievements': RouteMakeOtherIgnoreEvents(MenuAchievement.new, transparent: true, maintainState: false),
+          'tutorial': RouteMakeOtherIgnoreEvents(Tutorial.new, transparent: true, maintainState: false),
         },
-        initialRoute: 'mainMenu',
+        initialRoute: 'level1',
       ),
     );
 
@@ -150,7 +159,7 @@ class MGame extends FlameGame with MouseMovementDetector, ScrollDetector, MultiT
   @override
   void onTertiaryTapDown(TapDownInfo info) {
     if (router.currentRoute.name?.contains('level') ?? false) {
-      (router.currentRoute.children.first as Level).levelWorld.tapController.onTertiaryTapDown(info);
+      (findByKeyName('level') as Level?)?.levelWorld.tapController.onTertiaryTapDown(info);
     }
     super.onTertiaryTapDown(info);
   }
@@ -158,7 +167,7 @@ class MGame extends FlameGame with MouseMovementDetector, ScrollDetector, MultiT
   @override
   void onSecondaryTapUp(TapUpInfo info) {
     if (router.currentRoute.name?.contains('level') ?? false) {
-      (router.currentRoute.children.first as Level).levelWorld.tapController.onSecondaryTapUp(info);
+      (findByKeyName('level') as Level?)?.levelWorld.tapController.onSecondaryTapUp(info);
     }
     super.onSecondaryTapUp(info);
   }
@@ -166,8 +175,10 @@ class MGame extends FlameGame with MouseMovementDetector, ScrollDetector, MultiT
   @override
   void onTapDown(TapDownInfo info) {
     if (router.currentRoute.name?.contains('level') ?? false) {
-      (router.currentRoute.children.first as Level).levelWorld.tapController.onTapDown(info);
+      (findByKeyName('level') as Level?)?.levelWorld.tapController.onTapDown(info);
     }
+    (findByKeyName('dialogWindow') as DialogWindow?)?.advanceDialog();
+
     super.onTapDown(info);
   }
 
@@ -179,7 +190,7 @@ class MGame extends FlameGame with MouseMovementDetector, ScrollDetector, MultiT
   void onMouseMove(PointerHoverInfo info) {
     if (isDesktop) moveMouseCursor(info.eventPosition.global);
     if (router.currentRoute.name?.contains('level') ?? false) {
-      (router.currentRoute.children.first as Level).levelWorld.mouseController.onMouseMove(info);
+      (findByKeyName('level') as Level?)?.levelWorld.mouseController.onMouseMove(info);
     }
     super.onMouseMove(info);
   }
@@ -191,7 +202,7 @@ class MGame extends FlameGame with MouseMovementDetector, ScrollDetector, MultiT
   @override
   void onScroll(PointerScrollInfo info) {
     if (router.currentRoute.name?.contains('level') ?? false) {
-      (router.currentRoute.children.first as Level).levelWorld.dragZoomController.onScroll(info);
+      (findByKeyName('level') as Level?)?.levelWorld.dragZoomController.onScroll(info);
     }
     super.onScroll(info);
   }
@@ -202,35 +213,53 @@ class MGame extends FlameGame with MouseMovementDetector, ScrollDetector, MultiT
 
   @override
   void onDragStart(int pointerId, DragStartInfo info) {
+    // Forward the event down the tree. This will lead to a PR in the future
+    // ignore: invalid_use_of_internal_member
+    findByKey<MultiDragDispatcher>(const MultiDragDispatcherKey())?.handleDragStart(pointerId, info.raw);
+
     if (router.currentRoute.name?.contains('level') ?? false) {
-      (router.currentRoute.children.first as Level).levelWorld.dragZoomController.onDragStart(pointerId, info);
+      (findByKeyName('level') as Level?)?.levelWorld.dragZoomController.onDragStart(pointerId, info);
     }
   }
 
   @override
   void onDragUpdate(int pointerId, DragUpdateInfo info) {
+    if (isDesktop) moveMouseCursor(info.eventPosition.global);
+
+    // Forward the event down the tree. This will lead to a PR in the future
+    // ignore: invalid_use_of_internal_member
+    findByKey<MultiDragDispatcher>(const MultiDragDispatcherKey())?.handleDragUpdate(pointerId, info.raw);
+
     if (router.currentRoute.name?.contains('level') ?? false) {
-      (router.currentRoute.children.first as Level).levelWorld.dragZoomController.onDragUpdate(pointerId, info);
+      (findByKeyName('level') as Level?)?.levelWorld.dragZoomController.onDragUpdate(pointerId, info);
     }
   }
 
   @override
   void onDragEnd(int pointerId, DragEndInfo info) {
+    // Forward the event down the tree. This will lead to a PR in the future
+    // ignore: invalid_use_of_internal_member
+    findByKey<MultiDragDispatcher>(const MultiDragDispatcherKey())?.handleDragEnd(pointerId, info.raw);
+
     if (router.currentRoute.name?.contains('level') ?? false) {
-      (router.currentRoute.children.first as Level).levelWorld.dragZoomController.onDragEnd(pointerId, info);
+      (findByKeyName('level') as Level?)?.levelWorld.dragZoomController.onDragEnd(pointerId, info);
     }
   }
 
   @override
   void onDragCancel(int pointerId) {
+    // Forward the event down the tree. This will lead to a PR in the future
+    // ignore: invalid_use_of_internal_member
+    findByKey<MultiDragDispatcher>(const MultiDragDispatcherKey())?.handleDragCancel(pointerId);
+
     if (router.currentRoute.name?.contains('level') ?? false) {
-      (router.currentRoute.children.first as Level).levelWorld.dragZoomController.onDragCancel(pointerId);
+      (findByKeyName('level') as Level?)?.levelWorld.dragZoomController.onDragCancel(pointerId);
     }
   }
 
   void onSecondaryButtonDragUpdate(DragUpdateDetails details) {
     if (router.currentRoute.name?.contains('level') ?? false) {
-      (router.currentRoute.children.first as Level).levelWorld.dragZoomController.onSecondaryButtonDragUpdate(details);
+      (findByKeyName('level') as Level?)?.levelWorld.dragZoomController.onSecondaryButtonDragUpdate(details);
     }
   }
 
@@ -257,3 +286,10 @@ class MGame extends FlameGame with MouseMovementDetector, ScrollDetector, MultiT
 /// 
 /// overlay dialog : 900
 /// overlay settings : 990
+/// 
+/// 
+/// 
+/// 
+/// "Wallpaper" Kevin MacLeod (incompetech.com)
+/// Licensed under Creative Commons: By Attribution 4.0 License
+/// http://creativecommons.org/licenses/by/4.0/

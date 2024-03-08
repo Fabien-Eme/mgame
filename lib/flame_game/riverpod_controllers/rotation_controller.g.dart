@@ -7,7 +7,7 @@ part of 'rotation_controller.dart';
 // **************************************************************************
 
 String _$rotationControllerHash() =>
-    r'8c216482b28a64a37e2fc3a00114c2787cb8943f';
+    r'192d8e9b8bfb8cb4bd079297df2b7a44002dc9d6';
 
 /// See also [RotationController].
 @ProviderFor(RotationController)

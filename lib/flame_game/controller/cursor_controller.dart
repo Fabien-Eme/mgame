@@ -4,7 +4,6 @@ import 'package:flame/components.dart';
 import 'package:flame_riverpod/flame_riverpod.dart';
 import 'package:mgame/flame_game/level_world.dart';
 import 'package:mgame/flame_game/riverpod_controllers/construction_mode_controller.dart';
-import 'package:mgame/flame_game/ui/mouse_cursor.dart';
 
 import '../game.dart';
 import '../tile/tile.dart';
@@ -35,7 +34,7 @@ class CursorController extends Component with HasGameRef<MGame>, HasWorldReferen
       if (world.gridController.getTileAtDimetricCoordinates(newMouseTilePos)?.buildingOnTile != null) {
         if (constructionState.status != ConstructionMode.construct && constructionState.status != ConstructionMode.destruct) {
           game.isMouseHoveringBuilding = true;
-          game.myMouseCursor.changeMouseCursorType(MouseCursorType.hand);
+          game.myMouseCursor.hoverEnterButton();
           world.tileCursor.hideTileCursor();
         } else {
           game.isMouseHoveringBuilding = false;

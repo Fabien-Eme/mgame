@@ -6,19 +6,23 @@ import 'package:mgame/flame_game/controller/task_controller.dart';
 import 'package:mgame/flame_game/level_world.dart';
 import 'package:mgame/flame_game/riverpod_controllers/all_trucks_controller.dart';
 import 'package:mgame/flame_game/truck/truck_model.dart';
+import 'package:mgame/flame_game/ui/garbage_bar.dart';
 
 import '../buildings/garage/garage.dart';
 import '../game.dart';
+import '../level.dart';
 import '../truck/truck.dart';
 
 class TruckController extends Component with HasGameReference<MGame>, HasWorldReference<LevelWorld>, RiverpodComponentMixin {
   Map<String, Truck> mapTruck = {};
 
   void buyTruck(TruckType truckType) {
+    (game.findByKeyName('level') as Level).money.addValue(-10000);
+
     Point<int> truckSpawnLocation = world.buildings.whereType<Garage>().first.spawnPointDimetric;
     ref.read(allTrucksControllerProvider.notifier).addTruck(truckType, truckSpawnLocation);
 
-    Future.delayed(const Duration(milliseconds: 100)).then((value) => game.world.add(ref.read(allTrucksControllerProvider).trucksOwned[ref.read(allTrucksControllerProvider).lastTruckAddedId]!));
+    Future.delayed(const Duration(milliseconds: 100)).then((value) => world.add(ref.read(allTrucksControllerProvider).trucksOwned[ref.read(allTrucksControllerProvider).lastTruckAddedId]!));
   }
 
   void sellTruck(TruckType truckType) {
@@ -81,6 +85,8 @@ class TruckController extends Component with HasGameReference<MGame>, HasWorldRe
           break;
         case TaskReward.unloadAll:
           await Future.delayed(const Duration(seconds: 2));
+
+          (game.findByKeyName('garbageBar') as GarbageBar).addValue(truck.loadQuantity.toDouble());
 
           truck.loadQuantity = 0;
 

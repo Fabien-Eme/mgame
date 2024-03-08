@@ -5,8 +5,6 @@ import 'package:flame/components.dart';
 import 'package:flame/events.dart';
 import 'package:flame_riverpod/flame_riverpod.dart';
 import 'package:flutter/gestures.dart';
-import 'package:mgame/flame_game/riverpod_controllers/overlay_controller.dart';
-import 'package:mgame/flame_game/ui/overlay/overlay_dialog.dart';
 
 import '../game.dart';
 import '../level.dart';
@@ -99,77 +97,60 @@ class DragZoomController extends Component with HasGameRef<MGame>, HasWorldRefer
   /// Handle Drag
   ///
   void onDragStart(int pointerId, DragStartInfo info) {
-    if (!ref.read(overlayControllerProvider).isVisible) {
-      _drags[pointerId] = DragInfo(startPosition: info.eventPosition.global);
-      _updateGesture();
-    } else if (ref.read(overlayControllerProvider).overlayDialogType == OverlayDialogType.settings) {
-      //game.overlayDialog?.contentSettings?.onDragStart(info);
-    }
+    _drags[pointerId] = DragInfo(startPosition: info.eventPosition.global);
+    _updateGesture();
   }
 
   void onDragUpdate(int pointerId, DragUpdateInfo info) {
     myMouseCursor.position = camera.globalToLocal(info.eventPosition.global) * camera.viewfinder.zoom - camera.viewfinder.position * camera.viewfinder.zoom;
-    if (!ref.read(overlayControllerProvider).isVisible) {
-      _drags[pointerId]?.updatePosition(info.eventPosition.global);
+    _drags[pointerId]?.updatePosition(info.eventPosition.global);
 
-      _updateGesture();
-      if (_drags.length == 1) {
-        if (!isDesktop) {
-          Vector2 projectedViewfinderPosition = camera.viewfinder.position - Vector2(info.delta.global.x, info.delta.global.y);
-          if (projectedViewfinderPosition.x < 0 ||
-              projectedViewfinderPosition.x > gameWidth - gameWidth / camera.viewfinder.zoom ||
-              projectedViewfinderPosition.y < 0 ||
-              projectedViewfinderPosition.y > gameHeight - gameHeight / camera.viewfinder.zoom ||
-              camera.viewfinder.zoom == minZoom) {
-          } else {
-            camera.viewfinder.position = projectedViewfinderPosition;
-          }
+    _updateGesture();
+    if (_drags.length == 1) {
+      if (!isDesktop) {
+        Vector2 projectedViewfinderPosition = camera.viewfinder.position - Vector2(info.delta.global.x, info.delta.global.y);
+        if (projectedViewfinderPosition.x < 0 ||
+            projectedViewfinderPosition.x > gameWidth - gameWidth / camera.viewfinder.zoom ||
+            projectedViewfinderPosition.y < 0 ||
+            projectedViewfinderPosition.y > gameHeight - gameHeight / camera.viewfinder.zoom ||
+            camera.viewfinder.zoom == minZoom) {
         } else {
-          game.isMouseDragging = true;
-          if (isDesktop) game.moveMouseCursor(info.eventPosition.global);
+          camera.viewfinder.position = projectedViewfinderPosition;
+        }
+      } else {
+        game.isMouseDragging = true;
 
-          double cursorX = camera.globalToLocal(info.eventPosition.global).x;
-          double cursorY = camera.globalToLocal(info.eventPosition.global).y;
+        double cursorX = camera.globalToLocal(info.eventPosition.global).x;
+        double cursorY = camera.globalToLocal(info.eventPosition.global).y;
 
-          if (cursorX >= 0 && cursorX <= gameWidth && cursorY >= 0 && cursorY <= gameHeight) {
-            double dimetricX = (cursorX + 2 * cursorY) / tileWidth - 0.5;
-            double dimetricY = (cursorX - 2 * cursorY) / tileWidth + 0.5;
+        if (cursorX >= 0 && cursorX <= gameWidth && cursorY >= 0 && cursorY <= gameHeight) {
+          double dimetricX = (cursorX + 2 * cursorY) / tileWidth - 0.5;
+          double dimetricY = (cursorX - 2 * cursorY) / tileWidth + 0.5;
 
-            int tileX = dimetricX.floor();
-            int tileY = dimetricY.floor();
-            Point<int> newMouseTilePos = Point(tileX, tileY);
+          int tileX = dimetricX.floor();
+          int tileY = dimetricY.floor();
+          Point<int> newMouseTilePos = Point(tileX, tileY);
 
-            if (world.currentMouseTilePos != newMouseTilePos) {
-              world.cursorController.cursorIsMovingOnNewTile(newMouseTilePos);
-            }
+          if (world.currentMouseTilePos != newMouseTilePos) {
+            world.cursorController.cursorIsMovingOnNewTile(newMouseTilePos);
           }
         }
       }
-    } else if (ref.read(overlayControllerProvider).overlayDialogType == OverlayDialogType.settings) {
-      //game.overlayDialog?.contentSettings?.onDragUpdate(info);
     }
   }
 
   void onDragEnd(int pointerId, DragEndInfo info) {
-    if (!ref.read(overlayControllerProvider).isVisible) {
-      _drags.remove(pointerId);
-      _updateGesture();
-      world.cursorController.cursorIsMovingOnNewTile(world.currentMouseTilePos);
-      game.isMouseDragging = false;
-    } else if (ref.read(overlayControllerProvider).overlayDialogType == OverlayDialogType.settings) {
-      //game.overlayDialog?.contentSettings?.onDragEnd(info);
-    }
+    _drags.remove(pointerId);
+    _updateGesture();
+    world.cursorController.cursorIsMovingOnNewTile(world.currentMouseTilePos);
+    game.isMouseDragging = false;
   }
 
   void onDragCancel(int pointerId) {
-    if (!ref.read(overlayControllerProvider).isVisible) {
-      _drags.remove(pointerId);
-      _updateGesture();
-      world.cursorController.cursorIsMovingOnNewTile(world.currentMouseTilePos);
-      game.isMouseDragging = false;
-    } else if (ref.read(overlayControllerProvider).overlayDialogType == OverlayDialogType.settings) {
-      // game.overlayDialog?.contentSettings?.onDragCancel();
-    }
+    _drags.remove(pointerId);
+    _updateGesture();
+    world.cursorController.cursorIsMovingOnNewTile(world.currentMouseTilePos);
+    game.isMouseDragging = false;
   }
 
   void onSecondaryButtonDragUpdate(DragUpdateDetails details) {

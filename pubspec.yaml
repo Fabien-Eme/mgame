@@ -76,6 +76,9 @@ flutter:
   assets:
     - assets/icons/
     - assets/images/
+    - assets/images/avatar/
+    - assets/images/emote/
+    - assets/images/pollution/
     - assets/images/garbage/
     - assets/images/trucks/
     - assets/images/trucks/stacked/

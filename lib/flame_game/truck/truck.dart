@@ -1,14 +1,15 @@
 import 'dart:async';
 import 'dart:math';
-import 'dart:ui';
 
-import 'package:flame/components.dart';
+import 'package:flame/components.dart' hide Timer;
 import 'package:flame_riverpod/flame_riverpod.dart';
-import 'package:flutter/rendering.dart';
 import 'package:flutter/widgets.dart';
 import 'package:mgame/flame_game/controller/task_controller.dart';
+import 'package:mgame/flame_game/particle/truck_smoke.dart';
 import 'package:mgame/flame_game/truck/truck_helper.dart';
+import 'package:mgame/flame_game/ui/pollution_bar.dart';
 import 'package:mgame/flame_game/utils/convert_coordinates.dart';
+import 'package:flame/timer.dart' as flame_timer;
 
 import '../buildings/building.dart';
 import '../buildings/garage/garage.dart';
@@ -31,8 +32,8 @@ class Truck extends SpriteComponent with HasGameReference<MGame>, HasWorldRefere
   String id;
 
   Truck({required this.id, required this.truckType, required this.truckDirection, this.startingTileAtCreation, this.startingTileCoordinatesAtCreation});
-
-  Vector2 offset = Vector2(MGame.tileWidth / 2, MGame.tileHeight / 2) + Vector2(0, -10);
+  Vector2 offsetTile = Vector2(MGame.tileWidth / 2, MGame.tileHeight / 2);
+  Vector2 offsetAdjust = Vector2(0, -10);
   late Tile currentTile;
   Tile? destinationTile;
 
@@ -52,11 +53,12 @@ class Truck extends SpriteComponent with HasGameReference<MGame>, HasWorldRefere
   VehiculeType vehiculeType = VehiculeType.truck;
   late int maxLoad;
 
-  late Timer timerGoToDepot;
+  late flame_timer.Timer timerGoToDepot;
 
   Vector2 realPosition = Vector2(0, 0);
 
   bool isGoingToDepot = false;
+  late final TruckSmoke truckSmoke;
 
   ///
   ///
@@ -79,11 +81,13 @@ class Truck extends SpriteComponent with HasGameReference<MGame>, HasWorldRefere
     scale = Vector2.all(0.6);
     spriteImagePath = getTruckAssetPath(truckType: truckType, truckAngle: truckDirection.angle);
     sprite = Sprite(game.images.fromCache(spriteImagePath));
-    setPosition(startingTile.dimetricCoordinates.convertDimetricPointToWorldCoordinates());
+    add(truckSmoke = TruckSmoke(rate: truckType.model.pollutionPerTile)..position = position);
+    updatePosition(startingTile.dimetricCoordinates.convertDimetricPointToWorldCoordinates());
     updateTruckSprite(truckDirection.angle);
     paint = Paint()..filterQuality = FilterQuality.low;
 
-    timerGoToDepot = Timer(1, autoStart: false, onTick: () => goToDepot());
+    timerGoToDepot = flame_timer.Timer(1, autoStart: false, onTick: () => goToDepot());
+
     return super.onLoad();
   }
 
@@ -94,31 +98,18 @@ class Truck extends SpriteComponent with HasGameReference<MGame>, HasWorldRefere
   @override
   void onMount() {
     addToGameWidgetBuild(() => ref.listen(rotationControllerProvider, (previous, value) {
-          // if (value == Rotation.pi || value == Rotation.piAndHalf) {
-          //   offset = Vector2(MGame.tileWidth / 2, MGame.tileHeight / 2) + Vector2(0, 10);
-          //   position = position + Vector2(0, 10);
-          // } else {
-          //   offset = Vector2(MGame.tileWidth / 2, MGame.tileHeight / 2) + Vector2(0, -10);
-          // }
-
           updatePosition(realPosition);
 
           updateTruckSprite(truckDirection.angle);
         }));
-
     super.onMount();
-  }
-
-  void setPosition(Vector2 newPosition) {
-    realPosition = newPosition;
-
-    position = world.convertRotations.rotateVector(newPosition + offset);
   }
 
   void updatePosition(Vector2 newPosition) {
     realPosition = newPosition;
 
-    position = world.convertRotations.rotateVector(newPosition);
+    position = world.convertRotations.rotateVector(newPosition + offsetTile) + offsetAdjust;
+    truckSmoke.position = position;
   }
 
   ///
@@ -188,6 +179,8 @@ class Truck extends SpriteComponent with HasGameReference<MGame>, HasWorldRefere
     currentTile = destinationTile!;
     destinationTile = null;
 
+    (game.findByKeyName('pollutionBar') as PollutionBar).addValue(truckType.model.pollutionPerTile.toDouble());
+
     startMove();
   }
 
@@ -251,7 +244,7 @@ class Truck extends SpriteComponent with HasGameReference<MGame>, HasWorldRefere
         }
 
         if (canMove) {
-          Vector2 destinationPosition = destinationTile!.dimetricCoordinates.convertDimetricPointToWorldCoordinates() + offset;
+          Vector2 destinationPosition = destinationTile!.dimetricCoordinates.convertDimetricPointToWorldCoordinates();
           Vector2 movementVector = destinationPosition - realPosition;
           // movementVector = game.convertRotations.rotateVector(movementVector);
           if (movementVector.length > truckSpeed * dt) {
@@ -269,7 +262,7 @@ class Truck extends SpriteComponent with HasGameReference<MGame>, HasWorldRefere
     movementVector.normalize();
     double truckSpeedCorrected = (startingTile == currentTile || acceleration != 5) ? truckSpeed * acceleration / 5 : truckSpeed;
     updatePosition(realPosition + movementVector * truckSpeedCorrected * dt);
-    priority = 100 + ((position.y + offset.y) / MGame.gameHeight * 100).toInt();
+    priority = 100 + ((position.y) / MGame.gameHeight * 100).toInt();
     acceleration = (acceleration + acceleration * dt).clamp(0, 5);
   }
 }
