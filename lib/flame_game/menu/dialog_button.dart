@@ -1,5 +1,6 @@
 import 'package:flame/components.dart' hide ButtonState;
 import 'package:flame/events.dart';
+import 'package:flame_audio/flame_audio.dart';
 import 'package:mgame/flame_game/utils/my_text_style.dart';
 
 import '../../gen/assets.gen.dart';
@@ -57,6 +58,13 @@ class DialogButton extends PositionComponent with HasGameReference<MGame>, TapCa
 
   @override
   void onTapDown(TapDownEvent event) {
+    if (game.isWeb) {
+      if (!game.hasAudioBeenActivatedOnWeb) {
+        game.hasAudioBeenActivatedOnWeb = true;
+        FlameAudio.bgm.play('Wallpaper.mp3').then((value) => FlameAudio.bgm.audioPlayer.setVolume(game.musicVolume));
+      }
+    }
+
     if (isButtonBack) {
       game.audioController.playClickButtonBack();
     } else {

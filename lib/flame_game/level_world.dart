@@ -7,7 +7,6 @@ import 'game.dart';
 import 'level_world_generator.dart';
 import 'listener/construction_mode_listener.dart';
 import 'tile/tile.dart';
-import 'tile/tile_helper.dart';
 import 'tile/tile_holder.dart';
 import 'ui/tile_cursor.dart';
 
@@ -25,6 +24,9 @@ import 'controller/truck_controller.dart';
 import 'utils/convert_rotations.dart';
 
 class LevelWorld extends World with HasGameReference<MGame>, IgnoreEvents {
+  int level;
+  LevelWorld({required this.level});
+
   static const int gridWidth = 20;
   static const int gridHeight = 39;
   List<List<Tile>> grid = [];
@@ -50,8 +52,8 @@ class LevelWorld extends World with HasGameReference<MGame>, IgnoreEvents {
   Point<int> currentMouseTilePos = const Point(0, 0);
 
   @override
-  void onLoad() async {
-    super.onLoad();
+  void onMount() async {
+    super.onMount();
 
     addAll([
       mouseController = MouseController(),
@@ -88,50 +90,44 @@ class LevelWorld extends World with HasGameReference<MGame>, IgnoreEvents {
     /// Add debug grid
     if (isDebugGridNumbersOn) addAll(generateDebugGridNumbers());
 
-    await gridController.internalBuildOnTile(const Point<int>(6, -2), BuildingType.garage, Directions.E);
-    await gridController.internalBuildOnTile(const Point<int>(32, 3), BuildingType.city, Directions.S);
-    // await game.gridController.internalBuildOnTile(const Point<int>(31, 2), BuildingType.garbageLoader, Directions.S);
+    addLevelBuildings(level);
+  }
 
-    for (int i = 0; i < 25; i++) {
-      constructionController.construct(posDimetric: Point<int>(7 + i, -1), tileType: TileType.road);
+  void addLevelBuildings(int level) async {
+    switch (level) {
+      case 1:
+        await gridController.internalBuildOnTile(const Point<int>(6, -2), BuildingType.garage, Directions.E, true);
+        await gridController.internalBuildOnTile(const Point<int>(32, 3), BuildingType.city, Directions.S, true);
+        break;
+      case 2:
+        await gridController.internalBuildOnTile(const Point<int>(24, 9), BuildingType.garage, Directions.S, true);
+        await gridController.internalBuildOnTile(const Point<int>(10, -6), BuildingType.city, Directions.E, true);
+        await gridController.internalBuildOnTile(const Point<int>(17, -13), BuildingType.city, Directions.N, true);
+        break;
     }
-    constructionController.construct(posDimetric: const Point<int>(31, 0), tileType: TileType.road);
-    constructionController.construct(posDimetric: const Point<int>(31, 1), tileType: TileType.road);
-
-    await gridController.internalBuildOnTile(const Point<int>(31, 2), BuildingType.garbageLoader, Directions.S);
-    await gridController.internalBuildOnTile(const Point<int>(22, 2), BuildingType.incinerator, Directions.S);
-
-    constructionController.construct(posDimetric: const Point<int>(21, 0), tileType: TileType.road);
-    constructionController.construct(posDimetric: const Point<int>(21, 1), tileType: TileType.road);
-
-    // add(Truck(id: 'test', truckType: TruckType.yellow, truckDirection: Directions.S, startingTileCoordinatesAtCreation: const Point<int>(15, 5)));
-    // constructionController.construct(posDimetric: const Point<int>(14, 5), tileType: TileType.road);
-    // constructionController.construct(posDimetric: const Point<int>(15, 5), tileType: TileType.road);
-    // constructionController.construct(posDimetric: const Point<int>(16, 5), tileType: TileType.road);
   }
 }
-
 
 ///
 ///
 ///
 /// Priority of world
-/// 
-/// 
+///
+///
 /// Tiles : 10
-/// 
+///
 /// Building front : 110
 /// Building back : 90
-/// 
+///
 /// Trucks : 100
-/// 
-/// When dragging building for build : 
+///
+/// When dragging building for build :
 ///   - Door : 511
 ///   - Front : 510
 ///   - Back : 490
-/// 
-/// 
-/// 
+///
+///
+///
 /// TileCursor : 400
-/// 
-/// 
+///
+///

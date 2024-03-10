@@ -2,26 +2,23 @@ import 'dart:async';
 
 import 'package:flame/camera.dart';
 import 'package:flame/components.dart';
-import 'package:flame_riverpod/flame_riverpod.dart';
-import 'package:mgame/flame_game/dialog/tutorial.dart';
 import 'package:mgame/flame_game/level_world.dart';
 import 'package:mgame/flame_game/ui/garbage_bar.dart';
 import 'package:mgame/flame_game/ui/money.dart';
 import 'package:mgame/flame_game/ui/pollution_bar.dart';
 import 'package:mgame/flame_game/ui/top_drawer.dart';
+import 'package:mgame/flame_game/utils/my_text_style.dart';
 
-import 'dialog/dialog_bdd.dart';
-import 'dialog/dialog_window.dart';
 import 'game.dart';
 import 'ui/settings_button.dart';
 import 'ui/ui_bottom_bar.dart';
 import 'ui/ui_rotate.dart';
 
-class Level extends PositionComponent with HasGameReference<MGame>, RiverpodComponentMixin {
-  int level;
-  Level({required this.level, required super.key});
+class Level extends PositionComponent with HasGameReference<MGame> {
+  final int level;
+  Level({required this.level, super.key});
 
-  final LevelWorld levelWorld = LevelWorld();
+  late final LevelWorld levelWorld = LevelWorld(level: level);
   late final CameraComponent cameraComponent;
 
   late final UIBottomBar uiBottomBar;
@@ -34,7 +31,9 @@ class Level extends PositionComponent with HasGameReference<MGame>, RiverpodComp
   late final Money money;
 
   @override
-  FutureOr<void> onLoad() {
+  FutureOr<void> onLoad() async {
+    super.onLoad();
+
     add(
       cameraComponent = CameraComponent.withFixedResolution(
         width: MGame.gameWidth,
@@ -53,6 +52,18 @@ class Level extends PositionComponent with HasGameReference<MGame>, RiverpodComp
       uiBottomBar = UIBottomBar(),
       uiRotate = UIRotate(),
       settingsButton = SettingsButton(),
+      TextComponent(
+        text: mapLevel[level.toString()]!["levelTitle"]! as String,
+        textRenderer: MyTextStyle.levelTitleBorder,
+        anchor: Anchor.center,
+        position: Vector2(1000, MGame.gameHeight - 30),
+      ),
+      TextComponent(
+        text: mapLevel[level.toString()]!["levelTitle"]! as String,
+        textRenderer: MyTextStyle.levelTitle,
+        anchor: Anchor.center,
+        position: Vector2(1000, MGame.gameHeight - 30),
+      ),
     ]);
 
     ///
@@ -62,18 +73,38 @@ class Level extends PositionComponent with HasGameReference<MGame>, RiverpodComp
       TopDrawer(),
       pollutionBar = PollutionBar(
         title: 'POLLUTION',
-        totalBarValue: 30000,
+        totalBarValue: mapLevel[level.toString()]!["pollutionLimit"]! as double,
       ),
-      money = Money(startingAmount: 65000),
+      money = Money(
+        startingAmount: mapLevel[level.toString()]!["startingMoney"]! as double,
+      ),
       garbageBar = GarbageBar(
         title: 'GARBAGE PROCESSED',
-        totalBarValue: 10,
+        totalBarValue: mapLevel[level.toString()]!["garbageTarget"]! as double,
         onComplete: () => game.router.pushNamed('levelWon'),
       ),
     ]);
 
-    game.router.pushNamed('tutorial');
-
-    return super.onLoad();
+    ///
+    ///
+    /// If level 1 it's tutorial
+    if (level == 1) {
+      game.router.pushNamed('tutorial');
+    }
   }
 }
+
+Map<String, Map<String, dynamic>> mapLevel = {
+  "1": {
+    "levelTitle": "Level 1 - Tutorial",
+    "pollutionLimit": 10000.0,
+    "garbageTarget": 50.0,
+    "startingMoney": 65000.0,
+  },
+  "2": {
+    "levelTitle": "Level 2 - Two cities",
+    "pollutionLimit": 30000.0,
+    "garbageTarget": 600.0,
+    "startingMoney": 65000.0,
+  },
+};

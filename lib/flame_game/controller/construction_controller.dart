@@ -11,9 +11,11 @@ import '../tile/tile_helper.dart';
 import '../utils/convert_rotations.dart';
 
 class ConstructionController extends Component with HasGameRef<MGame>, HasWorldReference<LevelWorld>, RiverpodComponentMixin {
-  void construct({required Point<int> posDimetric, required TileType tileType, bool isMouseDragging = false, bool isIndestructible = false, bool isLoader = false}) {
+  void construct({required Point<int> posDimetric, required TileType tileType, bool isMouseDragging = false, bool isIndestructible = false, bool isLoader = false, bool hideMoney = false}) {
     if (world.gridController.checkIfWithinGridBoundaries(posDimetric)) {
-      world.gridController.getTileAtDimetricCoordinates(posDimetric)?.constructTile(tileType: tileType, isMouseDragging: isMouseDragging, isIndestructible: isIndestructible, isLoader: isLoader);
+      world.gridController
+          .getTileAtDimetricCoordinates(posDimetric)
+          ?.constructTile(tileType: tileType, isMouseDragging: isMouseDragging, isIndestructible: isIndestructible, isLoader: isLoader, hideMoney: hideMoney);
 
       Map<Directions, Tile?> mapNeighbors = world.gridController.getAllNeigbhorsTile(world.gridController.getTileAtDimetricCoordinates(posDimetric));
 

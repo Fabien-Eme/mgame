@@ -31,7 +31,7 @@ class GarbageController extends Component with HasGameReference<MGame>, HasWorld
     listGarbageStack[id] = garbageStack;
     building.garbageStackId = id;
     await world.add(garbage);
-    garbage.position = world.buildings.whereType<City>().first.finalGarbagePosition;
+    garbage.position = building.finalGarbagePosition;
   }
 
   ///
@@ -46,7 +46,9 @@ class GarbageController extends Component with HasGameReference<MGame>, HasWorld
         component: garbage,
         timeElapsed: 0,
         startingPosition: position,
-        garbageStackId: listGarbageStack.values.firstWhere((GarbageStack garbageStack) => garbageStack.component.garbageType == GarbageType.garbageCan).id));
+        garbageStackId: listGarbageStack.values
+            .firstWhere((GarbageStack garbageStack) => garbageStack.component.garbageType == GarbageType.garbageCan && garbageStack.anchorBuilding == garbage.anchorBuilding)
+            .id));
   }
 
   @override
@@ -60,7 +62,7 @@ class GarbageController extends Component with HasGameReference<MGame>, HasWorld
       for (GarbageStack garbageStack in listGarbageStack.values) {
         addGarbage(
           garbageType: GarbageType.garbageCan,
-          anchorBuilding: world.buildings.whereType<City>().first,
+          anchorBuilding: garbageStack.anchorBuilding,
           position: getRandomVectorInList(
             garbageStack.anchorBuilding.listInitialGarbagePosition,
           ),

@@ -7,12 +7,12 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mgame/core/launcher.dart';
+import 'package:mgame/flame_game_widget.dart';
 
 void main() {
   testWidgets('Counter increments smoke test', (WidgetTester tester) async {
     // Build our app and trigger a frame.
-    await tester.pumpWidget(const Launcher());
+    await tester.pumpWidget(const FlameGameWidget());
 
     // Verify that our counter starts at 0.
     expect(find.text('0'), findsOneWidget);

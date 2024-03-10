@@ -21,7 +21,6 @@ import 'package:mgame/flame_game/router/route_can_ignore_events.dart';
 
 import 'package:mgame/flame_game/utils/game_assets.dart';
 
-import '../gen/assets.gen.dart';
 import 'controller/audio_controller.dart';
 
 import 'dialog/tutorial.dart';
@@ -46,9 +45,12 @@ class MGame extends FlameGame with MouseMovementDetector, ScrollDetector, MultiT
 
   final bool isMobile;
   final bool isDesktop;
+  final bool isWeb;
+
   MGame({
     required this.isMobile,
     required this.isDesktop,
+    required this.isWeb,
   }) : super(
           camera: CameraComponent.withFixedResolution(
             width: gameWidth,
@@ -61,6 +63,7 @@ class MGame extends FlameGame with MouseMovementDetector, ScrollDetector, MultiT
 
   Vector2 mousePosition = Vector2.zero();
 
+  bool hasAudioBeenActivatedOnWeb = false;
   double musicVolume = 0.0;
   double soundVolume = 0.4;
 
@@ -75,6 +78,11 @@ class MGame extends FlameGame with MouseMovementDetector, ScrollDetector, MultiT
 
   late final RouterComponent router;
 
+  int lastLevelCompleted = 0;
+  int currentLevel = 0;
+
+  bool isAudioEnabled = false;
+
   ///
   ///
   /// Game Load
@@ -82,9 +90,13 @@ class MGame extends FlameGame with MouseMovementDetector, ScrollDetector, MultiT
   @override
   FutureOr<void> onLoad() async {
     /// Load Sounds
-    await preLoadAudio();
-    FlameAudio.bgm.initialize();
-    FlameAudio.bgm.play(Assets.music.wallpaper).then((value) => FlameAudio.bgm.audioPlayer.setVolume(musicVolume));
+
+    if (isAudioEnabled) {
+      await preLoadAudio();
+
+      FlameAudio.bgm.initialize();
+      if (!isWeb) FlameAudio.bgm.play('Wallpaper.mp3').then((value) => FlameAudio.bgm.audioPlayer.setVolume(musicVolume));
+    }
 
     /// Preload all images
     images.prefix = '';
@@ -110,13 +122,14 @@ class MGame extends FlameGame with MouseMovementDetector, ScrollDetector, MultiT
           //'splash': Route(SplashScreenPage.new),
           'mainMenu': RouteCanIgnoreEvents(MainMenu.new, maintainState: false),
           'level1': RouteCanIgnoreEvents(() => Level(level: 1, key: ComponentKey.named('level')), maintainState: false),
+          'level2': RouteCanIgnoreEvents(() => Level(level: 2, key: ComponentKey.named('level')), maintainState: false),
           'menuSettings': RouteMakeOtherIgnoreEvents(MenuSettings.new, transparent: true, maintainState: false),
           'menuGarage': RouteMakeOtherIgnoreEvents(MenuGarage.new, doesPutGameInPause: false, transparent: true, maintainState: false),
           'levelWon': RouteMakeOtherIgnoreEvents(MenuLevelWon.new, transparent: true, maintainState: false),
           'menuAchievements': RouteMakeOtherIgnoreEvents(MenuAchievement.new, transparent: true, maintainState: false),
           'tutorial': RouteMakeOtherIgnoreEvents(Tutorial.new, transparent: true, maintainState: false),
         },
-        initialRoute: 'level1',
+        initialRoute: 'mainMenu',
       ),
     );
 

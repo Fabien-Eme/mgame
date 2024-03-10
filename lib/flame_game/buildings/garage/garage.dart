@@ -55,7 +55,7 @@ class Garage extends Building with HoverCallbacks {
       ...switch (direction) {
         Directions.S => [
             dimetricCoordinates + const Point<int>(-1, 0),
-            dimetricCoordinates + const Point<int>(-1, 1),
+            dimetricCoordinates + const Point<int>(-1, -1),
           ],
         Directions.W => [
             dimetricCoordinates + const Point<int>(-2, 1),
@@ -172,6 +172,9 @@ class Garage extends Building with HoverCallbacks {
     }
     super.onRemove();
   }
+
+  @override
+  double get buildingCost => 0;
 
   @override
   void update(double dt) {

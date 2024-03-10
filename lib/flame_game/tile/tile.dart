@@ -12,6 +12,7 @@ import 'package:mgame/flame_game/riverpod_controllers/rotation_controller.dart';
 
 import '../buildings/building.dart';
 import '../game.dart';
+import '../level.dart';
 import 'tile_helper.dart';
 import '../truck/truck.dart';
 import '../utils/convert_coordinates.dart';
@@ -132,11 +133,12 @@ class Tile extends SpriteComponent with HasGameReference<MGame>, HasWorldReferen
     if (previousTileType != null) setTileType(previousTileType!);
   }
 
-  void constructTile({required TileType tileType, bool isMouseDragging = false, bool isIndestructible = false, bool isLoader = false}) {
+  void constructTile({required TileType tileType, bool isMouseDragging = false, bool isIndestructible = false, bool isLoader = false, bool hideMoney = false}) {
     if ((isTileConstructible && !(isLoadPoint || isUnLoadPoint)) || ((isLoadPoint || isUnLoadPoint) && isLoader)) {
       if (tileType == TileType.road) {
         tileType = determineMyRoadType();
       }
+      (game.findByKeyName('level') as Level).money.addValue(-100, hideMoney);
       setTileType(tileType);
       isTileConstructible = false;
       isTileDestructible = !isIndestructible;

@@ -12,8 +12,9 @@ import 'dots.dart';
 
 class DialogWindow extends PositionComponent with HasGameReference<MGame> {
   List<String> dialogTextFromBDD;
+  void Function()? callback;
 
-  DialogWindow({required this.dialogTextFromBDD})
+  DialogWindow({required this.dialogTextFromBDD, this.callback, super.priority})
       : super(
           key: ComponentKey.named('dialogWindow'),
         );
@@ -28,7 +29,7 @@ class DialogWindow extends PositionComponent with HasGameReference<MGame> {
   @override
   FutureOr<void> onLoad() {
     dialogText.addAll(dialogTextFromBDD);
-    if (dialogTextFromBDD == DialogBDD.tutorial) dialogPositions.addAll(DialogBDD.tutorialPositions);
+    if (dialogTextFromBDD == DialogBDD.tutorial) dialogPositions.addAll(DialogBDD.tutorialAvatarPositions);
 
     size = Vector2(500, 220);
     position = (dialogPositions.isEmpty) ? Vector2(625, 250) : dialogPositions.first;
@@ -72,12 +73,13 @@ class DialogWindow extends PositionComponent with HasGameReference<MGame> {
       if (dialogText.length > 1) {
         dialogText.removeAt(0);
         updateTextBox();
-      }
 
-      if (dialogTextFromBDD == DialogBDD.tutorial) {
-        dialogPositions.removeAt(0);
-        position = dialogPositions.first;
+        if (dialogTextFromBDD == DialogBDD.tutorial) {
+          dialogPositions.removeAt(0);
+          position = dialogPositions.first;
+        }
       }
+      callback?.call();
     }
   }
 

@@ -188,4 +188,7 @@ class Incinerator extends Building {
     timer.update(dt);
     super.update(dt);
   }
+
+  @override
+  double get buildingCost => 30000;
 }

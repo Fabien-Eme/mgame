@@ -43,7 +43,11 @@ dependencies:
 
   flame_riverpod: ^5.2.0
   flame_audio: ^2.10.0
-
+  firebase_core: ^2.27.0
+  cloud_firestore: ^4.15.8
+  firebase_auth: ^4.17.8
+  http: ^1.2.0
+  url_launcher: ^6.2.5
   
 
 
@@ -76,6 +80,7 @@ flutter:
   assets:
     - assets/icons/
     - assets/images/
+    - assets/images/achievements/
     - assets/images/avatar/
     - assets/images/emote/
     - assets/images/pollution/
@@ -94,8 +99,7 @@ flutter:
     - assets/images/buildings/recycler/
     - assets/images/buildings/incinerator/
     - assets/images/buildings/garage/
-    - assets/music/
-    - assets/sfx/
+    - assets/audio/
 
   fonts:
     - family: AmaticSC

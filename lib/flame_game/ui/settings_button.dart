@@ -10,9 +10,10 @@ class SettingsButton extends SpriteComponent with HasGameReference<MGame>, TapCa
   SettingsButton({super.position});
   @override
   FutureOr<void> onLoad() {
+    anchor = Anchor.topRight;
     priority = 400;
     size = Vector2.all(50);
-    position = Vector2(MGame.gameWidth - size.x - 20, 20);
+    position = Vector2(MGame.gameWidth - 20, 15);
 
     sprite = Sprite(game.images.fromCache(Assets.images.ui.settings.path));
 

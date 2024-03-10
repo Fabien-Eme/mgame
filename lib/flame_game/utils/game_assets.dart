@@ -61,16 +61,16 @@ extension MGameAssets on MGame {
       ///
       /// EMOTE
       for (AssetGenImage element in Assets.images.emote.values) () => images.load(element.path),
+
+      ///
+      /// ACHIEVEMENTS
+      for (AssetGenImage element in Assets.images.achievements.values) () => images.load(element.path),
     ];
   }
 
   Future<void> preLoadAudio() async {
-    FlameAudio.updatePrefix('');
-    for (String element in Assets.music.values) {
-      () => FlameAudio.audioCache.load(element);
-    }
-    for (String element in Assets.sfx.values) {
-      () => FlameAudio.audioCache.load(element);
-    }
+    await FlameAudio.audioCache.load('button.mp3');
+    await FlameAudio.audioCache.load('button_back.mp3');
+    await FlameAudio.audioCache.load('Wallpaper.mp3');
   }
 }

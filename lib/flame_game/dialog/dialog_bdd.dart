@@ -3,7 +3,7 @@ import 'package:flame/components.dart';
 class DialogBDD {
   static const List<String> tutorial = [
     "Hello, it's about time you arrived! Everyone is in place to launch this innovative project.",
-    "Citizens are randomly selected to find the best way to deal with waste. And you're next!",
+    "Citizens all around the world are randomly selected to find the best way to deal with waste. And you're next!",
     "I'm in charge of the newcomer training program. Let me show you around.",
     "This is the garage. This is where you can buy the vehicles you need to transport waste.",
     "But beware, some of them pollute enormously. Waste treatment is your main objective, but not at the expense of the environment.",
@@ -21,13 +21,62 @@ class DialogBDD {
     "If you need me to explain it all again, just come and see me in the main menu. See you soon!",
   ];
 
-  static List<Vector2> tutorialPositions = [
+  static List<Vector2> tutorialAvatarPositions = [
+    Vector2(625, 250),
+    Vector2(625, 250),
+    Vector2(625, 250),
     Vector2(50, 220),
+    Vector2(50, 220),
+    Vector2(900, 100),
+    Vector2(900, 100),
+    Vector2(900, 100),
+    Vector2(800, 500),
+    Vector2(800, 500),
+    Vector2(200, 500),
+    Vector2(625, 250),
+    Vector2(625, 250),
+    Vector2(625, 250),
+    Vector2(900, 500),
+    Vector2(625, 250),
+    Vector2(625, 250),
+  ];
+  static List<Vector2> tutorialHighlightPositions = [
+    Vector2(0, 0),
+    Vector2(0, 0),
+    Vector2(0, 0),
+    Vector2(250, 110),
+    Vector2(0, 0),
+    Vector2(1400, -200),
+    Vector2(600, -200),
+    Vector2(1000, -80),
+    Vector2(1800, 675),
+    Vector2(1700, 710),
+    Vector2(1000, 500),
+    Vector2(0, 0),
+    Vector2(0, 0),
+    Vector2(0, 0),
+    Vector2(1250, 400),
+    Vector2(0, 0),
+    Vector2(0, 0),
+  ];
 
-    ///
-    Vector2(625, 250),
-    Vector2(625, 250),
-    Vector2(625, 250),
-    Vector2(300, 100),
+  static List<double> tutorialHighlightRadius = [
+    0,
+    0,
+    0,
+    175,
+    0,
+    400,
+    400,
+    150,
+    175,
+    100,
+    800,
+    0,
+    0,
+    0,
+    200,
+    0,
+    0,
   ];
 }

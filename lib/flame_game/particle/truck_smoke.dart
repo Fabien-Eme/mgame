@@ -14,17 +14,8 @@ class TruckSmoke extends PositionComponent with HasGameReference<MGame>, HasWorl
   final int rate;
   TruckSmoke({required this.rate});
 
-  late Timer? spawnSmokeTimer;
+  Timer? spawnSmokeTimer;
   final Random rng = Random();
-
-  @override
-  void onMount() {
-    spawnParticles();
-    spawnSmokeTimer = Timer.periodic(Duration(milliseconds: Random().nextInt((5000 / rate).round()) + 200), (_) {
-      spawnParticles();
-    });
-    super.onMount();
-  }
 
   void spawnParticles() {
     world.add(ParticleSystemComponent(
@@ -36,7 +27,6 @@ class TruckSmoke extends PositionComponent with HasGameReference<MGame>, HasWorl
               return MovingParticle(
                   from: position - Vector2(20, 0),
                   to: position + Vector2(rng.nextDouble() * 100, rng.nextDouble() * -150 - 100),
-                  // to: Vector2(Random().nextDouble() * -40 - 40, Random().nextDouble() * -100 - 100),
                   curve: Curves.easeInQuad,
                   child: ScalingParticle(
                     to: 5,
@@ -47,6 +37,18 @@ class TruckSmoke extends PositionComponent with HasGameReference<MGame>, HasWorl
                     ),
                   ));
             })));
+  }
+
+  void stopSmoke() {
+    spawnSmokeTimer?.cancel();
+  }
+
+  void resumeSmoke() {
+    if (!(spawnSmokeTimer?.isActive ?? false)) {
+      spawnSmokeTimer = Timer.periodic(Duration(milliseconds: Random().nextInt((5000 / rate).round()) + 200), (_) {
+        spawnParticles();
+      });
+    }
   }
 
   @override

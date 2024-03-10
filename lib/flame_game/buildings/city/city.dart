@@ -109,6 +109,9 @@ class City extends Building {
     //
     super.onRemove();
   }
+
+  @override
+  double get buildingCost => 0;
 }
 
 Point<int> getCityLoadTileCoordinate({required Point<int> anchorTile, required Directions direction}) {
@@ -118,7 +121,7 @@ Point<int> getCityLoadTileCoordinate({required Point<int> anchorTile, required D
     case Directions.W:
       return anchorTile + const Point<int>(-3, 0);
     case Directions.N:
-      return anchorTile + const Point<int>(-1, 2);
+      return anchorTile + const Point<int>(-1, 3);
     case Directions.E:
       return anchorTile + const Point<int>(1, 1);
   }

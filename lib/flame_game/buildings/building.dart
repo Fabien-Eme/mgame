@@ -80,6 +80,9 @@ abstract class Building extends PositionComponent with HasGameReference<MGame>, 
   BuildingType get buildingType;
 
   @mustBeOverridden
+  double get buildingCost;
+
+  @mustBeOverridden
   int get sizeInTile;
 
   @mustBeOverridden

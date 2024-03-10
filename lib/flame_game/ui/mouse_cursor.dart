@@ -8,7 +8,7 @@ import 'package:mgame/flame_game/riverpod_controllers/construction_mode_controll
 import '../../gen/assets.gen.dart';
 import '../game.dart';
 
-class MyMouseCursor extends SpriteComponent with HasGameRef<MGame>, RiverpodComponentMixin {
+class MyMouseCursor extends SpriteComponent with HasGameReference<MGame>, RiverpodComponentMixin {
   MyMouseCursor({this.mouseCursorType = MouseCursorType.base, super.position, super.size});
 
   MouseCursorType mouseCursorType;
@@ -76,11 +76,11 @@ class MyMouseCursor extends SpriteComponent with HasGameRef<MGame>, RiverpodComp
   }
 
   void hoverEnterButton() {
-    changeMouseCursorType(MouseCursorType.hand);
+    if (!game.isMobile) changeMouseCursorType(MouseCursorType.hand);
   }
 
   void hoverExitButton() {
-    changeMouseCursorType(MouseCursorType.base);
+    if (!game.isMobile) changeMouseCursorType(MouseCursorType.base);
   }
 
   void resetMouseCursor() {
@@ -88,7 +88,7 @@ class MyMouseCursor extends SpriteComponent with HasGameRef<MGame>, RiverpodComp
   }
 
   void updatePosition(Vector2 newPosition) {
-    position = newPosition + offset;
+    if (!game.isMobile) position = newPosition + offset;
   }
 }
 

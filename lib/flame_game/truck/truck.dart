@@ -82,6 +82,7 @@ class Truck extends SpriteComponent with HasGameReference<MGame>, HasWorldRefere
     spriteImagePath = getTruckAssetPath(truckType: truckType, truckAngle: truckDirection.angle);
     sprite = Sprite(game.images.fromCache(spriteImagePath));
     add(truckSmoke = TruckSmoke(rate: truckType.model.pollutionPerTile)..position = position);
+
     updatePosition(startingTile.dimetricCoordinates.convertDimetricPointToWorldCoordinates());
     updateTruckSprite(truckDirection.angle);
     paint = Paint()..filterQuality = FilterQuality.low;
@@ -151,6 +152,7 @@ class Truck extends SpriteComponent with HasGameReference<MGame>, HasWorldRefere
   ///
   /// Initiate move to a tile
   void startMove() {
+    truckSmoke.resumeSmoke();
     if (pathListCoordinates.isEmpty) {
       stopMovement();
     } else {
@@ -188,6 +190,7 @@ class Truck extends SpriteComponent with HasGameReference<MGame>, HasWorldRefere
   ///
   /// End the whole movement
   void endMovement() {
+    truckSmoke.stopSmoke();
     startingTile = currentTile;
     if (currentTask != null && !isCompletingTask) {
       isCompletingTask = true;
@@ -196,6 +199,7 @@ class Truck extends SpriteComponent with HasGameReference<MGame>, HasWorldRefere
   }
 
   stopMovement() {
+    truckSmoke.stopSmoke();
     isTruckMoving = false;
     startingTile = currentTile;
   }

@@ -158,6 +158,9 @@ class GarbageLoader extends Building {
   }
 
   @override
+  double get buildingCost => 10000;
+
+  @override
   void update(double dt) {
     timer.update(dt);
     super.update(dt);

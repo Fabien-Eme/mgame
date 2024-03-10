@@ -1,8 +1,7 @@
 import 'dart:async';
 
 import 'package:flame/components.dart';
-import 'package:flame/rendering.dart';
-import 'package:flutter/widgets.dart';
+
 import 'package:mgame/flame_game/utils/my_text_style.dart';
 
 import '../game.dart';
@@ -35,12 +34,14 @@ class Money extends PositionComponent {
     return super.onLoad();
   }
 
-  void addValue(double value) {
+  void addValue(double value, [bool hideMoney = false]) {
     valueToAdd.add(value);
     realValue += value;
 
-    if (value < 0) {
-      dropMoney(value);
+    if (!hideMoney) {
+      if (value < 0) {
+        dropMoney(value);
+      }
     }
   }
 
@@ -57,11 +58,7 @@ class Money extends PositionComponent {
   }
 
   String getText(double value) {
-    if (value >= 1000 || value <= -1000) {
-      return '${(value / 1000).toStringAsFixed(2)} K\$';
-    } else {
-      return '${value.toStringAsFixed(2)} K\$';
-    }
+    return '${(value / 1000).toStringAsFixed(2)} K\$';
   }
 
   void dropMoney(double value) {
@@ -87,8 +84,13 @@ class Money extends PositionComponent {
     /// Add or substract money
     if (valueToAdd.isNotEmpty) {
       if ((valueToAdd.first >= 0 && valueAdded < valueToAdd.first) || (valueToAdd.first < 0 && valueAdded > valueToAdd.first)) {
-        valueAdded += valueToAdd.first * dt;
-        updateValue(valueToAdd.first * dt);
+        if (valueToAdd.first < 1000 && valueToAdd.first > -1000) {
+          valueAdded += valueToAdd.first;
+          updateValue(valueToAdd.first);
+        } else {
+          valueAdded += valueToAdd.first * dt;
+          updateValue(valueToAdd.first * dt);
+        }
       } else {
         valueAdded = 0;
         valueToAdd.remove(valueToAdd.first);
