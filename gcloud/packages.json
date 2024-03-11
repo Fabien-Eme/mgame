@@ -1,7 +1,0 @@
-{
-    "name": "wallet-card-creator",
-    "version": "1.0.0",
-    "dependencies": {
-        "googleapis": "^100.0.0"
-    }
-}
