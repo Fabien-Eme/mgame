@@ -2,7 +2,6 @@ import 'dart:math';
 
 import 'package:flame/components.dart';
 import 'package:flame_riverpod/flame_riverpod.dart';
-import 'package:mgame/flame_game/buildings/city/city.dart';
 import 'package:mgame/flame_game/garbage/garbage.dart';
 import 'package:mgame/flame_game/level_world.dart';
 import 'package:uuid/uuid.dart';

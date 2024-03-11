@@ -19,12 +19,15 @@ class MainMenu extends PositionComponent with HasGameReference<MGame>, RiverpodC
   late final DialogButton settingsButton;
   late final DialogButton achievementsButton;
   late final DialogButton oraganizeEventButton;
-  late final DialogButton viewEventsbutton;
+  late final DialogButton viewEventsButton;
+  late final DialogButton viewMyEventsButton;
+  late final DialogButton validateParticipationButton;
 
   late final DialogButton connectButton;
   late final DialogButton disconnectButton;
 
   late final TextComponent userEmailComponent;
+  late final TextComponent ecoCreditsComponent;
 
   bool isLevelLoading = false;
 
@@ -64,7 +67,7 @@ class MainMenu extends PositionComponent with HasGameReference<MGame>, RiverpodC
         }
         isLevelLoading = false;
       },
-      position: Vector2(0, -150),
+      position: Vector2(0, -200),
     );
 
     connectButton = DialogButton(
@@ -92,7 +95,7 @@ class MainMenu extends PositionComponent with HasGameReference<MGame>, RiverpodC
         game.router.pushNamed('menuAchievements');
       },
       buttonSize: Vector2(225, 50),
-      position: Vector2(0, -50),
+      position: Vector2(0, -100),
     );
 
     oraganizeEventButton = DialogButton(
@@ -102,17 +105,37 @@ class MainMenu extends PositionComponent with HasGameReference<MGame>, RiverpodC
         game.overlays.add('organizeEvent');
       },
       buttonSize: Vector2(275, 50),
-      position: Vector2(-175, 50),
+      position: Vector2(-175, -12.5),
     );
 
-    viewEventsbutton = DialogButton(
-      text: 'View IRL Events',
+    viewEventsButton = DialogButton(
+      text: 'View all IRL Events',
       onPressed: () {
         game.mouseCursor = SystemMouseCursors.basic;
         game.overlays.add('viewEvents');
       },
-      buttonSize: Vector2(250, 50),
-      position: Vector2(175, 50),
+      buttonSize: Vector2(275, 50),
+      position: Vector2(-175, 67.5),
+    );
+
+    viewMyEventsButton = DialogButton(
+      text: 'My Events',
+      onPressed: () {
+        game.mouseCursor = SystemMouseCursors.basic;
+        game.overlays.add('viewMyEvents');
+      },
+      buttonSize: Vector2(225, 50),
+      position: Vector2(175, -12.5),
+    );
+
+    validateParticipationButton = DialogButton(
+      text: 'Validate Participation',
+      onPressed: () {
+        game.mouseCursor = SystemMouseCursors.basic;
+        game.overlays.add('validateParticipation');
+      },
+      buttonSize: Vector2(225, 75),
+      position: Vector2(175, 67.5),
     );
 
     disconnectButton = DialogButton(
@@ -128,12 +151,20 @@ class MainMenu extends PositionComponent with HasGameReference<MGame>, RiverpodC
       text: "",
       textRenderer: MyTextStyle.header,
       anchor: Anchor.center,
-      position: Vector2(0, 290),
+      position: Vector2(0, 250),
+    );
+
+    ecoCreditsComponent = TextComponent(
+      text: "- EcoCredits",
+      textRenderer: MyTextStyle.header,
+      anchor: Anchor.center,
+      position: Vector2(0, 285),
     );
 
     world.addAll([
       settingsButton,
       userEmailComponent,
+      ecoCreditsComponent,
     ]);
 
     return super.onLoad();
@@ -156,18 +187,37 @@ class MainMenu extends PositionComponent with HasGameReference<MGame>, RiverpodC
       if (playButton.isMounted) world.remove(playButton);
       if (disconnectButton.isMounted) world.remove(disconnectButton);
       if (achievementsButton.isMounted) world.remove(achievementsButton);
+      if (oraganizeEventButton.isMounted) world.remove(oraganizeEventButton);
+      if (viewEventsButton.isMounted) world.remove(viewEventsButton);
+      if (viewMyEventsButton.isMounted) world.remove(viewMyEventsButton);
+      if (validateParticipationButton.isMounted) world.remove(validateParticipationButton);
       userEmailComponent.text = '';
 
       world.add(connectButton);
     } else {
       if (connectButton.isMounted) world.remove(connectButton);
+      getEcoCreditsCount();
 
       userEmailComponent.text = user!.email ?? "";
       world.add(playButton);
       world.add(disconnectButton);
       world.add(achievementsButton);
       world.add(oraganizeEventButton);
-      world.add(viewEventsbutton);
+      world.add(viewEventsButton);
+      world.add(viewMyEventsButton);
+      world.add(validateParticipationButton);
     }
+  }
+
+  Future<void> getEcoCreditsCount() async {
+    final doc = await FirebaseFirestore.instance.collection('users').doc(user!.email).get();
+    final map = doc.data();
+    final count = map?['EcoCredits'] ?? 0;
+    ecoCreditsComponent.text = "$count EcoCredits";
+
+    FirebaseFirestore.instance.collection('users').doc(user!.email).snapshots().listen((event) {
+      final currentCount = event.data()?['EcoCredits'];
+      if (currentCount != null) ecoCreditsComponent.text = "$currentCount EcoCredits";
+    });
   }
 }

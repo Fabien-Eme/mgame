@@ -21,6 +21,7 @@ class MyTextStyle {
   static TextPaint nameBarWhite = TextPaint(style: const TextStyle(fontSize: 20, color: Palette.white, fontFamily: 'Play', fontWeight: FontWeight.w700));
 
   static TextPaint dialogText = TextPaint(style: const TextStyle(fontSize: 24, color: Palette.darkGrey, fontFamily: 'Play', fontWeight: FontWeight.w400));
+  static TextPaint smallText = TextPaint(style: const TextStyle(fontSize: 20, color: Palette.darkGrey, fontFamily: 'Play', fontWeight: FontWeight.w400));
 
   static TextPaint levelTitleBorder = TextPaint(
     style: TextStyle(

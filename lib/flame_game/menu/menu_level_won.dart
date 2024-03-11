@@ -79,7 +79,14 @@ class MenuLevelWon extends MenuWithoutTabs with RiverpodComponentMixin {
     await FirebaseFirestore.instance.collection('users').doc(ref.read(userControllerProvider)!.email!).update({
       "lastLevelCompleted": game.currentLevel,
       "achievements": FieldValue.arrayUnion(listAchievementsToAdd),
+      "EcoCredits": FieldValue.increment(5),
     });
+
+    for (String achievement in listAchievementsToAdd) {
+      await FirebaseFirestore.instance.collection('achievements').doc(achievement).update({
+        "citizen": FieldValue.increment(1),
+      });
+    }
   }
 
   void addMenu() {

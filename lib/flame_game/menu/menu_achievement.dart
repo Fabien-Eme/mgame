@@ -10,7 +10,7 @@ import '../../gen/assets.gen.dart';
 import '../utils/my_text_style.dart';
 
 class MenuAchievement extends MenuWithoutTabs with RiverpodComponentMixin {
-  MenuAchievement() : super(boxSize: Vector2(800, 500));
+  MenuAchievement() : super(boxSize: Vector2(800, 600));
 
   late final AddToGoogleWallet addToGoogleWallet;
   late final SpriteComponent achievementSpriteComponent;
@@ -18,6 +18,8 @@ class MenuAchievement extends MenuWithoutTabs with RiverpodComponentMixin {
   late final TextComponent loading;
 
   late final TextComponent achievementTitle;
+  late final TextComponent achievementReward;
+  late final TextComponent achievementInfo;
   List<String> listAchievements = [];
   int currentAchievementIndex = 0;
 
@@ -76,6 +78,19 @@ class MenuAchievement extends MenuWithoutTabs with RiverpodComponentMixin {
         anchor: Anchor.center,
         position: Vector2(0, -100),
       ));
+      world.add(achievementReward = TextComponent(
+        text: 'This achievement awarded you 5 EcoCredits.',
+        textRenderer: MyTextStyle.dialogText,
+        anchor: Anchor.center,
+        position: Vector2(0, 100),
+      ));
+      world.add(achievementInfo = TextComponent(
+        text:
+            'Adding this to your Google Wallet will let you show your friends your achievement.\nYou will also be able to see how many citizen have earned this achievement and\nyou will see global air pollution updated daily !',
+        textRenderer: MyTextStyle.smallText,
+        anchor: Anchor.center,
+        position: Vector2(0, 245),
+      ));
       world.add(
         achievementSpriteComponent = SpriteComponent(
           sprite: Sprite(game.images.fromCache(
@@ -100,7 +115,7 @@ class MenuAchievement extends MenuWithoutTabs with RiverpodComponentMixin {
       addToGoogleWallet = AddToGoogleWallet(
         achievementName: currentAchievement,
         userMail: ref.read(userControllerProvider)!.email!,
-        position: Vector2(0, boxSize.y / 2 - 60),
+        position: Vector2(0, 175),
       );
       world.add(addToGoogleWallet);
     }

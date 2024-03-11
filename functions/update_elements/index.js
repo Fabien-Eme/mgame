@@ -116,7 +116,7 @@ export const manuallyPatchObjects = region("us-west1").runWith({
 
 
 
-    const targetAudience = 'https://us-west1-mgame-8c88b.cloudfunctions.net/listAllObject';
+    const targetAudience = 'https://us-west1-mgame-8c88b.cloudfunctions.net/listAllAchievementObject';
     const url = targetAudience;
     const auth = new GoogleAuth();
 

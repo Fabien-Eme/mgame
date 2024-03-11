@@ -11,6 +11,8 @@ import 'package:mgame/flame_game/riverpod_controllers/user_controller.dart';
 import 'package:mgame/overlays/view_events.dart';
 
 import 'flame_game/game.dart';
+import 'overlays/validate_participation.dart';
+import 'overlays/view_my_events.dart';
 
 final GlobalKey<RiverpodAwareGameWidgetState<MGame>> gameWidgetKey = GlobalKey<RiverpodAwareGameWidgetState<MGame>>();
 
@@ -67,6 +69,8 @@ class FlameGameWidget extends ConsumerWidget {
           'signInUp': overlaySignInUp,
           'organizeEvent': organizeEvent,
           'viewEvents': viewEvents,
+          'viewMyEvents': viewMyEvents,
+          'validateParticipation': validateParticipation,
         },
       ),
     );

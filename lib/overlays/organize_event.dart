@@ -1,6 +1,9 @@
+import 'dart:math';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:mgame/flame_game/riverpod_controllers/user_controller.dart';
 
 import '../flame_game/game.dart';
 
@@ -8,67 +11,52 @@ Widget organizeEvent(BuildContext context, MGame game) {
   return OrganizeEvent(game);
 }
 
-class OrganizeEvent extends StatefulWidget {
+class OrganizeEvent extends ConsumerStatefulWidget {
   const OrganizeEvent(this.mgame, {super.key});
 
   final MGame mgame;
 
   @override
-  State<OrganizeEvent> createState() => _OrganizeEventState();
+  OrganizeEventState createState() => OrganizeEventState();
 }
 
-class _OrganizeEventState extends State<OrganizeEvent> {
+class OrganizeEventState extends ConsumerState<OrganizeEvent> {
   final formKey = GlobalKey<FormState>();
-  final auth = FirebaseAuth.instance;
   final db = FirebaseFirestore.instance;
-  String email = '';
-  String password = '';
-  bool isLogin = false;
-  String errorMessage = '';
+  String title = '';
+  String description = '';
+  String dateAndAdress = '';
   bool isTryingToConnect = false;
 
   void _submitForm() async {
     if (!isTryingToConnect) {
       isTryingToConnect = true;
 
-      final isValid = formKey.currentState?.validate();
-      if (!(isValid ?? false)) return;
-
       formKey.currentState?.save();
-      try {
-        if (isLogin) {
-          await auth.signInWithEmailAndPassword(email: email.toLowerCase(), password: password);
-        } else {
-          await auth.createUserWithEmailAndPassword(email: email.toLowerCase(), password: password);
-          await db.collection("users").doc(email.toLowerCase()).set({
-            'achievements': [],
-            'lastLevelCompleted': 0,
-          });
-        }
 
-        widget.mgame.overlays.remove('signInUp');
-        widget.mgame.mouseCursor = SystemMouseCursors.none;
-      } on FirebaseAuthException catch (e) {
-        isTryingToConnect = false;
-        if (e.code == 'unknown-error') {
-          setState(() => errorMessage = 'No account for this email. Create one');
-        } else {
-          setState(() => errorMessage = e.code);
-        }
+      const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+      Random random = Random();
+      String code = '';
+
+      for (int i = 0; i < 6; i++) {
+        int randomIndex = random.nextInt(chars.length);
+        code += chars[randomIndex];
       }
-    }
-  }
 
-  void _resetPassword() async {
-    if (email.isEmpty) {
-      setState(() => errorMessage = 'Enter an Email');
-      return;
-    }
-    try {
-      await auth.sendPasswordResetEmail(email: email);
-      setState(() => errorMessage = "Password reset email sent");
-    } on FirebaseAuthException catch (e) {
-      setState(() => errorMessage = e.code);
+      await db.collection("events").add({
+        'title': title,
+        'description': description,
+        'dateAndAdress': dateAndAdress,
+        'date': FieldValue.serverTimestamp(),
+        'user': ref.read(userControllerProvider)?.email ?? "",
+        'numberOfParticipants': 0,
+        'code': code,
+      });
+
+      widget.mgame.overlays.remove('organizeEvent');
+      widget.mgame.mouseCursor = SystemMouseCursors.none;
+
+      isTryingToConnect = false;
     }
   }
 
@@ -120,49 +108,41 @@ class _OrganizeEventState extends State<OrganizeEvent> {
                                   ),
                                   const SizedBox(height: 10),
                                   const Text(
-                                    'Describe what the participants will do :',
+                                    'Title of the Event:',
                                     style: TextStyle(fontSize: 16),
                                   ),
                                   Container(
                                     padding: const EdgeInsets.symmetric(horizontal: 8),
                                     color: Colors.white,
                                     child: TextFormField(
-                                      onSaved: (value) => email = value!,
+                                      onSaved: (value) => title = value!,
+                                    ),
+                                  ),
+                                  const SizedBox(height: 20),
+                                  const Text(
+                                    'Describe what the participants will do:',
+                                    style: TextStyle(fontSize: 16),
+                                  ),
+                                  Container(
+                                    padding: const EdgeInsets.symmetric(horizontal: 8),
+                                    color: Colors.white,
+                                    child: TextFormField(
+                                      onSaved: (value) => description = value!,
                                       maxLines: 4,
                                     ),
                                   ),
                                   const SizedBox(height: 20),
                                   const Text(
-                                    'Adress of the event :',
+                                    'Date, Time and Adress of the event:',
                                     style: TextStyle(fontSize: 16),
                                   ),
                                   Container(
                                     padding: const EdgeInsets.symmetric(horizontal: 8),
                                     color: Colors.white,
                                     child: TextFormField(
-                                      onSaved: (value) => email = value!,
+                                      onSaved: (value) => dateAndAdress = value!,
                                       maxLines: 4,
                                     ),
-                                  ),
-                                  const SizedBox(height: 20),
-                                  Row(
-                                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                                    children: [
-                                      ElevatedButton(
-                                        onPressed: () {
-                                          widget.mgame.overlays.remove('organizeEvent');
-                                          widget.mgame.mouseCursor = SystemMouseCursors.none;
-                                        },
-                                        child: const Text(
-                                          'Cancel',
-                                          style: TextStyle(color: Colors.red),
-                                        ),
-                                      ),
-                                      ElevatedButton(
-                                        onPressed: _submitForm,
-                                        child: const Text('Confirm Event'),
-                                      ),
-                                    ],
                                   ),
                                 ],
                               ),
@@ -175,12 +155,32 @@ class _OrganizeEventState extends State<OrganizeEvent> {
                       width: (constraints.maxWidth / 3 > 500) ? 500 : constraints.maxWidth / 3,
                       height: (constraints.maxHeight / 1.3 > 480) ? 480 : constraints.maxHeight / 1.3,
                       padding: const EdgeInsets.all(8),
-                      child: const Column(
+                      child: Column(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          Text(
-                            'We offer you the possibility to organize waste cleaning events in real life.\nInspire other people to take action around the world.\n\nYou will earn rewards according to the number of participants to your event. Each participant will get a fixed reward for attending the event.\n\nAfter you confirm your event, you will get a google wallet pass to share the event and invite people in real life.\nYou will also get a second pass the day before the event. This one will allow you to reward the participants. By flashing the QR Code, they will get a reward in-game.\n\nKeep in mind that your event will be public and viewable by everyone.',
+                          const Text(
+                            'We offer you the possibility to organize waste cleaning events in real life.\nInspire other people to take action around the world.\n\nYou will earn 10 EcoCredits per participants to your event. Each participant will get 10 EcoCredits for attending the event.\n\nAfter you confirm your event, go to "My Events" to get a google wallet pass that will allow you to reward the participants. By flashing the QR Code, they will get a code to get their reward in-game.\n\nKeep in mind that your event will be public and viewable by everyone.',
                             style: TextStyle(fontSize: 16),
+                          ),
+                          const SizedBox(height: 20),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                            children: [
+                              ElevatedButton(
+                                onPressed: () {
+                                  widget.mgame.overlays.remove('organizeEvent');
+                                  widget.mgame.mouseCursor = SystemMouseCursors.none;
+                                },
+                                child: const Text(
+                                  'Cancel',
+                                  style: TextStyle(color: Colors.red),
+                                ),
+                              ),
+                              ElevatedButton(
+                                onPressed: _submitForm,
+                                child: const Text('Confirm Event'),
+                              ),
+                            ],
                           ),
                         ],
                       ),

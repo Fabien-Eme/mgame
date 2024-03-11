@@ -5,10 +5,11 @@ import 'package:flutter/material.dart';
 
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:mgame/firebase_options.dart';
 import 'package:mgame/flame_game_widget.dart';
+import 'package:wakelock_plus/wakelock_plus.dart';
 
 import 'package:firebase_core/firebase_core.dart';
-import 'firebase_options.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -35,7 +36,7 @@ void main() async {
     }
   }
   if (isMobile) {
-    // WakelockPlus.enable();
+    WakelockPlus.enable();
   }
 
   // Put game into full screen mode on mobile devices.
