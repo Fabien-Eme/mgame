@@ -128,7 +128,7 @@ class MGame extends FlameGame with MouseMovementDetector, ScrollDetector, MultiT
     mouseCursor = SystemMouseCursors.none;
 
     /// Add Custom Mouse Cursor
-    camera.viewport.add(myMouseCursor);
+    if (!isMobile) camera.viewport.add(myMouseCursor);
 
     /// Add Audio controller
     add(audioController);

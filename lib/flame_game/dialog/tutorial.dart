@@ -63,7 +63,7 @@ class Tutorial extends Component with HasGameReference<MGame> {
         radius: (dialogHighlightRadius.isEmpty) ? 0 : dialogHighlightRadius.first,
       ));
 
-      if (dialogHighlightPositions.length == 8) {
+      if (dialogHighlightPositions.length == 9) {
         Future.delayed(const Duration(milliseconds: 500)).then((_) {
           game.router.previousRoute?.resumeTime();
           (game.findByKeyName('level') as Level?)
@@ -74,7 +74,7 @@ class Tutorial extends Component with HasGameReference<MGame> {
         Future.delayed(const Duration(milliseconds: 2500)).then((_) => game.router.previousRoute?.stopTime());
       }
 
-      if (dialogHighlightPositions.length == 7) {
+      if (dialogHighlightPositions.length == 8) {
         game.router.previousRoute?.resumeTime();
         Future.delayed(const Duration(milliseconds: 6000)).then((_) => game.router.previousRoute?.stopTime());
         for (int i = 0; i < 25; i++) {
@@ -86,7 +86,7 @@ class Tutorial extends Component with HasGameReference<MGame> {
         (game.findByKeyName('level') as Level?)?.levelWorld.constructionController.construct(posDimetric: const Point<int>(31, 1), tileType: TileType.road);
       }
 
-      if (dialogHighlightPositions.length == 3) {
+      if (dialogHighlightPositions.length == 4) {
         game.router.previousRoute?.resumeTime();
         Future.delayed(const Duration(milliseconds: 2500)).then((_) => game.router.previousRoute?.stopTime());
         Future.delayed(const Duration(seconds: 1)).then((_) {

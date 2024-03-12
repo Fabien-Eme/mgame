@@ -1,3 +1,5 @@
+import 'dart:ui';
+
 import 'package:flame/components.dart';
 import 'package:flame/events.dart';
 
@@ -40,6 +42,7 @@ class UIRotateBuildingButton extends SpriteComponent with HasGameRef<MGame>, Tap
   @override
   void onMount() async {
     sprite = Sprite(game.images.fromCache(Assets.images.ui.rotateBuilding.path));
+    paint = Paint()..filterQuality = FilterQuality.low;
     super.onMount();
   }
 
