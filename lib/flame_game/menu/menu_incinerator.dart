@@ -4,7 +4,6 @@ import 'package:flame_riverpod/flame_riverpod.dart';
 
 import '../level.dart';
 import '../riverpod_controllers/user_controller.dart';
-import '../ui/pollution_bar.dart';
 import '../utils/my_text_style.dart';
 
 import 'dialog_button.dart';

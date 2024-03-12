@@ -37,26 +37,26 @@ class TruckModel {
       maxLoad: 15,
     );
   }
+  factory TruckModel.purple() {
+    return TruckModel(
+      truckType: TruckType.purple,
+      name: "Natural Gas Truck",
+      buyCost: 12000,
+      costPerTick: 12,
+      buyPollution: 800,
+      pollutionPerTile: 6,
+      maxLoad: 12,
+    );
+  }
   factory TruckModel.blue() {
     return TruckModel(
       truckType: TruckType.blue,
       name: "Electric Truck",
       buyCost: 20000,
       costPerTick: 8,
-      buyPollution: 2500,
+      buyPollution: 250,
       pollutionPerTile: 1,
       maxLoad: 10,
-    );
-  }
-  factory TruckModel.purple() {
-    return TruckModel(
-      truckType: TruckType.purple,
-      name: "Natural Gas Truck",
-      buyCost: 12000,
-      costPerTick: 13,
-      buyPollution: 1000,
-      pollutionPerTile: 8,
-      maxLoad: 12,
     );
   }
 }

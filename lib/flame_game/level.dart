@@ -34,6 +34,9 @@ class Level extends PositionComponent with HasGameReference<MGame>, RiverpodComp
 
   late final Money money;
 
+  bool isPurpleTruckAvailable = false;
+  bool isBlueTruckAvailable = false;
+
   @override
   FutureOr<void> onLoad() async {
     super.onLoad();
@@ -89,7 +92,13 @@ class Level extends PositionComponent with HasGameReference<MGame>, RiverpodComp
       garbageBar = GarbageBar(
         title: 'GARBAGE PROCESSED',
         totalBarValue: mapLevel[level.toString()]!["garbageTarget"]! as double,
-        onComplete: () => game.router.pushNamed('levelWon'),
+        onComplete: () {
+          if (game.lastLevelCompleted == 2) {
+            game.router.pushNamed('gameWon');
+          } else {
+            game.router.pushNamed('levelWon');
+          }
+        },
       ),
     ]);
 
@@ -122,6 +131,13 @@ class Level extends PositionComponent with HasGameReference<MGame>, RiverpodComp
         "pollutionLimit": 20000.0 - (1 - globalAirQualityValue / 100) * 5000,
         "garbageTarget": 200.0,
         "startingMoney": 65000.0,
+      },
+      "3": {
+        "levelTitle": "Level 3 - Mission: Impossible",
+        "pollutionLimit": 45000.0 - (1 - globalAirQualityValue / 100) * 5000,
+        "garbageTarget": 1.0,
+        // "garbageTarget": 400.0,
+        "startingMoney": 75000.0,
       },
     };
   }

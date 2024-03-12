@@ -3,6 +3,8 @@ import 'package:mgame/flame_game/menu/menu_garage/all_trucks.dart';
 import 'package:mgame/flame_game/menu/menu_garage/buy_sell.dart';
 import 'package:mgame/flame_game/menu/menu_with_tabs.dart';
 
+import 'upgrades.dart';
+
 class MenuGarage extends MenuWithTabs {
   MenuGarage()
       : super(
@@ -10,6 +12,7 @@ class MenuGarage extends MenuWithTabs {
           mapDialogTab: {
             "Buy / Sell": () => BuySellContent(boxSize: Vector2(900, 525)),
             "All Trucks": () => AllTrucksContent(boxSize: Vector2(900, 525)),
+            "Upgrades": () => UpgradeTrucksContent(boxSize: Vector2(900, 525)),
           },
         );
 }

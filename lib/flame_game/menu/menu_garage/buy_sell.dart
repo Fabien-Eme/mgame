@@ -18,6 +18,9 @@ class BuySellContent extends Component with HasGameReference<MGame>, RiverpodCom
 
   TextBoxComponent? textBoxComponentDescriptionTruck;
   TextBoxComponent? textBoxComponentTitleTruck;
+
+  late final DialogButton buyTruckButton;
+
   TruckType? currentTruckType;
   int numberOfCurrentTruckOwned = 0;
 
@@ -30,23 +33,20 @@ class BuySellContent extends Component with HasGameReference<MGame>, RiverpodCom
       position: Vector2(0, -boxSize.y / 2 + 20),
     ));
 
-    add(DialogButton(
+    add(TextComponent(
+      text: "Need upgrade first",
+      textRenderer: MyTextStyle.text,
+      anchor: Anchor.center,
+      position: Vector2(0, boxSize.y / 2 - 50),
+    ));
+
+    add(buyTruckButton = DialogButton(
       text: 'Buy Truck',
       onPressed: () {
         (game.findByKeyName('level') as Level).levelWorld.truckController.buyTruck(currentTruckType!);
       },
       buttonSize: Vector2(200, 50),
-      position: Vector2(boxSize.x / 5, boxSize.y / 2 - 50),
-    ));
-
-    add(DialogButton(
-      text: 'Sell Truck',
-      onPressed: () {
-        //game.truckController.sellTruck(currentTruckType!);
-      },
-      textStyle: MyTextStyle.buttonRed,
-      buttonSize: Vector2(200, 50),
-      position: Vector2(-boxSize.x / 5, boxSize.y / 2 - 50),
+      position: Vector2(0, boxSize.y / 2 - 50),
     ));
 
     return super.onLoad();
@@ -66,6 +66,26 @@ class BuySellContent extends Component with HasGameReference<MGame>, RiverpodCom
 
   void changeTruckType(TruckType truckType) async {
     currentTruckType = truckType;
+
+    if (currentTruckType == TruckType.yellow) {
+      if (buyTruckButton.isRemoved) add(buyTruckButton);
+    }
+
+    if (currentTruckType == TruckType.purple) {
+      if ((game.findByKeyName('level') as Level).isPurpleTruckAvailable) {
+        if (buyTruckButton.isRemoved) add(buyTruckButton);
+      } else {
+        if (buyTruckButton.isMounted) remove(buyTruckButton);
+      }
+    }
+
+    if (currentTruckType == TruckType.blue) {
+      if ((game.findByKeyName('level') as Level).isBlueTruckAvailable) {
+        if (buyTruckButton.isRemoved) add(buyTruckButton);
+      } else {
+        if (buyTruckButton.isMounted) remove(buyTruckButton);
+      }
+    }
 
     if (textBoxComponentDescriptionTruck != null && textBoxComponentTitleTruck != null) {
       await textBoxComponentTitleTruck!.mounted;

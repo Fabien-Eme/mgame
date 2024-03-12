@@ -264,7 +264,7 @@ class TaskController extends Component with HasGameReference<MGame>, HasWorldRef
           (game.findByKeyName('garbageBar') as GarbageBar).addValue(truck.loadQuantity.toDouble());
           (game.findByKeyName('level') as Level).money.addValue(truck.loadQuantity.toDouble() * 100 * (task.taskBuilding as Incinerator).moneyBonus, false);
 
-          if (!game.currentIncinerator!.isRecycler) {
+          if (!(game.currentIncinerator?.isRecycler ?? false)) {
             (game.findByKeyName('pollutionBar') as PollutionBar).addValue(truck.loadQuantity.toDouble() * 50 * (task.taskBuilding as Incinerator).pollutionReduction);
             (task.taskBuilding as Incinerator).incineratorSmoke.resumeSmokeForDuration(const Duration(seconds: 5));
           }
@@ -272,7 +272,7 @@ class TaskController extends Component with HasGameReference<MGame>, HasWorldRef
           (task.taskBuilding as Incinerator).showGarbageProcessedTick(quantity: (truck.loadQuantity));
 
           await Future.delayed(const Duration(seconds: 1));
-          if (!game.currentIncinerator!.isRecycler) {
+          if (!(game.currentIncinerator?.isRecycler ?? false)) {
             (task.taskBuilding as Incinerator).showPollutionTick(quantity: (truck.loadQuantity.toDouble() * 50).round());
           }
           truck.loadQuantity = 0;

@@ -105,6 +105,12 @@ class LevelWorld extends World with HasGameReference<MGame>, IgnoreEvents {
         await gridController.internalBuildOnTile(coordinates: const Point<int>(10, -6), buildingType: BuildingType.city, direction: Directions.E, hideMoney: true, cityType: CityType.polluting);
         await gridController.internalBuildOnTile(coordinates: const Point<int>(17, -13), buildingType: BuildingType.city, direction: Directions.N, hideMoney: true, cityType: CityType.normal);
         break;
+      case 3:
+        await gridController.internalBuildOnTile(coordinates: const Point<int>(19, 0), buildingType: BuildingType.garage, direction: Directions.S, hideMoney: true);
+        await gridController.internalBuildOnTile(coordinates: const Point<int>(6, -3), buildingType: BuildingType.city, direction: Directions.E, hideMoney: true, cityType: CityType.polluting);
+        await gridController.internalBuildOnTile(coordinates: const Point<int>(29, -2), buildingType: BuildingType.city, direction: Directions.E, hideMoney: true, cityType: CityType.polluting);
+        await gridController.internalBuildOnTile(coordinates: const Point<int>(23, 13), buildingType: BuildingType.city, direction: Directions.S, hideMoney: true, cityType: CityType.polluting);
+        break;
     }
   }
 }

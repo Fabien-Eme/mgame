@@ -33,6 +33,7 @@ import 'level.dart';
 import 'menu/briefing.dart';
 import 'menu/menu_achievement.dart';
 import 'menu/menu_city.dart';
+import 'menu/menu_game_won.dart';
 import 'menu/menu_level_lost.dart';
 import 'menu/menu_level_won.dart';
 import 'menu/menu_settings.dart';
@@ -139,9 +140,11 @@ class MGame extends FlameGame with MouseMovementDetector, ScrollDetector, MultiT
           ///
           'level1': RouteCanIgnoreEvents(() => Level(level: 1, key: ComponentKey.named('level')), maintainState: false),
           'level2': RouteCanIgnoreEvents(() => Level(level: 2, key: ComponentKey.named('level')), maintainState: false),
+          'level3': RouteCanIgnoreEvents(() => Level(level: 3, key: ComponentKey.named('level')), maintainState: false),
 
           ///
           'levelWon': RouteMakeOtherIgnoreEvents(MenuLevelWon.new, transparent: true, maintainState: false),
+          'gameWon': RouteMakeOtherIgnoreEvents(MenuGameWon.new, transparent: true, maintainState: false),
           'levelLost': RouteMakeOtherIgnoreEvents(MenuLevelLost.new, transparent: true, maintainState: false),
           'tutorial': RouteMakeOtherIgnoreEvents(Tutorial.new, transparent: true, maintainState: false),
           'briefing': RouteMakeOtherIgnoreEvents(Briefing.new, transparent: true, maintainState: false),

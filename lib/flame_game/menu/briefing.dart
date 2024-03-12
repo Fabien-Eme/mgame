@@ -19,7 +19,7 @@ class Briefing extends MenuWithoutTabs {
     ///
     /// TITLE
     title = TextComponent(
-      text: "Two cites : The good, The bad, ...",
+      text: getComponentTitle(),
       textRenderer: MyTextStyle.briefingTitle,
       anchor: Anchor.topCenter,
       position: Vector2(0, -boxSize.y / 2 + 20),
@@ -29,8 +29,7 @@ class Briefing extends MenuWithoutTabs {
     ///
     /// TEXT
     text = TextBoxComponent(
-      text:
-          "This time, you'll have to manage the waste from two cities simultaneously.\n\nThe inhabitants of one of these two towns are careful about their waste and try to reduce it by prioritizing second-hand items, limiting the purchase of plastic items, avoiding non-recyclable packaging, etc.\n\nResidents of the other city consume as they please. The consequences are obvious and dramatic: a lot of waste is generated, and therefore a lot of pollution to deal with!\n\nFill up your processed waste gauge without exceeding the pollution limit!",
+      text: getComponentText(),
       textRenderer: MyTextStyle.briefingText,
       anchor: Anchor.topLeft,
       size: Vector2(boxSize.x - 20, boxSize.y - 120),
@@ -56,14 +55,34 @@ class Briefing extends MenuWithoutTabs {
     world.add(buttonConfirm);
   }
 
-  void getComponentText() {
-    switch (game.currentLevel) {}
+  String getComponentTitle() {
+    switch (game.currentLevel) {
+      case 2:
+        return "Two cites : The good, The bad, ...";
+      case 3:
+        return "Mission: Impossible";
+      default:
+        return "";
+    }
+  }
+
+  String getComponentText() {
+    switch (game.currentLevel) {
+      case 2:
+        return "This time, you'll have to manage the waste from two cities simultaneously.\n\nThe inhabitants of one of these two towns are careful about their waste and try to reduce it by prioritizing second-hand items, limiting the purchase of plastic items, avoiding non-recyclable packaging, etc.\n\nResidents of the other city consume as they please. The consequences are obvious and dramatic: a lot of waste is generated, and therefore a lot of pollution to deal with!\n\nFill up your processed waste gauge without exceeding the pollution limit!";
+      case 3:
+        return "You're faced with an almost insurmountable task. That's the real reason you're here. No one has yet managed to deal with this situation.\n\n If I can give you one piece of advice: you're going to need your EcoCredits!";
+      default:
+        return "";
+    }
   }
 
   Vector2 getBoxSize(int level) {
     switch (level) {
       case 2:
         return Vector2(800, 475);
+      case 3:
+        return Vector2(800, 300);
       default:
         return Vector2(800, 500);
     }
