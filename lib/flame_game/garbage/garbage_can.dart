@@ -61,6 +61,11 @@ class GarbageCan extends Garbage {
     super.changeNumber(stackQuantity);
     if (hasNumber) numberDisplay!.changeNumber(stackQuantity);
   }
+
+  @override
+  void stopPollutionGeneration() {
+    if (hasNumber) numberDisplay!.stopPollutionGeneration();
+  }
 }
 
 class GarbageCanComponent extends SpriteComponent with HasGameReference {

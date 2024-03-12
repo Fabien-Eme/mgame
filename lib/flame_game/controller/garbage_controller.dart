@@ -40,6 +40,14 @@ class GarbageController extends Component with HasGameReference<MGame>, HasWorld
     garbage.position = building.finalGarbagePosition;
   }
 
+  void updateGarbageStack({required String garbageStackId, required double garbageRate}) {
+    mapDeltaTime[garbageStackId] = 2 / garbageRate;
+  }
+
+  void stopPollutionGeneration({required String garbageStackId}) {
+    mapGarbageStack[garbageStackId]!.stopPollutionGeneration();
+  }
+
   ///
   ///
   /// Generate Garbage
@@ -148,5 +156,9 @@ class GarbageStack {
   void changeStackQuantity(int i) {
     stackQuantity += i;
     component.changeNumber(stackQuantity);
+  }
+
+  void stopPollutionGeneration() {
+    component.stopPollutionGeneration();
   }
 }

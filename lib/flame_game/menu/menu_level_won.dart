@@ -101,7 +101,7 @@ class MenuLevelWon extends MenuWithoutTabs with RiverpodComponentMixin {
       text: 'Next Level',
       onPressed: () {
         game.router.popUntilNamed('mainMenu');
-        game.router.pushReplacementNamed('level${game.currentLevel}');
+        game.router.pushNamed('level${game.currentLevel}');
       },
       buttonSize: Vector2(175, 50),
       position: Vector2(boxSize.x / 5, boxSize.y / 2 - 50),

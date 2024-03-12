@@ -10,6 +10,7 @@ import 'package:flame_audio/flame_audio.dart';
 import 'package:flame_riverpod/flame_riverpod.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart' hide Route;
+import 'package:mgame/flame_game/buildings/city/city.dart';
 import 'package:mgame/flame_game/dialog/dialog_window.dart';
 import 'package:mgame/flame_game/level_world.dart';
 
@@ -18,23 +19,26 @@ import 'package:flame/src/events/flame_game_mixins/multi_drag_dispatcher.dart';
 
 import 'package:mgame/flame_game/menu/main_menu.dart';
 import 'package:mgame/flame_game/menu/menu_garage/menu_garage.dart';
+import 'package:mgame/flame_game/menu/menu_incinerator.dart';
 import 'package:mgame/flame_game/router/route_can_ignore_events.dart';
 
 import 'package:mgame/flame_game/utils/game_assets.dart';
 
+import 'buildings/building.dart';
+import 'buildings/incinerator/incinerator.dart';
 import 'controller/audio_controller.dart';
 
 import 'dialog/tutorial.dart';
 import 'level.dart';
 import 'menu/briefing.dart';
 import 'menu/menu_achievement.dart';
+import 'menu/menu_city.dart';
+import 'menu/menu_level_lost.dart';
 import 'menu/menu_level_won.dart';
 import 'menu/menu_settings.dart';
 import 'router/route_make_other_ignore_events.dart';
 import 'ui/mouse_cursor.dart';
 import 'utils/palette.dart';
-
-/// Possibilité d'organiser event irl. L'owner reçoit un achievemnt organiser + un pass à faire scanner au participants. Callback sur le pass -> reward pour les participants et pour l'owner selon le nombre de participant
 
 class MGame extends FlameGame with MouseMovementDetector, ScrollDetector, MultiTouchDragDetector, TapDetector, SecondaryTapDetector, TertiaryTapDetector, KeyboardEvents, RiverpodGameMixin {
   static const double gameWidth = 2000;
@@ -71,9 +75,12 @@ class MGame extends FlameGame with MouseMovementDetector, ScrollDetector, MultiT
 
   bool isMouseDragging = false;
   bool isMouseHoveringUI = false;
-  bool isMouseHoveringBuilding = false;
+  Building? isMouseHoveringBuilding;
   bool isMouseHoveringOverlay = false;
   bool isMouseHoveringOverlayButton = false;
+
+  City? currentCity;
+  Incinerator? currentIncinerator;
 
   final MyMouseCursor myMouseCursor = MyMouseCursor();
   final AudioController audioController = AudioController();
@@ -125,16 +132,24 @@ class MGame extends FlameGame with MouseMovementDetector, ScrollDetector, MultiT
     add(
       router = RouterComponent(
         routes: {
-          //'splash': Route(SplashScreenPage.new),
           'mainMenu': RouteCanIgnoreEvents(MainMenu.new, maintainState: false),
+          'menuSettings': RouteMakeOtherIgnoreEvents(MenuSettings.new, transparent: true, maintainState: false),
+          'menuAchievements': RouteMakeOtherIgnoreEvents(MenuAchievement.new, transparent: true, maintainState: false),
+
+          ///
           'level1': RouteCanIgnoreEvents(() => Level(level: 1, key: ComponentKey.named('level')), maintainState: false),
           'level2': RouteCanIgnoreEvents(() => Level(level: 2, key: ComponentKey.named('level')), maintainState: false),
-          'menuSettings': RouteMakeOtherIgnoreEvents(MenuSettings.new, transparent: true, maintainState: false),
-          'menuGarage': RouteMakeOtherIgnoreEvents(MenuGarage.new, doesPutGameInPause: false, transparent: true, maintainState: false),
+
+          ///
           'levelWon': RouteMakeOtherIgnoreEvents(MenuLevelWon.new, transparent: true, maintainState: false),
-          'menuAchievements': RouteMakeOtherIgnoreEvents(MenuAchievement.new, transparent: true, maintainState: false),
+          'levelLost': RouteMakeOtherIgnoreEvents(MenuLevelLost.new, transparent: true, maintainState: false),
           'tutorial': RouteMakeOtherIgnoreEvents(Tutorial.new, transparent: true, maintainState: false),
           'briefing': RouteMakeOtherIgnoreEvents(Briefing.new, transparent: true, maintainState: false),
+
+          ///
+          'menuGarage': RouteMakeOtherIgnoreEvents(MenuGarage.new, doesPutGameInPause: false, transparent: true, maintainState: false),
+          'menuCity': RouteMakeOtherIgnoreEvents(MenuCity.new, doesPutGameInPause: false, transparent: true, maintainState: false),
+          'menuIncinerator': RouteMakeOtherIgnoreEvents(MenuIncinerator.new, doesPutGameInPause: false, transparent: true, maintainState: false),
         },
         initialRoute: 'mainMenu',
       ),

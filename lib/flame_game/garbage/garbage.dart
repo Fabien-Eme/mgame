@@ -34,6 +34,8 @@ abstract class Garbage extends PositionComponent with HasGameReference<MGame>, H
   }
 
   void changeNumber(int stackQuantity) {}
+
+  void stopPollutionGeneration() {}
 }
 
 Garbage createGarbage({required GarbageType garbageType, required Building anchorBuilding, bool hasNumber = false}) {

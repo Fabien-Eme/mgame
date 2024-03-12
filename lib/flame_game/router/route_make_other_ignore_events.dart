@@ -8,14 +8,18 @@ class RouteMakeOtherIgnoreEvents extends Route {
 
   @override
   void onPush(Route? previousRoute) {
-    (previousRoute as RouteCanIgnoreEvents?)?.ignoreEvents = true;
+    if (previousRoute.runtimeType == RouteCanIgnoreEvents) {
+      (previousRoute as RouteCanIgnoreEvents?)?.ignoreEvents = true;
+    }
     if (doesPutGameInPause) previousRoute?.stopTime();
     super.onPush(previousRoute);
   }
 
   @override
   void onPop(Route nextRoute) {
-    (nextRoute as RouteCanIgnoreEvents).ignoreEvents = false;
+    if (nextRoute.runtimeType == RouteCanIgnoreEvents) {
+      (nextRoute as RouteCanIgnoreEvents).ignoreEvents = false;
+    }
     if (doesPutGameInPause) nextRoute.resumeTime();
     super.onPop(nextRoute);
   }

@@ -9,7 +9,6 @@ import 'package:mgame/flame_game/buildings/incinerator/incinerator_front.dart';
 import 'package:mgame/flame_game/particle/incinerator_smoke.dart';
 import 'package:mgame/flame_game/ui/show_garbage_processed_tick.dart';
 import 'package:mgame/flame_game/ui/show_pollution_tick.dart';
-import 'package:mgame/flame_game/utils/palette.dart';
 
 import '../../game.dart';
 import '../../utils/convert_coordinates.dart';
@@ -31,6 +30,10 @@ class Incinerator extends Building {
 
   final IncineratorSmoke incineratorSmoke = IncineratorSmoke(rate: 10);
   Vector2 showTickPosition = Vector2.zero();
+
+  double pollutionReduction = 1;
+  double moneyBonus = 1;
+  bool isRecycler = false;
 
   @override
   FutureOr<void> onLoad() {
@@ -207,5 +210,11 @@ class Incinerator extends Building {
     world.add(ShowGarbageProcessedTick(quantity: quantity)
       ..position = showTickPosition
       ..priority = 1000);
+  }
+
+  void upgradeToRecycler() {
+    isRecycler = true;
+    incineratorFront.isRecycler = true;
+    incineratorFront.updateSprite();
   }
 }

@@ -112,7 +112,9 @@ class ProgressBar extends PositionComponent with HasGameReference<MGame> {
   void updateValue(double value) {
     currentBarValue += value;
     currentBarValue = currentBarValue.clamp(0, totalBarValue);
+
     barProgress += value / totalBarValue;
+
     barProgress = barProgress.clamp(0, 1);
     updateBarProgress();
 
@@ -136,7 +138,7 @@ class ProgressBar extends PositionComponent with HasGameReference<MGame> {
 
   @override
   void update(double dt) {
-    if (valueAdded < valueToAdd) {
+    if ((valueToAdd > 0 && valueAdded < valueToAdd) || (valueToAdd < 0 && valueAdded > valueToAdd)) {
       valueAdded += valueToAdd * dt;
       updateValue(valueToAdd * dt);
     } else {

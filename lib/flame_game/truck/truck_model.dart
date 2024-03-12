@@ -1,16 +1,16 @@
 enum TruckType {
   yellow,
-  blue,
-  purple;
+  purple,
+  blue;
 
   TruckModel get model {
     switch (this) {
       case TruckType.yellow:
         return TruckModel.yellow();
-      case TruckType.blue:
-        return TruckModel.blue();
       case TruckType.purple:
         return TruckModel.purple();
+      case TruckType.blue:
+        return TruckModel.blue();
     }
   }
 }

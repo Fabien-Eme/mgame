@@ -1,6 +1,7 @@
 import 'dart:math';
 
 import 'package:flame/components.dart' hide Timer;
+import 'package:mgame/flame_game/buildings/city/city.dart';
 
 import 'buildings/building.dart';
 import 'game.dart';
@@ -101,8 +102,8 @@ class LevelWorld extends World with HasGameReference<MGame>, IgnoreEvents {
         break;
       case 2:
         await gridController.internalBuildOnTile(coordinates: const Point<int>(24, 9), buildingType: BuildingType.garage, direction: Directions.S, hideMoney: true);
-        await gridController.internalBuildOnTile(coordinates: const Point<int>(10, -6), buildingType: BuildingType.city, direction: Directions.E, hideMoney: true, cityRate: 2);
-        await gridController.internalBuildOnTile(coordinates: const Point<int>(17, -13), buildingType: BuildingType.city, direction: Directions.N, hideMoney: true, cityRate: 1);
+        await gridController.internalBuildOnTile(coordinates: const Point<int>(10, -6), buildingType: BuildingType.city, direction: Directions.E, hideMoney: true, cityType: CityType.polluting);
+        await gridController.internalBuildOnTile(coordinates: const Point<int>(17, -13), buildingType: BuildingType.city, direction: Directions.N, hideMoney: true, cityType: CityType.normal);
         break;
     }
   }

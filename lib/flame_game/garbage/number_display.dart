@@ -19,6 +19,7 @@ class NumberDisplay extends PositionComponent with HasGameReference<MGame>, HasW
   late final TextComponent textComponent;
   int numberToDisplay = 0;
   bool isGeneratingPollution = false;
+  bool canGeneratePollution = true;
 
   @override
   FutureOr<void> onLoad() {
@@ -78,7 +79,7 @@ class NumberDisplay extends PositionComponent with HasGameReference<MGame>, HasW
 
   @override
   void update(double dt) {
-    if (isGeneratingPollution) {
+    if (isGeneratingPollution && canGeneratePollution) {
       timeElapsed += dt;
 
       if (timeElapsed >= 1) {
@@ -91,6 +92,10 @@ class NumberDisplay extends PositionComponent with HasGameReference<MGame>, HasW
     }
 
     super.update(dt);
+  }
+
+  void stopPollutionGeneration() {
+    canGeneratePollution = false;
   }
 }
 

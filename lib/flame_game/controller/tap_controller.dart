@@ -1,10 +1,13 @@
 import 'package:flame/components.dart';
 import 'package:flame/events.dart';
 import 'package:flame_riverpod/flame_riverpod.dart';
+import 'package:mgame/flame_game/buildings/building.dart';
+import 'package:mgame/flame_game/buildings/incinerator/incinerator.dart';
 import 'package:mgame/flame_game/level_world.dart';
 import 'package:mgame/flame_game/riverpod_controllers/construction_mode_controller.dart';
 import 'package:mgame/flame_game/riverpod_controllers/ui_controller.dart';
 
+import '../buildings/city/city.dart';
 import '../game.dart';
 
 class TapController extends Component with HasGameReference<MGame>, HasWorldReference<LevelWorld>, RiverpodComponentMixin {
@@ -34,10 +37,24 @@ class TapController extends Component with HasGameReference<MGame>, HasWorldRefe
     }
 
     /// Show menu if click on building
-    if (game.isMouseHoveringBuilding) {
-      game.isMouseHoveringBuilding = false;
+    if (game.isMouseHoveringBuilding != null) {
       game.myMouseCursor.hoverExitButton();
-      game.router.pushNamed('menuGarage');
+      switch (game.isMouseHoveringBuilding!.buildingType) {
+        case BuildingType.garage:
+          game.router.pushNamed('menuGarage');
+          break;
+        case BuildingType.city:
+          game.currentCity = (game.isMouseHoveringBuilding! as City);
+          game.router.pushNamed('menuCity');
+          break;
+        case BuildingType.incinerator:
+          game.currentIncinerator = (game.isMouseHoveringBuilding! as Incinerator);
+          game.router.pushNamed('menuIncinerator');
+          break;
+        default:
+          break;
+      }
+      game.isMouseHoveringBuilding = null;
     }
   }
 

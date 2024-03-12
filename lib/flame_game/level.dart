@@ -81,6 +81,7 @@ class Level extends PositionComponent with HasGameReference<MGame>, RiverpodComp
       pollutionBar = PollutionBar(
         title: 'POLLUTION',
         totalBarValue: mapLevel[level.toString()]!["pollutionLimit"]! as double,
+        onComplete: () => game.router.pushNamed('levelLost'),
       ),
       money = Money(
         startingAmount: mapLevel[level.toString()]!["startingMoney"]! as double,

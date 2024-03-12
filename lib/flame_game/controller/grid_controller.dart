@@ -3,6 +3,7 @@ import 'dart:math';
 import 'package:flame/components.dart';
 import 'package:flame_riverpod/flame_riverpod.dart';
 import 'package:mgame/flame_game/buildings/building.dart';
+import 'package:mgame/flame_game/buildings/city/city.dart';
 import 'package:mgame/flame_game/riverpod_controllers/construction_mode_controller.dart';
 import 'package:mgame/flame_game/tile/tile_helper.dart';
 
@@ -112,8 +113,9 @@ class GridController extends Component with HasGameRef<MGame>, HasWorldReference
     markTilesAsBuilt(world.convertRotations.rotateCoordinates(coordinates), building);
   }
 
-  Future<void> internalBuildOnTile({required Point<int> coordinates, required BuildingType buildingType, required Directions direction, bool hideMoney = false, double cityRate = 1}) async {
-    Building building = createBuilding(buildingType: buildingType, direction: direction, anchorTile: coordinates, cityRate: cityRate);
+  Future<void> internalBuildOnTile(
+      {required Point<int> coordinates, required BuildingType buildingType, required Directions direction, bool hideMoney = false, CityType cityType = CityType.normal}) async {
+    Building building = createBuilding(buildingType: buildingType, direction: direction, anchorTile: coordinates, cityType: cityType);
     (game.findByKeyName('level') as Level).money.addValue(-building.buildingCost, hideMoney);
     world.buildings.add(building);
     await world.add(world.buildings.last);

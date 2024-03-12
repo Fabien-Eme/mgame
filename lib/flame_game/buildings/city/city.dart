@@ -13,11 +13,13 @@ import '../../utils/convert_rotations.dart';
 
 class City extends Building {
   Point<int> loadTileCoordinate;
-  double cityRate;
-  City({super.direction, super.position, required super.anchorTile, required this.loadTileCoordinate, required this.cityRate});
+  CityType cityType;
+  City({super.direction, super.position, required super.anchorTile, required this.loadTileCoordinate, required this.cityType});
 
   late final CityComponent cityComponent;
   late final Vector2 offset;
+
+  double reductionRate = 1;
 
   @override
   FutureOr<void> onLoad() async {
@@ -29,7 +31,7 @@ class City extends Building {
     world.add(
       cityComponent,
     );
-    world.garbageController.createGarbageStack(building: this, garbageRate: cityRate);
+    world.garbageController.createGarbageStack(building: this, garbageRate: cityType.cityRate * reductionRate);
     return super.onLoad();
   }
 
@@ -125,5 +127,37 @@ Point<int> getCityLoadTileCoordinate({required Point<int> anchorTile, required D
       return anchorTile + const Point<int>(-1, 3);
     case Directions.E:
       return anchorTile + const Point<int>(1, 1);
+  }
+}
+
+enum CityType {
+  normal,
+  polluting;
+
+  double get cityRate {
+    switch (this) {
+      case CityType.normal:
+        return 1;
+      case CityType.polluting:
+        return 2;
+    }
+  }
+
+  String get cityTitle {
+    switch (this) {
+      case CityType.normal:
+        return "ECO-FRIENDLY CITY";
+      case CityType.polluting:
+        return "POLLUTING CITY";
+    }
+  }
+
+  String get cityText {
+    switch (this) {
+      case CityType.normal:
+        return "This city produce garbage at the rate of 1 every 2 seconds.";
+      case CityType.polluting:
+        return "This city produce garbage at the rate of 1 every second.";
+    }
   }
 }

@@ -13,7 +13,6 @@ import '../game.dart';
 import '../level.dart';
 import '../ui/garbage_bar.dart';
 import '../ui/pollution_bar.dart';
-import '../ui/show_pollution_tick.dart';
 
 class TaskController extends Component with HasGameReference<MGame>, HasWorldReference<LevelWorld>, RiverpodComponentMixin {
   Map<String, Task> globalMapTask = {};
@@ -263,12 +262,19 @@ class TaskController extends Component with HasGameReference<MGame>, HasWorldRef
         case TaskReward.unloadAll:
           await Future.delayed(const Duration(seconds: 1));
           (game.findByKeyName('garbageBar') as GarbageBar).addValue(truck.loadQuantity.toDouble());
-          (game.findByKeyName('level') as Level).money.addValue(truck.loadQuantity.toDouble() * 100, false);
-          (game.findByKeyName('pollutionBar') as PollutionBar).addValue(truck.loadQuantity.toDouble() * 50);
+          (game.findByKeyName('level') as Level).money.addValue(truck.loadQuantity.toDouble() * 100 * (task.taskBuilding as Incinerator).moneyBonus, false);
+
+          if (!game.currentIncinerator!.isRecycler) {
+            (game.findByKeyName('pollutionBar') as PollutionBar).addValue(truck.loadQuantity.toDouble() * 50 * (task.taskBuilding as Incinerator).pollutionReduction);
+            (task.taskBuilding as Incinerator).incineratorSmoke.resumeSmokeForDuration(const Duration(seconds: 5));
+          }
+
           (task.taskBuilding as Incinerator).showGarbageProcessedTick(quantity: (truck.loadQuantity));
-          (task.taskBuilding as Incinerator).incineratorSmoke.resumeSmokeForDuration(const Duration(seconds: 5));
+
           await Future.delayed(const Duration(seconds: 1));
-          (task.taskBuilding as Incinerator).showPollutionTick(quantity: (truck.loadQuantity.toDouble() * 50).round());
+          if (!game.currentIncinerator!.isRecycler) {
+            (task.taskBuilding as Incinerator).showPollutionTick(quantity: (truck.loadQuantity.toDouble() * 50).round());
+          }
           truck.loadQuantity = 0;
 
           truck.currentTask = null;
