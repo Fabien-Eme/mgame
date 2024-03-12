@@ -66,7 +66,10 @@ class Tutorial extends Component with HasGameReference<MGame> {
       if (dialogHighlightPositions.length == 8) {
         Future.delayed(const Duration(milliseconds: 500)).then((_) {
           game.router.previousRoute?.resumeTime();
-          (game.findByKeyName('level') as Level?)?.levelWorld.gridController.internalBuildOnTile(const Point<int>(31, 2), BuildingType.garbageLoader, Directions.S);
+          (game.findByKeyName('level') as Level?)
+              ?.levelWorld
+              .gridController
+              .internalBuildOnTile(coordinates: const Point<int>(31, 2), buildingType: BuildingType.garbageLoader, direction: Directions.S);
         });
         Future.delayed(const Duration(milliseconds: 2500)).then((_) => game.router.previousRoute?.stopTime());
       }
@@ -87,7 +90,7 @@ class Tutorial extends Component with HasGameReference<MGame> {
         game.router.previousRoute?.resumeTime();
         Future.delayed(const Duration(milliseconds: 2500)).then((_) => game.router.previousRoute?.stopTime());
         Future.delayed(const Duration(seconds: 1)).then((_) {
-          (game.findByKeyName('level') as Level?)?.levelWorld.gridController.internalBuildOnTile(const Point<int>(22, 2), BuildingType.incinerator, Directions.S);
+          (game.findByKeyName('level') as Level?)?.levelWorld.gridController.internalBuildOnTile(coordinates: const Point<int>(22, 2), buildingType: BuildingType.incinerator, direction: Directions.S);
         });
         await Future.delayed(const Duration(milliseconds: 1500));
         (game.findByKeyName('level') as Level?)?.levelWorld.constructionController.construct(posDimetric: const Point<int>(21, 0), tileType: TileType.road);

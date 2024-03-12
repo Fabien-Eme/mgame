@@ -7,7 +7,7 @@ part of 'all_trucks_controller.dart';
 // **************************************************************************
 
 String _$allTrucksControllerHash() =>
-    r'73dec9cb2bd0683d6e76e858fb0952d24c6d150f';
+    r'1f89f2cadfeb013907cd14660ac568d79274b104';
 
 /// See also [AllTrucksController].
 @ProviderFor(AllTrucksController)

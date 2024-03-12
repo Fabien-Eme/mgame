@@ -122,15 +122,14 @@ abstract class Building extends PositionComponent with HasGameReference<MGame>, 
   void initialize() {}
 }
 
-Building createBuilding({required BuildingType buildingType, Directions? direction, Point<int>? anchorTile}) {
-  anchorTile ??= const Point(0, 0);
+Building createBuilding({required BuildingType buildingType, Directions? direction = Directions.E, Point<int> anchorTile = const Point(0, 0), double cityRate = 1}) {
   direction ??= Directions.E;
   return switch (buildingType) {
     BuildingType.garbageLoader => GarbageLoader(direction: direction, garbageLoaderFlow: GarbageLoaderFlow.flowOut, anchorTile: anchorTile),
     BuildingType.recycler => Incinerator(direction: direction, anchorTile: anchorTile),
     BuildingType.incinerator => Incinerator(direction: direction, anchorTile: anchorTile),
     BuildingType.garage => Garage(direction: direction, anchorTile: anchorTile),
-    BuildingType.city => City(direction: direction, anchorTile: anchorTile, loadTileCoordinate: getCityLoadTileCoordinate(anchorTile: anchorTile, direction: direction)),
+    BuildingType.city => City(direction: direction, anchorTile: anchorTile, loadTileCoordinate: getCityLoadTileCoordinate(anchorTile: anchorTile, direction: direction), cityRate: cityRate),
   };
 }
 

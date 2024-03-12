@@ -8,6 +8,7 @@ import 'package:flutter/material.dart';
 import 'package:mgame/flame_game/menu/dialog_button.dart';
 import 'package:mgame/flame_game/riverpod_controllers/user_controller.dart';
 import 'package:mgame/flame_game/utils/my_text_style.dart';
+import 'package:mgame/flame_game/utils/palette.dart';
 
 import '../game.dart';
 
@@ -28,6 +29,8 @@ class MainMenu extends PositionComponent with HasGameReference<MGame>, RiverpodC
 
   late final TextComponent userEmailComponent;
   late final TextComponent ecoCreditsComponent;
+
+  late final RectangleComponent globalAirQualityComponent;
 
   bool isLevelLoading = false;
 
@@ -161,10 +164,28 @@ class MainMenu extends PositionComponent with HasGameReference<MGame>, RiverpodC
       position: Vector2(0, 285),
     );
 
+    final whiteRectComponent = RectangleComponent.fromRect(
+      const Rect.fromLTWH(MGame.gameWidth / 2 - 355, -MGame.gameHeight / 2 + 95, 310, 110),
+      paint: Paint()..color = Colors.white,
+    );
+
+    globalAirQualityComponent = RectangleComponent.fromRect(
+      const Rect.fromLTWH(MGame.gameWidth / 2 - 350, -MGame.gameHeight / 2 + 100, 300, 100),
+      children: [
+        TextBoxComponent(
+          text: "",
+          textRenderer: MyTextStyle.airInfo,
+          size: Vector2(300, 150),
+        )
+      ],
+    );
+
     world.addAll([
       settingsButton,
       userEmailComponent,
       ecoCreditsComponent,
+      whiteRectComponent,
+      globalAirQualityComponent,
     ]);
 
     return super.onLoad();
@@ -179,6 +200,7 @@ class MainMenu extends PositionComponent with HasGameReference<MGame>, RiverpodC
         }));
     super.onMount();
     user = ref.read(userControllerProvider);
+    updateGlobalAirQuality();
     updateMenu();
   }
 
@@ -219,5 +241,13 @@ class MainMenu extends PositionComponent with HasGameReference<MGame>, RiverpodC
       final currentCount = event.data()?['EcoCredits'];
       if (currentCount != null) ecoCreditsComponent.text = "$currentCount EcoCredits";
     });
+  }
+
+  Future<void> updateGlobalAirQuality() async {
+    if (game.globalAirQualityString == "") {
+      await game.getGlobalAirQuality();
+      (globalAirQualityComponent.children.first as TextComponent).text = "Universal AQI: ${game.globalAirQualityValue}/100\n\nWorld air quality: ${game.globalAirQualityString}";
+      globalAirQualityComponent.paint = Paint()..color = convertGlobalAirQualityColor(game.globalAirQualityColor);
+    }
   }
 }

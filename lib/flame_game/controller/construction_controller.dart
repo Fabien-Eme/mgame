@@ -6,6 +6,7 @@ import 'package:mgame/flame_game/level_world.dart';
 import 'package:mgame/flame_game/riverpod_controllers/construction_mode_controller.dart';
 
 import '../game.dart';
+import '../level.dart';
 import '../tile/tile.dart';
 import '../tile/tile_helper.dart';
 import '../utils/convert_rotations.dart';
@@ -13,21 +14,25 @@ import '../utils/convert_rotations.dart';
 class ConstructionController extends Component with HasGameRef<MGame>, HasWorldReference<LevelWorld>, RiverpodComponentMixin {
   void construct({required Point<int> posDimetric, required TileType tileType, bool isMouseDragging = false, bool isIndestructible = false, bool isLoader = false, bool hideMoney = false}) {
     if (world.gridController.checkIfWithinGridBoundaries(posDimetric)) {
-      world.gridController
-          .getTileAtDimetricCoordinates(posDimetric)
-          ?.constructTile(tileType: tileType, isMouseDragging: isMouseDragging, isIndestructible: isIndestructible, isLoader: isLoader, hideMoney: hideMoney);
+      if ((game.findByKeyName('level') as Level).money.hasEnoughMoney(100)) {
+        world.gridController
+            .getTileAtDimetricCoordinates(posDimetric)
+            ?.constructTile(tileType: tileType, isMouseDragging: isMouseDragging, isIndestructible: isIndestructible, isLoader: isLoader, hideMoney: hideMoney);
 
-      Map<Directions, Tile?> mapNeighbors = world.gridController.getAllNeigbhorsTile(world.gridController.getTileAtDimetricCoordinates(posDimetric));
+        Map<Directions, Tile?> mapNeighbors = world.gridController.getAllNeigbhorsTile(world.gridController.getTileAtDimetricCoordinates(posDimetric));
 
-      for (Tile? tile in mapNeighbors.values) {
-        tile?.projectTileChange();
-        tile?.propagateTileChange();
+        for (Tile? tile in mapNeighbors.values) {
+          tile?.projectTileChange();
+          tile?.propagateTileChange();
+        }
       }
     }
   }
 
-  void destroy({required Point<int> posDimetric, bool isMouseDragging = false}) {
+  void destroy({required Point<int> posDimetric, bool isMouseDragging = false, bool hideMoney = false}) {
     Tile? tile = world.gridController.getTileAtDimetricCoordinates(posDimetric);
+
+    if (tile != null && tile.tileType != TileType.grass) (game.findByKeyName('level') as Level).money.addValue(100, hideMoney);
 
     /// Destroy tile
     tile?.destroyTile();
@@ -44,13 +49,15 @@ class ConstructionController extends Component with HasGameRef<MGame>, HasWorldR
 
     /// Destroy building on tile
     if (tile?.buildingOnTile != null) {
-      world.taskController.buildingDestroyed(tile!.buildingOnTile!);
+      (game.findByKeyName('level') as Level).money.addValue(tile!.buildingOnTile!.buildingCost);
+      world.taskController.buildingDestroyed(tile.buildingOnTile!);
 
       world.remove(tile.buildingOnTile!);
       world.buildings.remove(tile.buildingOnTile);
       for (Tile? element in tile.buildingOnTile!.tilesIAmOn) {
         element?.destroyBuilding();
         element?.resetTileRestriction();
+        if (element != null) destroy(posDimetric: element.dimetricCoordinates, hideMoney: true);
       }
     }
   }

@@ -54,7 +54,7 @@ class TapController extends Component with HasGameReference<MGame>, HasWorldRefe
   ///
   ///
   /// TERTIARY TAP
-  void onTertiaryTapDown(TapDownInfo info) {
+  void onTertiaryTapDown([TapDownInfo? info]) {
     if (ref.read(constructionModeControllerProvider).buildingType != null) {
       ref.read(constructionModeControllerProvider.notifier).rotateBuilding();
     }

@@ -19,6 +19,10 @@ class Money extends PositionComponent {
   double currentValue = 0.0;
   double realValue = 0.0;
 
+  bool isBlinking = false;
+  double timeBlinked = 0.0;
+  double timeElapsedBlink = 0.0;
+
   @override
   FutureOr<void> onLoad() {
     currentValue = startingAmount;
@@ -39,9 +43,7 @@ class Money extends PositionComponent {
     realValue += value;
 
     if (!hideMoney) {
-      if (value < 0) {
-        dropMoney(value);
-      }
+      dropMoney(value);
     }
   }
 
@@ -62,19 +64,29 @@ class Money extends PositionComponent {
   }
 
   void dropMoney(double value) {
-    TextComponent textComponent = TextComponent(
-      text: getText(value),
-      textRenderer: MyTextStyle.moneyNegative,
-      anchor: Anchor.center,
-    );
+    late TextComponent textComponent;
+    if (value < 0) {
+      textComponent = TextComponent(
+        text: getText(value),
+        textRenderer: MyTextStyle.moneyNegative,
+        anchor: Anchor.center,
+      );
+    } else {
+      textComponent = TextComponent(
+        text: getText(value),
+        textRenderer: MyTextStyle.moneyPositive,
+        anchor: Anchor.center,
+      );
+    }
     listDroppedMoney.add(textComponent);
     add(textComponent);
   }
 
-  bool isEnoughMoney(double value) {
+  bool hasEnoughMoney(double value) {
     if (value <= realValue) {
       return true;
     } else {
+      isBlinking = true;
       return false;
     }
   }
@@ -120,6 +132,27 @@ class Money extends PositionComponent {
       }
       removeAll(listComponentToRemove);
     }
+
+    /// Make money total blink
+    if (isBlinking) {
+      if (timeBlinked < 8) {
+        timeElapsedBlink += dt;
+        if (timeElapsedBlink >= 0.1) {
+          timeElapsedBlink = 0.0;
+          timeBlinked++;
+          if (moneyTextComponent.textRenderer == MyTextStyle.money) {
+            moneyTextComponent.textRenderer = MyTextStyle.moneyNegative;
+          } else {
+            moneyTextComponent.textRenderer = MyTextStyle.money;
+          }
+        }
+      } else {
+        isBlinking = false;
+        timeElapsedBlink = 0.0;
+        timeBlinked = 0;
+      }
+    }
+
     super.update(dt);
   }
 }

@@ -6,7 +6,7 @@ import 'close_button.dart';
 
 class MenuWithoutTabs extends PositionComponent with HasGameReference<MGame> {
   final bool isCloseButtonShown;
-  final Vector2 boxSize;
+  Vector2 boxSize;
   MenuWithoutTabs({required this.boxSize, this.isCloseButtonShown = true});
 
   late final World world;

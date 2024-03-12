@@ -10,6 +10,10 @@ import 'package:uuid/uuid.dart';
 
 import '../buildings/city/city.dart';
 import '../game.dart';
+import '../level.dart';
+import '../ui/garbage_bar.dart';
+import '../ui/pollution_bar.dart';
+import '../ui/show_pollution_tick.dart';
 
 class TaskController extends Component with HasGameReference<MGame>, HasWorldReference<LevelWorld>, RiverpodComponentMixin {
   Map<String, Task> globalMapTask = {};
@@ -46,7 +50,7 @@ class TaskController extends Component with HasGameReference<MGame>, HasWorldRef
   ///
   ///
   /// Remove a [Task] from map
-  void completeTask({required String taskId}) {
+  void removeTask({required String taskId}) {
     globalMapTask.remove(taskId);
   }
 
@@ -233,6 +237,43 @@ class TaskController extends Component with HasGameReference<MGame>, HasWorldRef
         hasMatched = false;
       } else {
         isMatchPossible = false;
+      }
+    }
+  }
+
+  void completeTask({required Truck truck, required Task task}) async {
+    for (TaskReward taskReward in task.taskReward) {
+      switch (taskReward) {
+        case TaskReward.loadGarbage:
+          await Future.delayed(const Duration(seconds: 1));
+          int stackMax = world.garbageController.mapGarbageStack[task.taskBuilding!.garbageStackId]?.stackQuantity ?? 0;
+          int loadMax = truck.maxLoad;
+          int load = min(stackMax, loadMax);
+
+          world.garbageController.mapGarbageStack[task.taskBuilding!.garbageStackId]?.stackQuantity = stackMax - load;
+          await Future.delayed(const Duration(seconds: 1));
+          truck.loadQuantity = load;
+          truck.loadType = LoadType.garbageCan;
+
+          truck.currentTask = null;
+          truck.isCompletingTask = false;
+          break;
+        case TaskReward.unloadGarbage:
+          break;
+        case TaskReward.unloadAll:
+          await Future.delayed(const Duration(seconds: 1));
+          (game.findByKeyName('garbageBar') as GarbageBar).addValue(truck.loadQuantity.toDouble());
+          (game.findByKeyName('level') as Level).money.addValue(truck.loadQuantity.toDouble() * 100, false);
+          (game.findByKeyName('pollutionBar') as PollutionBar).addValue(truck.loadQuantity.toDouble() * 50);
+          (task.taskBuilding as Incinerator).showGarbageProcessedTick(quantity: (truck.loadQuantity));
+          (task.taskBuilding as Incinerator).incineratorSmoke.resumeSmokeForDuration(const Duration(seconds: 5));
+          await Future.delayed(const Duration(seconds: 1));
+          (task.taskBuilding as Incinerator).showPollutionTick(quantity: (truck.loadQuantity.toDouble() * 50).round());
+          truck.loadQuantity = 0;
+
+          truck.currentTask = null;
+          truck.isCompletingTask = false;
+          break;
       }
     }
   }

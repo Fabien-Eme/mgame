@@ -13,21 +13,28 @@ class GarbageController extends Component with HasGameReference<MGame>, HasWorld
   double timeElapsedToAddGarbage = 0;
   final double deltaTimeToAddGarbage = 2;
 
+  Map<String, double> mapTimeElapsed = {};
+  Map<String, double> mapDeltaTime = {};
+
   final double durationOfGarbageMovement = 0.8;
 
   List<GarbageAnimated> listGarbageAnimated = [];
 
-  Map<String, GarbageStack> listGarbageStack = {};
+  Map<String, GarbageStack> mapGarbageStack = {};
 
   ///
   ///
   ///Create the stack wich will receive [Garbage]
-  void createGarbageStack({required Building building}) async {
+  void createGarbageStack({required Building building, required double garbageRate}) async {
     Garbage garbage = createGarbage(garbageType: GarbageType.garbageCan, anchorBuilding: building, hasNumber: true);
     Uuid uuid = const Uuid();
     String id = uuid.v4();
-    GarbageStack garbageStack = GarbageStack(id: id, component: garbage, stackQuantity: 0, anchorBuilding: building);
-    listGarbageStack[id] = garbageStack;
+    GarbageStack garbageStack = GarbageStack(id: id, component: garbage, stackQuantity: 0, anchorBuilding: building, garbageRate: garbageRate);
+
+    mapGarbageStack[id] = garbageStack;
+    mapTimeElapsed[id] = 0;
+    mapDeltaTime[id] = 2 / garbageRate;
+
     building.garbageStackId = id;
     await world.add(garbage);
     garbage.position = building.finalGarbagePosition;
@@ -45,7 +52,7 @@ class GarbageController extends Component with HasGameReference<MGame>, HasWorld
         component: garbage,
         timeElapsed: 0,
         startingPosition: position,
-        garbageStackId: listGarbageStack.values
+        garbageStackId: mapGarbageStack.values
             .firstWhere((GarbageStack garbageStack) => garbageStack.component.garbageType == GarbageType.garbageCan && garbageStack.anchorBuilding == garbage.anchorBuilding)
             .id));
   }
@@ -56,19 +63,22 @@ class GarbageController extends Component with HasGameReference<MGame>, HasWorld
 
     /// Generate Garbage periodically
     timeElapsedToAddGarbage += dt;
+    for (String key in mapTimeElapsed.keys) {
+      mapTimeElapsed[key] = mapTimeElapsed[key]! + dt;
+    }
 
-    if (timeElapsedToAddGarbage >= deltaTimeToAddGarbage) {
-      for (GarbageStack garbageStack in listGarbageStack.values) {
+    for (String key in mapDeltaTime.keys) {
+      if (mapTimeElapsed[key]! >= mapDeltaTime[key]!) {
         addGarbage(
           garbageType: GarbageType.garbageCan,
-          anchorBuilding: garbageStack.anchorBuilding,
+          anchorBuilding: mapGarbageStack[key]!.anchorBuilding,
           position: getRandomVectorInList(
-            garbageStack.anchorBuilding.listInitialGarbagePosition,
+            mapGarbageStack[key]!.anchorBuilding.listInitialGarbagePosition,
           ),
         );
-      }
 
-      timeElapsedToAddGarbage -= deltaTimeToAddGarbage;
+        mapTimeElapsed[key] = mapTimeElapsed[key]! - mapDeltaTime[key]!;
+      }
     }
 
     /// Animate generated garbage and remove if end
@@ -82,7 +92,7 @@ class GarbageController extends Component with HasGameReference<MGame>, HasWorld
       moveGarbageFromTo(garbageAnimated.component, garbageAnimated.startingPosition, garbageAnimated.component.anchorBuilding.finalGarbagePosition, clampedProgress);
 
       if (clampedProgress >= 1) {
-        listGarbageStack[garbageAnimated.garbageStackId]?.changeStackQuantity(1);
+        mapGarbageStack[garbageAnimated.garbageStackId]?.changeStackQuantity(1);
         listGarbageAnimated.remove(garbageAnimated);
         world.remove(garbageAnimated.component);
       }
@@ -131,8 +141,9 @@ class GarbageStack {
   Garbage component;
   int stackQuantity;
   Building anchorBuilding;
+  double garbageRate;
 
-  GarbageStack({required this.id, required this.component, required this.stackQuantity, required this.anchorBuilding});
+  GarbageStack({required this.id, required this.component, required this.stackQuantity, required this.anchorBuilding, required this.garbageRate});
 
   void changeStackQuantity(int i) {
     stackQuantity += i;

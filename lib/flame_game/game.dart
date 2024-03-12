@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flame/camera.dart';
 import 'package:flame/components.dart';
 import 'package:flame/events.dart';
@@ -25,6 +26,7 @@ import 'controller/audio_controller.dart';
 
 import 'dialog/tutorial.dart';
 import 'level.dart';
+import 'menu/briefing.dart';
 import 'menu/menu_achievement.dart';
 import 'menu/menu_level_won.dart';
 import 'menu/menu_settings.dart';
@@ -83,6 +85,10 @@ class MGame extends FlameGame with MouseMovementDetector, ScrollDetector, MultiT
 
   bool isAudioEnabled = false;
 
+  double globalAirQualityValue = 0;
+  String globalAirQualityString = "";
+  String globalAirQualityColor = "";
+
   ///
   ///
   /// Game Load
@@ -128,6 +134,7 @@ class MGame extends FlameGame with MouseMovementDetector, ScrollDetector, MultiT
           'levelWon': RouteMakeOtherIgnoreEvents(MenuLevelWon.new, transparent: true, maintainState: false),
           'menuAchievements': RouteMakeOtherIgnoreEvents(MenuAchievement.new, transparent: true, maintainState: false),
           'tutorial': RouteMakeOtherIgnoreEvents(Tutorial.new, transparent: true, maintainState: false),
+          'briefing': RouteMakeOtherIgnoreEvents(Briefing.new, transparent: true, maintainState: false),
         },
         initialRoute: 'mainMenu',
       ),
@@ -135,8 +142,18 @@ class MGame extends FlameGame with MouseMovementDetector, ScrollDetector, MultiT
 
     add(FpsTextComponent());
 
-    //gameController.startGame();
     return super.onLoad();
+  }
+
+  ///
+  ///
+  /// Retrieve Global Air Quality
+  Future<void> getGlobalAirQuality() async {
+    final doc = await FirebaseFirestore.instance.collection('air_quality').doc('current').get();
+    final map = doc.data();
+    globalAirQualityValue = double.tryParse(map?['globalNumber'] as String? ?? "") ?? 0;
+    globalAirQualityString = (map?['globalText'] as String?) ?? "";
+    globalAirQualityColor = (map?['globalColor'] as String?) ?? "";
   }
 
   ///

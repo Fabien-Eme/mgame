@@ -13,7 +13,8 @@ import '../../utils/convert_rotations.dart';
 
 class City extends Building {
   Point<int> loadTileCoordinate;
-  City({super.direction, super.position, required super.anchorTile, required this.loadTileCoordinate});
+  double cityRate;
+  City({super.direction, super.position, required super.anchorTile, required this.loadTileCoordinate, required this.cityRate});
 
   late final CityComponent cityComponent;
   late final Vector2 offset;
@@ -28,7 +29,7 @@ class City extends Building {
     world.add(
       cityComponent,
     );
-    world.garbageController.createGarbageStack(building: this);
+    world.garbageController.createGarbageStack(building: this, garbageRate: cityRate);
     return super.onLoad();
   }
 
@@ -50,7 +51,7 @@ class City extends Building {
 
     ///
     /// Update garbages anchored to this
-    for (GarbageStack garbageStack in world.garbageController.listGarbageStack.values) {
+    for (GarbageStack garbageStack in world.garbageController.mapGarbageStack.values) {
       if (garbageStack.component.anchorBuilding == this) {
         garbageStack.component.position = finalGarbagePosition;
       }

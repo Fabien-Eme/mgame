@@ -2,11 +2,14 @@ import 'dart:async';
 
 import 'package:flame/camera.dart';
 import 'package:flame/components.dart';
+import 'package:flame_riverpod/flame_riverpod.dart';
 import 'package:mgame/flame_game/level_world.dart';
+import 'package:mgame/flame_game/riverpod_controllers/all_trucks_controller.dart';
 import 'package:mgame/flame_game/ui/garbage_bar.dart';
 import 'package:mgame/flame_game/ui/money.dart';
 import 'package:mgame/flame_game/ui/pollution_bar.dart';
 import 'package:mgame/flame_game/ui/top_drawer.dart';
+import 'package:mgame/flame_game/ui/ui_rotate_building.dart';
 import 'package:mgame/flame_game/utils/my_text_style.dart';
 
 import 'game.dart';
@@ -14,7 +17,7 @@ import 'ui/settings_button.dart';
 import 'ui/ui_bottom_bar.dart';
 import 'ui/ui_rotate.dart';
 
-class Level extends PositionComponent with HasGameReference<MGame> {
+class Level extends PositionComponent with HasGameReference<MGame>, RiverpodComponentMixin {
   final int level;
   Level({required this.level, super.key});
 
@@ -23,6 +26,7 @@ class Level extends PositionComponent with HasGameReference<MGame> {
 
   late final UIBottomBar uiBottomBar;
   late final UIRotate uiRotate;
+  late final UIRotateBuilding uiRotateBuilding;
   late final SettingsButton settingsButton;
 
   late final PollutionBar pollutionBar;
@@ -33,6 +37,8 @@ class Level extends PositionComponent with HasGameReference<MGame> {
   @override
   FutureOr<void> onLoad() async {
     super.onLoad();
+
+    Map<String, Map<String, dynamic>> mapLevel = getMapLevel(game.globalAirQualityValue);
 
     add(
       cameraComponent = CameraComponent.withFixedResolution(
@@ -51,6 +57,7 @@ class Level extends PositionComponent with HasGameReference<MGame> {
     cameraComponent.viewport.addAll([
       uiBottomBar = UIBottomBar(),
       uiRotate = UIRotate(),
+      uiRotateBuilding = UIRotateBuilding(),
       settingsButton = SettingsButton(),
       TextComponent(
         text: mapLevel[level.toString()]!["levelTitle"]! as String,
@@ -90,21 +97,31 @@ class Level extends PositionComponent with HasGameReference<MGame> {
     /// If level 1 it's tutorial
     if (level == 1) {
       game.router.pushNamed('tutorial');
+    } else {
+      game.router.pushNamed('briefing');
     }
   }
-}
 
-Map<String, Map<String, dynamic>> mapLevel = {
-  "1": {
-    "levelTitle": "Level 1 - Tutorial",
-    "pollutionLimit": 10000.0,
-    "garbageTarget": 50.0,
-    "startingMoney": 65000.0,
-  },
-  "2": {
-    "levelTitle": "Level 2 - Two cities",
-    "pollutionLimit": 30000.0,
-    "garbageTarget": 600.0,
-    "startingMoney": 65000.0,
-  },
-};
+  @override
+  void onMount() {
+    ref.read(allTrucksControllerProvider.notifier).resetTruck();
+    super.onMount();
+  }
+
+  Map<String, Map<String, dynamic>> getMapLevel(double globalAirQualityValue) {
+    return {
+      "1": {
+        "levelTitle": "Level 1 - Tutorial",
+        "pollutionLimit": 10000.0 - (1 - globalAirQualityValue / 100) * 2000,
+        "garbageTarget": 50.0,
+        "startingMoney": 65000.0,
+      },
+      "2": {
+        "levelTitle": "Level 2 - Two cities",
+        "pollutionLimit": 20000.0 - (1 - globalAirQualityValue / 100) * 5000,
+        "garbageTarget": 200.0,
+        "startingMoney": 65000.0,
+      },
+    };
+  }
+}

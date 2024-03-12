@@ -18,11 +18,15 @@ class AllTrucksController extends _$AllTrucksController {
     return AllTrucks.initial();
   }
 
-  addTruck(TruckType truckType, Point<int> spawnLocation) {
+  void addTruck(TruckType truckType, Point<int> spawnLocation) {
     Map<String, Truck> trucksOwned = Map.of(state.trucksOwned);
     String truckId = const Uuid().v4();
     trucksOwned[truckId] = Truck(id: truckId, startingTileCoordinatesAtCreation: spawnLocation, truckType: truckType, truckDirection: Directions.E);
     state = state.copyWith(trucksOwned: trucksOwned, lastTruckAddedId: truckId);
+  }
+
+  void resetTruck() {
+    state = AllTrucks.initial();
   }
 
   // removeTruck(TruckType truckType) {

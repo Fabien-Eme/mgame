@@ -14,6 +14,7 @@ import 'package:flame/timer.dart' as flame_timer;
 import '../buildings/building.dart';
 import '../buildings/garage/garage.dart';
 import '../game.dart';
+import '../level.dart';
 import '../level_world.dart';
 import '../riverpod_controllers/rotation_controller.dart';
 import '../tile/tile.dart';
@@ -182,6 +183,7 @@ class Truck extends SpriteComponent with HasGameReference<MGame>, HasWorldRefere
     destinationTile = null;
 
     (game.findByKeyName('pollutionBar') as PollutionBar).addValue(truckType.model.pollutionPerTile.toDouble());
+    (game.findByKeyName('level') as Level).money.addValue(-truckType.model.costPerTick.toDouble(), true);
 
     startMove();
   }
@@ -192,9 +194,9 @@ class Truck extends SpriteComponent with HasGameReference<MGame>, HasWorldRefere
   void endMovement() {
     truckSmoke.stopSmoke();
     startingTile = currentTile;
-    if (currentTask != null && !isCompletingTask) {
+    if (currentTask != null && !isCompletingTask && currentTile.dimetricCoordinates == currentTask!.taskCoordinate) {
       isCompletingTask = true;
-      world.truckController.completeTask(truck: this, task: currentTask!);
+      world.taskController.completeTask(truck: this, task: currentTask!);
     }
   }
 

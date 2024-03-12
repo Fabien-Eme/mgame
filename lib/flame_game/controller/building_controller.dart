@@ -7,6 +7,7 @@ import 'package:mgame/flame_game/riverpod_controllers/ui_controller.dart';
 
 import '../buildings/building.dart';
 import '../game.dart';
+import '../level.dart';
 import '../utils/palette.dart';
 import '../riverpod_controllers/construction_mode_controller.dart';
 
@@ -25,7 +26,7 @@ class BuildingController extends Component with HasGameReference<MGame>, HasWorl
   ///
   /// Project selected building on Tile while mouving mouse
   ///
-  void projectBuildingOnTile(Point<int> dimetricTilePos) {
+  void projectBuildingOnTile(Point<int> dimetricTilePos) async {
     final constructionState = ref.read(constructionModeControllerProvider);
 
     ///Project the building
@@ -33,7 +34,7 @@ class BuildingController extends Component with HasGameReference<MGame>, HasWorl
       if (world.temporaryBuilding == null) {
         _addTemporaryBuildingOnWorld(constructionState, world.convertRotations.unRotateCoordinates(dimetricTilePos));
       } else if (world.temporaryBuilding!.buildingType != constructionState.buildingType!) {
-        removeTemporaryBuilding();
+        await removeTemporaryBuilding();
         _addTemporaryBuildingOnWorld(constructionState, world.convertRotations.unRotateCoordinates(dimetricTilePos));
       } else {
         world.temporaryBuilding!.setPosition(world.convertRotations.unRotateCoordinates(dimetricTilePos));
@@ -63,11 +64,10 @@ class BuildingController extends Component with HasGameReference<MGame>, HasWorl
     world.temporaryBuilding = createBuilding(buildingType: constructionState.buildingType!, direction: constructionState.buildingDirection);
     world.add(world.temporaryBuilding!);
     world.temporaryBuilding!.setPosition(dimetricTilePos);
-    // world.temporaryBuilding!.renderAboveAll();
   }
 
   Future<void> removeTemporaryBuilding() async {
-    if (world.temporaryBuilding?.isMounted ?? false) {
+    if (world.temporaryBuilding != null && world.temporaryBuilding!.isMounted && !world.temporaryBuilding!.isRemoving) {
       world.remove(world.temporaryBuilding!);
       await world.temporaryBuilding!.removed;
       world.temporaryBuilding = null;
@@ -95,10 +95,13 @@ class BuildingController extends Component with HasGameReference<MGame>, HasWorl
 
   void tryToBuildCurrentBuilding() async {
     final constructionState = ref.read(constructionModeControllerProvider);
-    if (isBuildingBuildable(world.currentMouseTilePos, createBuilding(buildingType: constructionState.buildingType!))) {
-      await world.gridController.buildOnTile(world.convertRotations.unRotateCoordinates(world.currentMouseTilePos), constructionState);
-      ref.read(constructionModeControllerProvider.notifier).exitConstructionMode();
-      ref.read(activeUIButtonControllerProvider.notifier).resetButtons();
+
+    if ((game.findByKeyName('level') as Level).money.hasEnoughMoney(createBuilding(buildingType: constructionState.buildingType!).buildingCost)) {
+      if (isBuildingBuildable(world.currentMouseTilePos, createBuilding(buildingType: constructionState.buildingType!))) {
+        await world.gridController.buildOnTile(world.convertRotations.unRotateCoordinates(world.currentMouseTilePos), constructionState);
+        ref.read(constructionModeControllerProvider.notifier).exitConstructionMode();
+        ref.read(activeUIButtonControllerProvider.notifier).resetButtons();
+      }
     }
   }
 }

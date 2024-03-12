@@ -11,17 +11,11 @@ import '../../gen/assets.gen.dart';
 import '../game.dart';
 
 class IncineratorSmoke extends PositionComponent with HasGameReference<MGame>, HasWorldReference<LevelWorld>, IgnoreEvents {
-  late Timer? spawnSmokeTimer;
-  final Random rng = Random();
+  final int rate;
+  IncineratorSmoke({required this.rate});
 
-  @override
-  void onMount() {
-    spawnParticles();
-    spawnSmokeTimer = Timer.periodic(Duration(milliseconds: Random().nextInt(1000) + 200), (_) {
-      spawnParticles();
-    });
-    super.onMount();
-  }
+  Timer? spawnSmokeTimer;
+  final Random rng = Random();
 
   void spawnParticles() {
     world.add(ParticleSystemComponent(
@@ -33,7 +27,6 @@ class IncineratorSmoke extends PositionComponent with HasGameReference<MGame>, H
               return MovingParticle(
                   from: position - Vector2(20, 0),
                   to: position + Vector2(rng.nextDouble() * 100, rng.nextDouble() * -100 - 200),
-                  // to: Vector2(Random().nextDouble() * -40 - 40, Random().nextDouble() * -100 - 100),
                   curve: Curves.easeInQuad,
                   child: ScalingParticle(
                     to: 3,
@@ -44,6 +37,27 @@ class IncineratorSmoke extends PositionComponent with HasGameReference<MGame>, H
                     ),
                   ));
             })));
+  }
+
+  void stopSmoke() {
+    spawnSmokeTimer?.cancel();
+  }
+
+  void resumeSmoke() {
+    if (!(spawnSmokeTimer?.isActive ?? false)) {
+      spawnSmokeTimer = Timer.periodic(Duration(milliseconds: Random().nextInt((5000 / rate).round()) + 200), (_) {
+        spawnParticles();
+      });
+    }
+  }
+
+  void resumeSmokeForDuration(Duration duration) {
+    if (!(spawnSmokeTimer?.isActive ?? false)) {
+      spawnSmokeTimer = Timer.periodic(Duration(milliseconds: Random().nextInt((5000 / rate).round()) + 200), (_) {
+        spawnParticles();
+      });
+      Future.delayed(duration).then((_) => stopSmoke());
+    }
   }
 
   @override

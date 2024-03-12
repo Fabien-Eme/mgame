@@ -87,4 +87,24 @@ enum ButtonType {
       ButtonType.incinerator => Assets.images.ui.uiIncinerator.path,
     };
   }
+
+  double get displayCost {
+    return switch (this) {
+      ButtonType.road => 0.10,
+      ButtonType.trash => 0,
+      ButtonType.garbageLoader => 10.0,
+      ButtonType.recycler => 30.0,
+      ButtonType.incinerator => 30.0,
+    };
+  }
+
+  double get cost {
+    return switch (this) {
+      ButtonType.road => 100,
+      ButtonType.trash => 0,
+      ButtonType.garbageLoader => 10000,
+      ButtonType.recycler => 30000,
+      ButtonType.incinerator => 30000,
+    };
+  }
 }

@@ -96,13 +96,13 @@ class LevelWorld extends World with HasGameReference<MGame>, IgnoreEvents {
   void addLevelBuildings(int level) async {
     switch (level) {
       case 1:
-        await gridController.internalBuildOnTile(const Point<int>(6, -2), BuildingType.garage, Directions.E, true);
-        await gridController.internalBuildOnTile(const Point<int>(32, 3), BuildingType.city, Directions.S, true);
+        await gridController.internalBuildOnTile(coordinates: const Point<int>(6, -2), buildingType: BuildingType.garage, direction: Directions.E, hideMoney: true);
+        await gridController.internalBuildOnTile(coordinates: const Point<int>(32, 3), buildingType: BuildingType.city, direction: Directions.S, hideMoney: true);
         break;
       case 2:
-        await gridController.internalBuildOnTile(const Point<int>(24, 9), BuildingType.garage, Directions.S, true);
-        await gridController.internalBuildOnTile(const Point<int>(10, -6), BuildingType.city, Directions.E, true);
-        await gridController.internalBuildOnTile(const Point<int>(17, -13), BuildingType.city, Directions.N, true);
+        await gridController.internalBuildOnTile(coordinates: const Point<int>(24, 9), buildingType: BuildingType.garage, direction: Directions.S, hideMoney: true);
+        await gridController.internalBuildOnTile(coordinates: const Point<int>(10, -6), buildingType: BuildingType.city, direction: Directions.E, hideMoney: true, cityRate: 2);
+        await gridController.internalBuildOnTile(coordinates: const Point<int>(17, -13), buildingType: BuildingType.city, direction: Directions.N, hideMoney: true, cityRate: 1);
         break;
     }
   }

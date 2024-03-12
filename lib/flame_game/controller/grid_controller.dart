@@ -112,8 +112,8 @@ class GridController extends Component with HasGameRef<MGame>, HasWorldReference
     markTilesAsBuilt(world.convertRotations.rotateCoordinates(coordinates), building);
   }
 
-  Future<void> internalBuildOnTile(Point<int> coordinates, BuildingType buildingType, Directions direction, [bool hideMoney = false]) async {
-    Building building = createBuilding(buildingType: buildingType, direction: direction, anchorTile: coordinates);
+  Future<void> internalBuildOnTile({required Point<int> coordinates, required BuildingType buildingType, required Directions direction, bool hideMoney = false, double cityRate = 1}) async {
+    Building building = createBuilding(buildingType: buildingType, direction: direction, anchorTile: coordinates, cityRate: cityRate);
     (game.findByKeyName('level') as Level).money.addValue(-building.buildingCost, hideMoney);
     world.buildings.add(building);
     await world.add(world.buildings.last);

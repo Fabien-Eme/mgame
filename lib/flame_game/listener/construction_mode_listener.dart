@@ -15,7 +15,7 @@ class ConstructionModeListener extends Component with HasGameRef<MGame>, HasWorl
     super.onMount();
   }
 
-  void _handleNewState(ConstructionState constructionState) {
+  void _handleNewState(ConstructionState constructionState) async {
     world.constructionController.resetTile(world.currentMouseTilePos);
     world.cursorController.cursorIsMovingOnNewTile(world.currentMouseTilePos);
     switch (constructionState.status) {
@@ -26,10 +26,7 @@ class ConstructionModeListener extends Component with HasGameRef<MGame>, HasWorl
       case ConstructionMode.construct:
 
         /// Remove Temporary building if we construct roads
-        if (constructionState.buildingType == null) {
-          world.buildingController.removeTemporaryBuilding();
-          world.tileCursor.resetScale();
-        } else {
+        if (constructionState.buildingType != null) {
           /// If building, size Tile cursor properly
           switch (createBuilding(buildingType: constructionState.buildingType!).sizeInTile) {
             case 3:
@@ -39,6 +36,9 @@ class ConstructionModeListener extends Component with HasGameRef<MGame>, HasWorl
               world.tileCursor.resetScale();
               break;
           }
+        } else {
+          await world.buildingController.removeTemporaryBuilding();
+          world.tileCursor.resetScale();
         }
 
         world.tileCursor.changePosition(convertDimetricPointToWorldCoordinates(world.currentMouseTilePos));
@@ -49,7 +49,7 @@ class ConstructionModeListener extends Component with HasGameRef<MGame>, HasWorl
         world.tileCursor.highlightDefault();
 
         /// Remove temporary building
-        world.buildingController.removeTemporaryBuilding();
+        await world.buildingController.removeTemporaryBuilding();
 
         world.tileCursor.resetScale();
         world.tileCursor.changePosition(convertDimetricPointToWorldCoordinates(world.currentMouseTilePos));
