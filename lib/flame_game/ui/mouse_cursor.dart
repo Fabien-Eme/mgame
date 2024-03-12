@@ -18,7 +18,8 @@ class MyMouseCursor extends SpriteComponent with HasGameReference<MGame>, Riverp
 
   @override
   FutureOr<void> onLoad() {
-    sprite = Sprite(game.images.fromCache(mouseCursorType.path));
+    if (!game.isMobile) sprite = Sprite(game.images.fromCache(mouseCursorType.path));
+    if (game.isMobile) sprite = Sprite(game.images.fromCache(Assets.images.buildings.empty.path));
     priority = 1000;
     paint = Paint()..filterQuality = FilterQuality.low;
 

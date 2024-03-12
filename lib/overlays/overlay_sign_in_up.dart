@@ -43,7 +43,7 @@ class _LoginSignupScreenState extends State<LoginSignupScreen> {
           await db.collection("users").doc(email.toLowerCase()).set({
             'achievements': [],
             'lastLevelCompleted': 0,
-            'EcoCredits': 20,
+            'EcoCredits': 10,
             'codeUsed': [],
           });
         }
