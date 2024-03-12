@@ -49,7 +49,9 @@ class MenuSettings extends MenuWithoutTabs {
       final buttonMenu = DialogButton(
         text: 'Main Menu',
         onPressed: () {
-          game.router.popUntilNamed('mainMenu');
+          game.router.popUntilNamed('root');
+          game.router.pushNamed('levelBackground');
+          game.router.pushNamed('mainMenu');
         },
         textStyle: MyTextStyle.buttonRed,
         buttonSize: Vector2(200, 50),

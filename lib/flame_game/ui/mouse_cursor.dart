@@ -29,7 +29,7 @@ class MyMouseCursor extends SpriteComponent with HasGameReference<MGame>, Riverp
   void onMount() {
     addToGameWidgetBuild(() => ref.listen(constructionModeControllerProvider, (previous, newConstructionState) {
           constructionState = newConstructionState;
-          _handleNewConstructionState();
+          if (!game.isMobile) _handleNewConstructionState();
         }));
     super.onMount();
   }
@@ -84,7 +84,7 @@ class MyMouseCursor extends SpriteComponent with HasGameReference<MGame>, Riverp
   }
 
   void resetMouseCursor() {
-    _handleNewConstructionState();
+    if (!game.isMobile) _handleNewConstructionState();
   }
 
   void updatePosition(Vector2 newPosition) {

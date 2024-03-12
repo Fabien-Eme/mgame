@@ -122,7 +122,7 @@ Point<int> getCityLoadTileCoordinate({required Point<int> anchorTile, required D
     case Directions.S:
       return anchorTile + const Point<int>(-1, -1);
     case Directions.W:
-      return anchorTile + const Point<int>(-3, 0);
+      return anchorTile + const Point<int>(-3, 1);
     case Directions.N:
       return anchorTile + const Point<int>(-1, 3);
     case Directions.E:

@@ -8,7 +8,8 @@ import '../game.dart';
 
 class Money extends PositionComponent {
   double startingAmount;
-  Money({required this.startingAmount});
+  bool isHidden;
+  Money({required this.startingAmount, this.isHidden = false});
 
   late final TextComponent moneyTextComponent;
   List<TextComponent> listDroppedMoney = [];
@@ -30,11 +31,15 @@ class Money extends PositionComponent {
     anchor = Anchor.center;
     position = Vector2(MGame.gameWidth / 2, 32);
 
-    add(moneyTextComponent = TextComponent(
-      text: getText(currentValue),
-      textRenderer: MyTextStyle.money,
-      anchor: Anchor.center,
-    ));
+    if (!isHidden) {
+      add(moneyTextComponent = TextComponent(
+        text: getText(currentValue),
+        textRenderer: MyTextStyle.money,
+        anchor: Anchor.center,
+      ));
+    } else {
+      moneyTextComponent = TextBoxComponent();
+    }
     return super.onLoad();
   }
 
@@ -42,7 +47,7 @@ class Money extends PositionComponent {
     valueToAdd.add(value);
     realValue += value;
 
-    if (!hideMoney) {
+    if (!hideMoney && !isHidden) {
       dropMoney(value);
     }
   }

@@ -313,7 +313,7 @@ class GridController extends Component with HasGameRef<MGame>, HasWorldReference
             ..defaultTyleType = TileType.arrowS
             ..marksAsLoadPoint();
         case Directions.W:
-          getTileAtDimetricCoordinates(coordinates + const Point<int>(-3, 0))
+          getTileAtDimetricCoordinates(coordinates + const Point<int>(-3, 1))
             ?..setTileType(TileType.arrowW)
             ..defaultTyleType = TileType.arrowW
             ..marksAsLoadPoint();

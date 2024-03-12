@@ -6,3 +6,7 @@ class RouteCanIgnoreEvents extends Route with IgnoreEvents {
     ignoreEvents = false;
   }
 }
+
+class RouteIgnoreEvents extends Route with IgnoreEvents {
+  RouteIgnoreEvents(super.builder, {super.transparent, super.maintainState});
+}

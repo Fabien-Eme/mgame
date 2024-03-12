@@ -100,7 +100,7 @@ class MenuLevelWon extends MenuWithoutTabs with RiverpodComponentMixin {
     final buttonConfirm = DialogButton(
       text: 'Next Level',
       onPressed: () {
-        game.router.popUntilNamed('mainMenu');
+        game.router.popUntilNamed('root');
         game.router.pushNamed('level${game.currentLevel}');
       },
       buttonSize: Vector2(175, 50),
@@ -111,7 +111,9 @@ class MenuLevelWon extends MenuWithoutTabs with RiverpodComponentMixin {
     final buttonMenu = DialogButton(
       text: 'Main Menu',
       onPressed: () {
-        game.router.popUntilNamed('mainMenu');
+        game.router.popUntilNamed('root');
+        game.router.pushNamed('levelBackground');
+        game.router.pushNamed('mainMenu');
       },
       textStyle: MyTextStyle.buttonRed,
       buttonSize: Vector2(200, 50),

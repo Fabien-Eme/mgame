@@ -15,8 +15,9 @@ class ProgressBar extends PositionComponent with HasGameReference<MGame> {
   String title;
   ProgressBarType progressBarType;
   void Function()? onComplete;
+  bool isHidden;
 
-  ProgressBar({required this.title, required this.totalBarValue, required this.progressBarType, this.onComplete, super.key});
+  ProgressBar({required this.title, required this.totalBarValue, required this.progressBarType, this.onComplete, this.isHidden = false, super.key});
 
   late final ClipComponent clipFilledBar;
   late final ClipComponent clipEmptyBar;
@@ -40,73 +41,76 @@ class ProgressBar extends PositionComponent with HasGameReference<MGame> {
     anchor = Anchor.center;
     size = Vector2(barWidth, barHeight);
 
-    add(
-      clipFilledBar = ClipComponent.rectangle(
-        size: Vector2(0, barHeight),
-        position: Vector2(0, 0),
-        children: [
-          FilledBar(progressBarType),
-          titleComponentWhite = TextComponent(
-            anchor: Anchor.center,
-            text: title,
-            textRenderer: MyTextStyle.nameBarWhite,
-            size: Vector2(barWidth, barHeight),
-            position: Vector2(barWidth / 2, barHeight / 2),
-          ),
-          percentageComponentWhite = TextComponent(
-            anchor: Anchor.centerLeft,
-            text: "0.00 %",
-            textRenderer: MyTextStyle.nameBarWhite,
-            size: Vector2(barWidth, barHeight),
-            position: Vector2(20, barHeight / 2),
-          ),
-          currentValueComponentWhite = TextComponent(
-            anchor: Anchor.centerRight,
-            text: getCurrentValueText(),
-            textRenderer: MyTextStyle.nameBarWhite,
-            size: Vector2(barWidth, barHeight),
-            position: Vector2(barWidth - 20, barHeight / 2),
-          ),
-        ],
-      ),
-    );
-    add(
-      clipEmptyBar = ClipComponent.rectangle(
-        anchor: Anchor.topRight,
-        size: Vector2(barWidth, barHeight),
-        position: Vector2(barWidth, 0),
-        children: [
-          titleComponent = TextComponent(
-            anchor: Anchor.center,
-            text: title,
-            textRenderer: MyTextStyle.nameBar,
-            size: Vector2(barWidth, barHeight),
-            position: Vector2(barWidth / 2, barHeight / 2),
-          ),
-          percentageComponent = TextComponent(
-            anchor: Anchor.centerLeft,
-            text: "0.00 %",
-            textRenderer: MyTextStyle.nameBar,
-            size: Vector2(barWidth, barHeight),
-            position: Vector2(20, barHeight / 2),
-          ),
-          currentValueComponent = TextComponent(
-            anchor: Anchor.centerRight,
-            text: getCurrentValueText(),
-            textRenderer: MyTextStyle.nameBar,
-            size: Vector2(barWidth, barHeight),
-            position: Vector2(barWidth - 20, barHeight / 2),
-          ),
-        ],
-      ),
-    );
-    add(EmptyBar(progressBarType));
-
+    if (!isHidden) {
+      add(
+        clipFilledBar = ClipComponent.rectangle(
+          size: Vector2(0, barHeight),
+          position: Vector2(0, 0),
+          children: [
+            FilledBar(progressBarType),
+            titleComponentWhite = TextComponent(
+              anchor: Anchor.center,
+              text: title,
+              textRenderer: MyTextStyle.nameBarWhite,
+              size: Vector2(barWidth, barHeight),
+              position: Vector2(barWidth / 2, barHeight / 2),
+            ),
+            percentageComponentWhite = TextComponent(
+              anchor: Anchor.centerLeft,
+              text: "0.00 %",
+              textRenderer: MyTextStyle.nameBarWhite,
+              size: Vector2(barWidth, barHeight),
+              position: Vector2(20, barHeight / 2),
+            ),
+            currentValueComponentWhite = TextComponent(
+              anchor: Anchor.centerRight,
+              text: getCurrentValueText(),
+              textRenderer: MyTextStyle.nameBarWhite,
+              size: Vector2(barWidth, barHeight),
+              position: Vector2(barWidth - 20, barHeight / 2),
+            ),
+          ],
+        ),
+      );
+      add(
+        clipEmptyBar = ClipComponent.rectangle(
+          anchor: Anchor.topRight,
+          size: Vector2(barWidth, barHeight),
+          position: Vector2(barWidth, 0),
+          children: [
+            titleComponent = TextComponent(
+              anchor: Anchor.center,
+              text: title,
+              textRenderer: MyTextStyle.nameBar,
+              size: Vector2(barWidth, barHeight),
+              position: Vector2(barWidth / 2, barHeight / 2),
+            ),
+            percentageComponent = TextComponent(
+              anchor: Anchor.centerLeft,
+              text: "0.00 %",
+              textRenderer: MyTextStyle.nameBar,
+              size: Vector2(barWidth, barHeight),
+              position: Vector2(20, barHeight / 2),
+            ),
+            currentValueComponent = TextComponent(
+              anchor: Anchor.centerRight,
+              text: getCurrentValueText(),
+              textRenderer: MyTextStyle.nameBar,
+              size: Vector2(barWidth, barHeight),
+              position: Vector2(barWidth - 20, barHeight / 2),
+            ),
+          ],
+        ),
+      );
+      add(EmptyBar(progressBarType));
+    }
     return super.onLoad();
   }
 
   void addValue(double value) {
-    valueToAdd += value;
+    if (!isHidden) {
+      valueToAdd += value;
+    }
   }
 
   void updateValue(double value) {

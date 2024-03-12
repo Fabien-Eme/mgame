@@ -17,8 +17,9 @@ class DialogBDD {
     "There are a number of ways to treat waste. Incinerate it, recycle it, ... but I'll leave you to experiment!",
     "Just bear in mind that not all processes are equally polluting. But some are slower, or cost more, or don't apply to all types of waste. Now you know why we need your help!",
     "Let's start with an incinerator, simple, efficient but... polluting. You'll have to improve this solution as soon as possible.",
+    "Something very useful: you can rotate the view with the bottom right buttons. Speaking about rotation...",
+    "When you build something you can rotate it with the button below me, or middle click on Desktop. Drag the view with right click or touch, zoom by scrolling or pinching... go crazy !",
     "It's time for action! Click on the garage to buy a vehicle and help the residents before they're overrun by garbage. This would generate... pollution! Good luck!",
-    "If you need me to explain it all again, just come and see me in the main menu. See you soon!",
   ];
 
   static List<Vector2> tutorialAvatarPositions = [
@@ -37,6 +38,7 @@ class DialogBDD {
     Vector2(625, 250),
     Vector2(625, 250),
     Vector2(900, 500),
+    Vector2(625, 250),
     Vector2(625, 250),
     Vector2(625, 250),
   ];
@@ -58,6 +60,7 @@ class DialogBDD {
     Vector2(1250, 400),
     Vector2(0, 0),
     Vector2(0, 0),
+    Vector2(0, 0),
   ];
 
   static List<double> tutorialHighlightRadius = [
@@ -76,6 +79,7 @@ class DialogBDD {
     0,
     0,
     200,
+    0,
     0,
     0,
   ];

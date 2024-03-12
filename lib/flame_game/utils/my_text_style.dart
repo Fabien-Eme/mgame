@@ -59,5 +59,5 @@ class MyTextStyle {
 
   static TextPaint uiButton = TextPaint(style: const TextStyle(fontSize: 20, color: Palette.white, fontFamily: 'Play', fontWeight: FontWeight.w400));
 
-  static TextPaint debugGridNumber = TextPaint(style: const TextStyle(fontSize: 12, color: Palette.white, fontFamily: 'Play', fontWeight: FontWeight.w400));
+  static TextPaint debugGridNumber = TextPaint(style: const TextStyle(fontSize: 20, color: Palette.white, fontFamily: 'Play', fontWeight: FontWeight.w400));
 }

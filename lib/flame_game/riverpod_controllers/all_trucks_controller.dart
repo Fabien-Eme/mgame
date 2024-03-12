@@ -28,13 +28,6 @@ class AllTrucksController extends _$AllTrucksController {
   void resetTruck() {
     state = AllTrucks.initial();
   }
-
-  // removeTruck(TruckType truckType) {
-  //   Map<String, Truck> trucksOwned = Map.of(state.trucksOwned);
-  //   trucksOwned.
-  //   trucksOwned[truckType] = ((trucksOwned[truckType] ?? 0) - 1).clamp(0, 1000);
-  //   state = state.copyWith(trucksOwned: trucksOwned);
-  // }
 }
 
 @freezed

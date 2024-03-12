@@ -2,9 +2,7 @@ import 'dart:async';
 
 import 'package:flame/camera.dart';
 import 'package:flame/components.dart';
-import 'package:flame_riverpod/flame_riverpod.dart';
 import 'package:mgame/flame_game/level_world.dart';
-import 'package:mgame/flame_game/riverpod_controllers/all_trucks_controller.dart';
 import 'package:mgame/flame_game/ui/garbage_bar.dart';
 import 'package:mgame/flame_game/ui/money.dart';
 import 'package:mgame/flame_game/ui/pollution_bar.dart';
@@ -17,7 +15,7 @@ import 'ui/settings_button.dart';
 import 'ui/ui_bottom_bar.dart';
 import 'ui/ui_rotate.dart';
 
-class Level extends PositionComponent with HasGameReference<MGame>, RiverpodComponentMixin {
+class Level extends PositionComponent with HasGameReference<MGame> {
   final int level;
   Level({required this.level, super.key});
 
@@ -38,7 +36,7 @@ class Level extends PositionComponent with HasGameReference<MGame>, RiverpodComp
   bool isBlueTruckAvailable = false;
 
   @override
-  FutureOr<void> onLoad() async {
+  FutureOr<void> onLoad() {
     super.onLoad();
 
     Map<String, Map<String, dynamic>> mapLevel = getMapLevel(game.globalAirQualityValue);
@@ -57,69 +55,92 @@ class Level extends PositionComponent with HasGameReference<MGame>, RiverpodComp
     ///
     ///
     /// ADD BOTTOM UI
-    cameraComponent.viewport.addAll([
-      uiBottomBar = UIBottomBar(),
-      uiRotate = UIRotate(),
-      uiRotateBuilding = UIRotateBuilding(),
-      settingsButton = SettingsButton(),
-      TextComponent(
-        text: mapLevel[level.toString()]!["levelTitle"]! as String,
-        textRenderer: MyTextStyle.levelTitleBorder,
-        anchor: Anchor.center,
-        position: Vector2(1000, MGame.gameHeight - 30),
-      ),
-      TextComponent(
-        text: mapLevel[level.toString()]!["levelTitle"]! as String,
-        textRenderer: MyTextStyle.levelTitle,
-        anchor: Anchor.center,
-        position: Vector2(1000, MGame.gameHeight - 30),
-      ),
-    ]);
+    if (level != 0) {
+      cameraComponent.viewport.addAll([
+        uiBottomBar = UIBottomBar(),
+        uiRotate = UIRotate(),
+        uiRotateBuilding = UIRotateBuilding(),
+        settingsButton = SettingsButton(position: Vector2(MGame.gameWidth - 20, 15)),
+        TextComponent(
+          text: mapLevel[level.toString()]!["levelTitle"]! as String,
+          textRenderer: MyTextStyle.levelTitleBorder,
+          anchor: Anchor.center,
+          position: Vector2(1000, MGame.gameHeight - 30),
+        ),
+        TextComponent(
+          text: mapLevel[level.toString()]!["levelTitle"]! as String,
+          textRenderer: MyTextStyle.levelTitle,
+          anchor: Anchor.center,
+          position: Vector2(1000, MGame.gameHeight - 30),
+        ),
+      ]);
+
+      ///
+      ///
+      /// ADD TOP UI
+      cameraComponent.viewport.addAll([
+        TopDrawer(),
+        pollutionBar = PollutionBar(
+            title: 'POLLUTION',
+            totalBarValue: mapLevel[level.toString()]!["pollutionLimit"]! as double,
+            onComplete: () {
+              if (level != 0) game.router.pushNamed('levelLost');
+            }),
+        money = Money(
+          startingAmount: mapLevel[level.toString()]!["startingMoney"]! as double,
+        ),
+        garbageBar = GarbageBar(
+          title: 'GARBAGE PROCESSED',
+          totalBarValue: mapLevel[level.toString()]!["garbageTarget"]! as double,
+          onComplete: () {
+            if (game.lastLevelCompleted == 2) {
+              game.router.pushNamed('gameWon');
+            } else if (level != 0) {
+              game.router.pushNamed('levelWon');
+            }
+          },
+        ),
+      ]);
+    } else {
+      cameraComponent.viewport.addAll([
+        pollutionBar = PollutionBar(
+          title: 'POLLUTION',
+          totalBarValue: mapLevel[level.toString()]!["pollutionLimit"]! as double,
+          onComplete: () {},
+          isHidden: true,
+        ),
+        money = Money(
+          startingAmount: mapLevel[level.toString()]!["startingMoney"]! as double,
+          isHidden: true,
+        ),
+        garbageBar = GarbageBar(
+          title: 'GARBAGE PROCESSED',
+          totalBarValue: mapLevel[level.toString()]!["garbageTarget"]! as double,
+          onComplete: () {},
+          isHidden: true,
+        ),
+      ]);
+    }
 
     ///
     ///
-    /// ADD TOP UI
-    cameraComponent.viewport.addAll([
-      TopDrawer(),
-      pollutionBar = PollutionBar(
-        title: 'POLLUTION',
-        totalBarValue: mapLevel[level.toString()]!["pollutionLimit"]! as double,
-        onComplete: () => game.router.pushNamed('levelLost'),
-      ),
-      money = Money(
-        startingAmount: mapLevel[level.toString()]!["startingMoney"]! as double,
-      ),
-      garbageBar = GarbageBar(
-        title: 'GARBAGE PROCESSED',
-        totalBarValue: mapLevel[level.toString()]!["garbageTarget"]! as double,
-        onComplete: () {
-          if (game.lastLevelCompleted == 2) {
-            game.router.pushNamed('gameWon');
-          } else {
-            game.router.pushNamed('levelWon');
-          }
-        },
-      ),
-    ]);
-
-    ///
-    ///
+    /// If level 0 it's for menu background
     /// If level 1 it's tutorial
     if (level == 1) {
       game.router.pushNamed('tutorial');
-    } else {
+    } else if (level != 0) {
       game.router.pushNamed('briefing');
     }
   }
 
-  @override
-  void onMount() {
-    ref.read(allTrucksControllerProvider.notifier).resetTruck();
-    super.onMount();
-  }
-
   Map<String, Map<String, dynamic>> getMapLevel(double globalAirQualityValue) {
     return {
+      "0": {
+        "levelTitle": "",
+        "pollutionLimit": 0.0,
+        "garbageTarget": 0.0,
+        "startingMoney": 1000000.0,
+      },
       "1": {
         "levelTitle": "Level 1 - Tutorial",
         "pollutionLimit": 10000.0 - (1 - globalAirQualityValue / 100) * 2000,
@@ -135,8 +156,7 @@ class Level extends PositionComponent with HasGameReference<MGame>, RiverpodComp
       "3": {
         "levelTitle": "Level 3 - Mission: Impossible",
         "pollutionLimit": 45000.0 - (1 - globalAirQualityValue / 100) * 5000,
-        "garbageTarget": 1.0,
-        // "garbageTarget": 400.0,
+        "garbageTarget": 400.0,
         "startingMoney": 75000.0,
       },
     };

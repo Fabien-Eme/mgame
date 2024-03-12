@@ -11,6 +11,7 @@ class PollutionBar extends ProgressBar {
     required super.totalBarValue,
     required super.title,
     super.onComplete,
+    super.isHidden,
   }) : super(key: ComponentKey.named('pollutionBar'));
 
   @override

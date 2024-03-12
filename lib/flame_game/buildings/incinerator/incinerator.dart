@@ -201,9 +201,11 @@ class Incinerator extends Building {
   double get buildingCost => 30000;
 
   void showPollutionTick({required int quantity}) {
-    world.add(ShowPollutionTick(quantity: quantity)
-      ..position = showTickPosition
-      ..priority = 1000);
+    if (!isRecycler) {
+      world.add(ShowPollutionTick(quantity: quantity)
+        ..position = showTickPosition
+        ..priority = 1000);
+    }
   }
 
   void showGarbageProcessedTick({required int quantity}) {
@@ -216,5 +218,6 @@ class Incinerator extends Building {
     isRecycler = true;
     incineratorFront.isRecycler = true;
     incineratorFront.updateSprite();
+    pollutionReduction = 0.0;
   }
 }

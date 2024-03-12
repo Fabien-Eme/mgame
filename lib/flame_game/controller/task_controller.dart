@@ -266,7 +266,10 @@ class TaskController extends Component with HasGameReference<MGame>, HasWorldRef
 
           if (!(game.currentIncinerator?.isRecycler ?? false)) {
             (game.findByKeyName('pollutionBar') as PollutionBar).addValue(truck.loadQuantity.toDouble() * 50 * (task.taskBuilding as Incinerator).pollutionReduction);
-            (task.taskBuilding as Incinerator).incineratorSmoke.resumeSmokeForDuration(const Duration(seconds: 5));
+
+            if (!(task.taskBuilding as Incinerator).isRecycler) {
+              (task.taskBuilding as Incinerator).incineratorSmoke.resumeSmokeForDuration(const Duration(seconds: 5));
+            }
           }
 
           (task.taskBuilding as Incinerator).showGarbageProcessedTick(quantity: (truck.loadQuantity));

@@ -102,7 +102,7 @@ class OrganizeEventState extends ConsumerState<OrganizeEvent> {
                                     children: [
                                       Text(
                                         'ORGANIZE WASTE CLEANING EVENT',
-                                        style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                                        style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                                       ),
                                     ],
                                   ),
@@ -128,7 +128,7 @@ class OrganizeEventState extends ConsumerState<OrganizeEvent> {
                                     color: Colors.white,
                                     child: TextFormField(
                                       onSaved: (value) => description = value!,
-                                      maxLines: 4,
+                                      maxLines: 3,
                                     ),
                                   ),
                                   const SizedBox(height: 20),
@@ -154,35 +154,37 @@ class OrganizeEventState extends ConsumerState<OrganizeEvent> {
                     Container(
                       width: (constraints.maxWidth / 3 > 500) ? 500 : constraints.maxWidth / 3,
                       height: (constraints.maxHeight / 1.3 > 480) ? 480 : constraints.maxHeight / 1.3,
-                      padding: const EdgeInsets.all(8),
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          const Text(
-                            'We offer you the possibility to organize waste cleaning events in real life.\nInspire other people to take action around the world.\n\nYou will earn 10 EcoCredits per participants to your event. Each participant will get 10 EcoCredits for attending the event.\n\nAfter you confirm your event, go to "My Events" to get a google wallet pass that will allow you to reward the participants. By flashing the QR Code, they will get a code to get their reward in-game.\n\nKeep in mind that your event will be public and viewable by everyone.',
-                            style: TextStyle(fontSize: 16),
-                          ),
-                          const SizedBox(height: 20),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                            children: [
-                              ElevatedButton(
-                                onPressed: () {
-                                  widget.mgame.overlays.remove('organizeEvent');
-                                  widget.mgame.mouseCursor = SystemMouseCursors.none;
-                                },
-                                child: const Text(
-                                  'Cancel',
-                                  style: TextStyle(color: Colors.red),
+                      padding: const EdgeInsets.all(4),
+                      child: SingleChildScrollView(
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            const Text(
+                              'We offer you the possibility to organize waste cleaning events in real life.\nInspire other people to take action around the world.\n\nYou will earn 10 EcoCredits per participants to your event. Each participant will get 10 EcoCredits for attending the event.\n\nAfter you confirm your event, go to "My Events" to get a google wallet pass that will allow you to reward the participants. By flashing the QR Code, they will get a code to get their reward in-game.\n\nKeep in mind that your event will be public and viewable by everyone.',
+                              style: TextStyle(fontSize: 16),
+                            ),
+                            const SizedBox(height: 20),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                              children: [
+                                ElevatedButton(
+                                  onPressed: () {
+                                    widget.mgame.overlays.remove('organizeEvent');
+                                    widget.mgame.mouseCursor = SystemMouseCursors.none;
+                                  },
+                                  child: const Text(
+                                    'Cancel',
+                                    style: TextStyle(color: Colors.red),
+                                  ),
                                 ),
-                              ),
-                              ElevatedButton(
-                                onPressed: _submitForm,
-                                child: const Text('Confirm Event'),
-                              ),
-                            ],
-                          ),
-                        ],
+                                ElevatedButton(
+                                  onPressed: _submitForm,
+                                  child: const Text('Confirm Event'),
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
                       ),
                     ),
                   ],

@@ -102,7 +102,7 @@ class DragZoomController extends Component with HasGameRef<MGame>, HasWorldRefer
   }
 
   void onDragUpdate(int pointerId, DragUpdateInfo info) {
-    myMouseCursor.position = camera.globalToLocal(info.eventPosition.global) * camera.viewfinder.zoom - camera.viewfinder.position * camera.viewfinder.zoom;
+    if (!game.isMobile) myMouseCursor.position = camera.globalToLocal(info.eventPosition.global) * camera.viewfinder.zoom - camera.viewfinder.position * camera.viewfinder.zoom;
     _drags[pointerId]?.updatePosition(info.eventPosition.global);
 
     _updateGesture();

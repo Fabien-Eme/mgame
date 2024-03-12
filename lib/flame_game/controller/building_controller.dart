@@ -96,11 +96,26 @@ class BuildingController extends Component with HasGameReference<MGame>, HasWorl
   void tryToBuildCurrentBuilding() async {
     final constructionState = ref.read(constructionModeControllerProvider);
 
-    if ((game.findByKeyName('level') as Level).money.hasEnoughMoney(createBuilding(buildingType: constructionState.buildingType!).buildingCost)) {
-      if (isBuildingBuildable(world.currentMouseTilePos, createBuilding(buildingType: constructionState.buildingType!))) {
-        await world.gridController.buildOnTile(world.convertRotations.unRotateCoordinates(world.currentMouseTilePos), constructionState);
-        ref.read(constructionModeControllerProvider.notifier).exitConstructionMode();
-        ref.read(activeUIButtonControllerProvider.notifier).resetButtons();
+    if (!game.isMobile) {
+      if ((game.findByKeyName('level') as Level).money.hasEnoughMoney(createBuilding(buildingType: constructionState.buildingType!).buildingCost)) {
+        if (isBuildingBuildable(world.currentMouseTilePos, createBuilding(buildingType: constructionState.buildingType!))) {
+          await world.gridController.buildOnTile(world.convertRotations.unRotateCoordinates(world.currentMouseTilePos), constructionState);
+          ref.read(constructionModeControllerProvider.notifier).exitConstructionMode();
+          ref.read(activeUIButtonControllerProvider.notifier).resetButtons();
+        }
+      }
+    } else {
+      if (game.mobileTempCurrentMouseTilePos == world.currentMouseTilePos && game.mobileTempBuildingType == constructionState.buildingType!) {
+        if ((game.findByKeyName('level') as Level).money.hasEnoughMoney(createBuilding(buildingType: constructionState.buildingType!).buildingCost)) {
+          if (isBuildingBuildable(world.currentMouseTilePos, createBuilding(buildingType: constructionState.buildingType!))) {
+            await world.gridController.buildOnTile(world.convertRotations.unRotateCoordinates(world.currentMouseTilePos), constructionState);
+            ref.read(constructionModeControllerProvider.notifier).exitConstructionMode();
+            ref.read(activeUIButtonControllerProvider.notifier).resetButtons();
+          }
+        }
+      } else {
+        game.mobileTempCurrentMouseTilePos = world.currentMouseTilePos;
+        game.mobileTempBuildingType = constructionState.buildingType!;
       }
     }
   }

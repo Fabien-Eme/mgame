@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:math';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flame/camera.dart';
@@ -37,6 +38,7 @@ import 'menu/menu_game_won.dart';
 import 'menu/menu_level_lost.dart';
 import 'menu/menu_level_won.dart';
 import 'menu/menu_settings.dart';
+import 'menu/root.dart';
 import 'router/route_make_other_ignore_events.dart';
 import 'ui/mouse_cursor.dart';
 import 'utils/palette.dart';
@@ -71,7 +73,7 @@ class MGame extends FlameGame with MouseMovementDetector, ScrollDetector, MultiT
   Vector2 mousePosition = Vector2.zero();
 
   bool hasAudioBeenActivatedOnWeb = false;
-  double musicVolume = 0.0;
+  double musicVolume = 0.2;
   double soundVolume = 0.4;
 
   bool isMouseDragging = false;
@@ -91,11 +93,14 @@ class MGame extends FlameGame with MouseMovementDetector, ScrollDetector, MultiT
   int lastLevelCompleted = 0;
   int currentLevel = 0;
 
-  bool isAudioEnabled = false;
+  bool isAudioEnabled = true;
 
   double globalAirQualityValue = 0;
   String globalAirQualityString = "";
   String globalAirQualityColor = "";
+
+  Point<int>? mobileTempCurrentMouseTilePos;
+  BuildingType? mobileTempBuildingType;
 
   ///
   ///
@@ -133,11 +138,15 @@ class MGame extends FlameGame with MouseMovementDetector, ScrollDetector, MultiT
     add(
       router = RouterComponent(
         routes: {
-          'mainMenu': RouteCanIgnoreEvents(MainMenu.new, maintainState: false),
+          'root': RouteCanIgnoreEvents(Root.new, maintainState: false),
+
+          ///
+          'mainMenu': RouteCanIgnoreEvents(MainMenu.new, transparent: true, maintainState: false),
           'menuSettings': RouteMakeOtherIgnoreEvents(MenuSettings.new, transparent: true, maintainState: false),
           'menuAchievements': RouteMakeOtherIgnoreEvents(MenuAchievement.new, transparent: true, maintainState: false),
 
           ///
+          'levelBackground': RouteIgnoreEvents(() => Level(level: 0, key: ComponentKey.named('level')), maintainState: false),
           'level1': RouteCanIgnoreEvents(() => Level(level: 1, key: ComponentKey.named('level')), maintainState: false),
           'level2': RouteCanIgnoreEvents(() => Level(level: 2, key: ComponentKey.named('level')), maintainState: false),
           'level3': RouteCanIgnoreEvents(() => Level(level: 3, key: ComponentKey.named('level')), maintainState: false),
@@ -154,11 +163,11 @@ class MGame extends FlameGame with MouseMovementDetector, ScrollDetector, MultiT
           'menuCity': RouteMakeOtherIgnoreEvents(MenuCity.new, doesPutGameInPause: false, transparent: true, maintainState: false),
           'menuIncinerator': RouteMakeOtherIgnoreEvents(MenuIncinerator.new, doesPutGameInPause: false, transparent: true, maintainState: false),
         },
-        initialRoute: 'mainMenu',
+        initialRoute: 'root',
       ),
     );
 
-    add(FpsTextComponent());
+    // add(FpsTextComponent());
 
     return super.onLoad();
   }

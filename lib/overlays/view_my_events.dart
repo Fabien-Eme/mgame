@@ -39,7 +39,7 @@ class _ViewMyEventsState extends ConsumerState<ViewMyEvents> {
           width: constraints.maxWidth,
           child: Center(
             child: Container(
-              width: (constraints.maxWidth / 2.5 > 600) ? 600 : constraints.maxWidth / 2.5,
+              width: (constraints.maxWidth / 2 > 600) ? 600 : constraints.maxWidth / 2,
               height: (constraints.maxHeight / 1.2 > 500) ? 500 : constraints.maxHeight / 1.2,
               decoration: BoxDecoration(
                 color: Colors.blueGrey[50]!,
@@ -51,7 +51,7 @@ class _ViewMyEventsState extends ConsumerState<ViewMyEvents> {
               ),
               child: Center(
                 child: SizedBox(
-                  width: (constraints.maxWidth / 3 > 500) ? 500 : constraints.maxWidth / 3,
+                  width: (constraints.maxWidth / 2.5 > 500) ? 500 : constraints.maxWidth / 2.5,
                   height: (constraints.maxHeight / 1.5 > 450) ? 450 : constraints.maxHeight / 1.5,
                   child: Padding(
                     padding: const EdgeInsets.all(4.0),
@@ -59,11 +59,11 @@ class _ViewMyEventsState extends ConsumerState<ViewMyEvents> {
                       mainAxisAlignment: MainAxisAlignment.spaceAround,
                       children: <Widget>[
                         const Text(
-                          'ALL CLEANING EVENT',
+                          'MY CLEANING EVENT',
                           style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
                         ),
                         const Text(
-                          'Attend the events of your choice. Scan the Google Wallet Pass of the organizer to get a reward !',
+                          "Get the organizer's Google Wallet Pass to reward participants and get rewarded yourself!",
                           style: TextStyle(fontSize: 12),
                         ),
                         const SizedBox(height: 10),

@@ -84,7 +84,7 @@ class _LoginSignupScreenState extends State<LoginSignupScreen> {
           width: constraints.maxWidth,
           child: Center(
             child: Container(
-              width: (constraints.maxWidth / 2.5 > 600) ? 600 : constraints.maxWidth / 2.5,
+              width: (constraints.maxWidth / 1.5 > 600) ? 600 : constraints.maxWidth / 1.5,
               height: (constraints.maxHeight / 1.2 > 500) ? 500 : constraints.maxHeight / 1.2,
               decoration: BoxDecoration(
                 color: Colors.blueGrey[50]!,

@@ -7,6 +7,7 @@ import 'package:flame_riverpod/flame_riverpod.dart';
 import 'package:flutter/material.dart';
 import 'package:mgame/flame_game/menu/dialog_button.dart';
 import 'package:mgame/flame_game/riverpod_controllers/user_controller.dart';
+import 'package:mgame/flame_game/ui/settings_button.dart';
 import 'package:mgame/flame_game/utils/my_text_style.dart';
 import 'package:mgame/flame_game/utils/palette.dart';
 
@@ -17,7 +18,7 @@ class MainMenu extends PositionComponent with HasGameReference<MGame>, RiverpodC
   late final CameraComponent cameraComponent;
 
   late final DialogButton playButton;
-  late final DialogButton settingsButton;
+  late final SettingsButton settingsButton;
   late final DialogButton achievementsButton;
   late final DialogButton oraganizeEventButton;
   late final DialogButton viewEventsButton;
@@ -46,6 +47,16 @@ class MainMenu extends PositionComponent with HasGameReference<MGame>, RiverpodC
       world: world,
     ));
 
+    world.add(RectangleComponent.fromRect(
+      Rect.fromCenter(center: const Offset(0, -25), width: 750, height: 450),
+      paint: Paint()..color = Palette.blackTransparent,
+    ));
+
+    world.add(RectangleComponent.fromRect(
+      Rect.fromCenter(center: const Offset(0, 300), width: 275, height: 80),
+      paint: Paint()..color = Palette.whiteTransparent,
+    ));
+
     playButton = DialogButton(
       text: 'Play',
       buttonSize: Vector2(100, 50),
@@ -66,9 +77,11 @@ class MainMenu extends PositionComponent with HasGameReference<MGame>, RiverpodC
           game.lastLevelCompleted = lastLevelCompleted;
           game.currentLevel = lastLevelCompleted + 1;
 
+          game.router.popUntilNamed('root');
           game.router.pushNamed('level${lastLevelCompleted + 1}');
+
+          isLevelLoading = false;
         }
-        isLevelLoading = false;
       },
       position: Vector2(0, -200),
     );
@@ -83,13 +96,8 @@ class MainMenu extends PositionComponent with HasGameReference<MGame>, RiverpodC
       position: Vector2(0, -200),
     );
 
-    settingsButton = DialogButton(
-      text: 'Settings',
-      onPressed: () {
-        game.router.pushNamed('menuSettings');
-      },
-      buttonSize: Vector2(150, 50),
-      position: Vector2(0, 150),
+    settingsButton = SettingsButton(
+      position: Vector2(MGame.gameWidth / 2 - 30, -MGame.gameHeight / 2 + 20),
     );
 
     achievementsButton = DialogButton(
@@ -108,7 +116,7 @@ class MainMenu extends PositionComponent with HasGameReference<MGame>, RiverpodC
         game.overlays.add('organizeEvent');
       },
       buttonSize: Vector2(275, 50),
-      position: Vector2(-175, -12.5),
+      position: Vector2(-175, 25),
     );
 
     viewEventsButton = DialogButton(
@@ -118,7 +126,7 @@ class MainMenu extends PositionComponent with HasGameReference<MGame>, RiverpodC
         game.overlays.add('viewEvents');
       },
       buttonSize: Vector2(275, 50),
-      position: Vector2(-175, 67.5),
+      position: Vector2(-175, 115),
     );
 
     viewMyEventsButton = DialogButton(
@@ -128,7 +136,7 @@ class MainMenu extends PositionComponent with HasGameReference<MGame>, RiverpodC
         game.overlays.add('viewMyEvents');
       },
       buttonSize: Vector2(225, 50),
-      position: Vector2(175, -12.5),
+      position: Vector2(175, 25),
     );
 
     validateParticipationButton = DialogButton(
@@ -138,7 +146,7 @@ class MainMenu extends PositionComponent with HasGameReference<MGame>, RiverpodC
         game.overlays.add('validateParticipation');
       },
       buttonSize: Vector2(225, 75),
-      position: Vector2(175, 67.5),
+      position: Vector2(175, 127.5),
     );
 
     disconnectButton = DialogButton(
@@ -147,35 +155,48 @@ class MainMenu extends PositionComponent with HasGameReference<MGame>, RiverpodC
         FirebaseAuth.instance.signOut();
       },
       buttonSize: Vector2(225, 50),
-      position: Vector2(0, 350),
+      position: Vector2(0, 380),
     );
 
     userEmailComponent = TextComponent(
       text: "",
       textRenderer: MyTextStyle.header,
       anchor: Anchor.center,
-      position: Vector2(0, 250),
+      position: Vector2(0, 280),
     );
 
     ecoCreditsComponent = TextComponent(
-      text: "- EcoCredits",
+      text: "",
       textRenderer: MyTextStyle.header,
       anchor: Anchor.center,
-      position: Vector2(0, 285),
+      position: Vector2(0, 315),
     );
 
+    world.add(RectangleComponent.fromRect(
+      Rect.fromCenter(center: const Offset(-MGame.gameWidth / 2 + 270, MGame.gameHeight / 2 - 80), width: 500, height: 110),
+      paint: Paint()..color = Palette.whiteTransparent,
+    ));
+
+    world.add(TextComponent(
+      text: "Fabien Eme: Programming - Game Desgin\nSebastien Eme: Game Design - Testing\nKenney.nl: Assets",
+      textRenderer: MyTextStyle.header,
+      anchor: Anchor.center,
+      position: Vector2(-MGame.gameWidth / 2 + 270, MGame.gameHeight / 2 - 80),
+    ));
+
     final whiteRectComponent = RectangleComponent.fromRect(
-      const Rect.fromLTWH(MGame.gameWidth / 2 - 355, -MGame.gameHeight / 2 + 95, 310, 110),
+      const Rect.fromLTWH(-180, -MGame.gameHeight / 2 - 20, 360, 155),
       paint: Paint()..color = Colors.white,
     );
 
     globalAirQualityComponent = RectangleComponent.fromRect(
-      const Rect.fromLTWH(MGame.gameWidth / 2 - 350, -MGame.gameHeight / 2 + 100, 300, 100),
+      const Rect.fromLTWH(-175, -MGame.gameHeight / 2 - 10, 350, 140),
       children: [
         TextBoxComponent(
           text: "",
           textRenderer: MyTextStyle.airInfo,
           size: Vector2(300, 150),
+          position: Vector2(45, 35),
         )
       ],
     );
@@ -213,6 +234,7 @@ class MainMenu extends PositionComponent with HasGameReference<MGame>, RiverpodC
       if (viewEventsButton.isMounted) world.remove(viewEventsButton);
       if (viewMyEventsButton.isMounted) world.remove(viewMyEventsButton);
       if (validateParticipationButton.isMounted) world.remove(validateParticipationButton);
+      if (ecoCreditsComponent.isMounted) world.remove(ecoCreditsComponent);
       userEmailComponent.text = '';
 
       world.add(connectButton);
@@ -228,6 +250,7 @@ class MainMenu extends PositionComponent with HasGameReference<MGame>, RiverpodC
       world.add(viewEventsButton);
       world.add(viewMyEventsButton);
       world.add(validateParticipationButton);
+      world.add(ecoCreditsComponent);
     }
   }
 
@@ -246,8 +269,8 @@ class MainMenu extends PositionComponent with HasGameReference<MGame>, RiverpodC
   Future<void> updateGlobalAirQuality() async {
     if (game.globalAirQualityString == "") {
       await game.getGlobalAirQuality();
-      (globalAirQualityComponent.children.first as TextComponent).text = "Universal AQI: ${game.globalAirQualityValue}/100\n\nWorld air quality: ${game.globalAirQualityString}";
-      globalAirQualityComponent.paint = Paint()..color = convertGlobalAirQualityColor(game.globalAirQualityColor);
     }
+    (globalAirQualityComponent.children.first as TextComponent).text = "Universal AQI: ${game.globalAirQualityValue}/100\n\nWorld air quality: ${game.globalAirQualityString}";
+    globalAirQualityComponent.paint = Paint()..color = convertGlobalAirQualityColor(game.globalAirQualityColor);
   }
 }
