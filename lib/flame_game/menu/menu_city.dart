@@ -1,9 +1,9 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flame/components.dart';
 import 'package:flame_riverpod/flame_riverpod.dart';
+import 'package:mgame/flame_game/controller/waste_controller.dart';
 
 import '../level.dart';
-import '../riverpod_controllers/user_controller.dart';
+import '../riverpod_controllers/game_user_controller.dart';
 import '../ui/pollution_bar.dart';
 import '../utils/my_text_style.dart';
 
@@ -37,7 +37,7 @@ class MenuCity extends MenuWithoutTabs with RiverpodComponentMixin {
     ///
     /// TEXT
     world.add(TextComponent(
-      text: '${game.currentCity!.cityType.cityText}\nIf the garbage stack goes over 60, the city will start generating pollution.',
+      text: '${game.currentCity!.cityType.cityText}\nIf the waste stack goes over 60, the city will start generating pollution.',
       textRenderer: MyTextStyle.text,
       anchor: Anchor.topCenter,
       position: Vector2(0, -boxSize.y / 2 + 80),
@@ -47,7 +47,7 @@ class MenuCity extends MenuWithoutTabs with RiverpodComponentMixin {
     ///
     /// UPGRADES
     world.add(TextComponent(
-      text: 'Install composters   3K\$\nReduce the rate of garbage production by 25%',
+      text: 'Install composters   3K\$\nReduce the rate of waste production by 25%',
       textRenderer: MyTextStyle.text,
       anchor: Anchor.centerLeft,
       position: Vector2(-boxSize.x / 2 + 20, -boxSize.y / 2 + 180),
@@ -59,10 +59,11 @@ class MenuCity extends MenuWithoutTabs with RiverpodComponentMixin {
           (game.findByKeyName('level') as Level).money.addValue(-3000);
           game.currentCity!.reductionRate = game.currentCity!.reductionRate * 0.75;
 
-          (game.findByKeyName('level') as Level)
-              .levelWorld
-              .garbageController
-              .updateGarbageStack(garbageStackId: game.currentCity!.garbageStackId!, garbageRate: game.currentCity!.reductionRate * game.currentCity!.cityType.cityRate);
+          WasteController wasteController = (game.findByKeyName('level') as Level).levelWorld.wasteController;
+          for (String wasteStackId in game.currentCity!.listWasteStackId) {
+            wasteController.updateWasteStackWasteRate(
+                wasteStackId: wasteStackId, wasteRate: game.currentCity!.reductionRate * game.currentCity!.cityType.wasteRate(wasteController.getWasteStackType(wasteStackId)));
+          }
           if (upgradeComposters.isMounted) {
             world.remove(upgradeComposters);
             world.add(TextComponent(
@@ -112,7 +113,7 @@ class MenuCity extends MenuWithoutTabs with RiverpodComponentMixin {
     ///
 
     world.add(TextComponent(
-      text: "Organize events to clean waste in the city   5 EcoCredits\nThe garbage stack won't generate additionnal pollution",
+      text: "Organize events to clean waste in the city   5 EcoCredits\nThe waste stack won't generate additionnal pollution",
       textRenderer: MyTextStyle.text,
       anchor: Anchor.centerLeft,
       position: Vector2(-boxSize.x / 2 + 20, -boxSize.y / 2 + 380),
@@ -124,13 +125,16 @@ class MenuCity extends MenuWithoutTabs with RiverpodComponentMixin {
         if (!isFetchingData) {
           isFetchingData = true;
           String upgradeText = "";
-          final doc = await FirebaseFirestore.instance.collection('users').doc(ref.read(userControllerProvider)!.email!).get();
-          if (doc.data() != null && (doc.data()!['EcoCredits'] as int) >= 5) {
+
+          int ecoCredits = ref.read(gameUserControllerProvider.notifier).getUserEcoCredits();
+
+          if (ecoCredits >= 5) {
             upgradeText = 'Upgrade Bought';
-            await FirebaseFirestore.instance.collection('users').doc(ref.read(userControllerProvider)!.email!).update({
-              "EcoCredits": FieldValue.increment(-5),
-            });
-            (game.findByKeyName('level') as Level).levelWorld.garbageController.stopPollutionGeneration(garbageStackId: game.currentCity!.garbageStackId!);
+            ref.read(gameUserControllerProvider.notifier).updateGameUser(ecoCredits: ecoCredits - 5);
+            WasteController wasteController = (game.findByKeyName('level') as Level).levelWorld.wasteController;
+            for (String wasteStackId in game.currentCity!.listWasteStackId) {
+              wasteController.stopPollutionGeneration(wasteStackId: wasteStackId);
+            }
           } else {
             upgradeText = 'Insufficient EcoCredits';
           }

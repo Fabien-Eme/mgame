@@ -3,6 +3,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
 import '../flame_game/game.dart';
+import '../flame_game/user/cloud_user_controller.dart';
 
 Widget overlaySignInUp(BuildContext context, MGame game) {
   return LoginSignupScreen(game);
@@ -29,10 +30,17 @@ class _LoginSignupScreenState extends State<LoginSignupScreen> {
 
   void _submitForm() async {
     if (!isTryingToConnect) {
-      isTryingToConnect = true;
+      setState(() {
+        isTryingToConnect = true;
+      });
 
       final isValid = formKey.currentState?.validate();
-      if (!(isValid ?? false)) return;
+      if (!(isValid ?? false)) {
+        setState(() {
+          isTryingToConnect = false;
+        });
+        return;
+      }
 
       formKey.currentState?.save();
       try {
@@ -40,18 +48,15 @@ class _LoginSignupScreenState extends State<LoginSignupScreen> {
           await auth.signInWithEmailAndPassword(email: email.toLowerCase(), password: password);
         } else {
           await auth.createUserWithEmailAndPassword(email: email.toLowerCase(), password: password);
-          await db.collection("users").doc(email.toLowerCase()).set({
-            'achievements': [],
-            'lastLevelCompleted': 0,
-            'EcoCredits': 10,
-            'codeUsed': [],
-          });
+          await createCloudUser(userEmail: email);
         }
 
         widget.mgame.overlays.remove('signInUp');
         widget.mgame.mouseCursor = SystemMouseCursors.none;
       } on FirebaseAuthException catch (e) {
-        isTryingToConnect = false;
+        setState(() {
+          isTryingToConnect = false;
+        });
         if (e.code == 'unknown-error') {
           setState(() => errorMessage = 'No account for this email. Create one');
         } else {
@@ -145,9 +150,21 @@ class _LoginSignupScreenState extends State<LoginSignupScreen> {
                                       style: TextStyle(color: Colors.red),
                                     ),
                                   ),
-                                  ElevatedButton(
-                                    onPressed: _submitForm,
-                                    child: Text(isLogin ? 'Login' : 'Sign up'),
+                                  SizedBox(
+                                    width: 100,
+                                    height: 30,
+                                    child: ElevatedButton(
+                                      onPressed: (isTryingToConnect) ? null : _submitForm,
+                                      child: (isTryingToConnect)
+                                          ? const SizedBox(
+                                              width: 20,
+                                              height: 20,
+                                              child: CircularProgressIndicator(
+                                                strokeWidth: 2,
+                                              ),
+                                            )
+                                          : Text(isLogin ? 'Login' : 'Sign up'),
+                                    ),
                                   ),
                                 ],
                               ),

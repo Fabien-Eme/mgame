@@ -13,7 +13,7 @@ class UIRotateBuilding extends PositionComponent with HasGameRef<MGame>, HoverCa
   Future<void> onLoad() async {
     priority = 500;
     size = Vector2(100, 100);
-    position = Vector2(400, MGame.gameHeight - size.y);
+    position = Vector2(500, MGame.gameHeight - size.y);
 
     addAll([
       UIRotateBuildingButton(size: Vector2(81, 75), position: Vector2(12.5, 12.5)),

@@ -20,6 +20,8 @@ mixin _$ConstructionState {
   TileType? get tileType => throw _privateConstructorUsedError;
   BuildingType? get buildingType => throw _privateConstructorUsedError;
   Directions? get buildingDirection => throw _privateConstructorUsedError;
+  GarbageLoaderFlow? get garbageLoaderFlow =>
+      throw _privateConstructorUsedError;
 
   @JsonKey(ignore: true)
   $ConstructionStateCopyWith<ConstructionState> get copyWith =>
@@ -36,7 +38,8 @@ abstract class $ConstructionStateCopyWith<$Res> {
       {ConstructionMode status,
       TileType? tileType,
       BuildingType? buildingType,
-      Directions? buildingDirection});
+      Directions? buildingDirection,
+      GarbageLoaderFlow? garbageLoaderFlow});
 }
 
 /// @nodoc
@@ -56,6 +59,7 @@ class _$ConstructionStateCopyWithImpl<$Res, $Val extends ConstructionState>
     Object? tileType = freezed,
     Object? buildingType = freezed,
     Object? buildingDirection = freezed,
+    Object? garbageLoaderFlow = freezed,
   }) {
     return _then(_value.copyWith(
       status: null == status
@@ -74,6 +78,10 @@ class _$ConstructionStateCopyWithImpl<$Res, $Val extends ConstructionState>
           ? _value.buildingDirection
           : buildingDirection // ignore: cast_nullable_to_non_nullable
               as Directions?,
+      garbageLoaderFlow: freezed == garbageLoaderFlow
+          ? _value.garbageLoaderFlow
+          : garbageLoaderFlow // ignore: cast_nullable_to_non_nullable
+              as GarbageLoaderFlow?,
     ) as $Val);
   }
 }
@@ -90,7 +98,8 @@ abstract class _$$ConstructionStateImplCopyWith<$Res>
       {ConstructionMode status,
       TileType? tileType,
       BuildingType? buildingType,
-      Directions? buildingDirection});
+      Directions? buildingDirection,
+      GarbageLoaderFlow? garbageLoaderFlow});
 }
 
 /// @nodoc
@@ -108,6 +117,7 @@ class __$$ConstructionStateImplCopyWithImpl<$Res>
     Object? tileType = freezed,
     Object? buildingType = freezed,
     Object? buildingDirection = freezed,
+    Object? garbageLoaderFlow = freezed,
   }) {
     return _then(_$ConstructionStateImpl(
       status: null == status
@@ -126,6 +136,10 @@ class __$$ConstructionStateImplCopyWithImpl<$Res>
           ? _value.buildingDirection
           : buildingDirection // ignore: cast_nullable_to_non_nullable
               as Directions?,
+      garbageLoaderFlow: freezed == garbageLoaderFlow
+          ? _value.garbageLoaderFlow
+          : garbageLoaderFlow // ignore: cast_nullable_to_non_nullable
+              as GarbageLoaderFlow?,
     ));
   }
 }
@@ -137,7 +151,8 @@ class _$ConstructionStateImpl implements _ConstructionState {
       {required this.status,
       this.tileType,
       this.buildingType,
-      this.buildingDirection});
+      this.buildingDirection,
+      this.garbageLoaderFlow});
 
   @override
   final ConstructionMode status;
@@ -147,10 +162,12 @@ class _$ConstructionStateImpl implements _ConstructionState {
   final BuildingType? buildingType;
   @override
   final Directions? buildingDirection;
+  @override
+  final GarbageLoaderFlow? garbageLoaderFlow;
 
   @override
   String toString() {
-    return 'ConstructionState(status: $status, tileType: $tileType, buildingType: $buildingType, buildingDirection: $buildingDirection)';
+    return 'ConstructionState(status: $status, tileType: $tileType, buildingType: $buildingType, buildingDirection: $buildingDirection, garbageLoaderFlow: $garbageLoaderFlow)';
   }
 
   @override
@@ -164,12 +181,14 @@ class _$ConstructionStateImpl implements _ConstructionState {
             (identical(other.buildingType, buildingType) ||
                 other.buildingType == buildingType) &&
             (identical(other.buildingDirection, buildingDirection) ||
-                other.buildingDirection == buildingDirection));
+                other.buildingDirection == buildingDirection) &&
+            (identical(other.garbageLoaderFlow, garbageLoaderFlow) ||
+                other.garbageLoaderFlow == garbageLoaderFlow));
   }
 
   @override
-  int get hashCode => Object.hash(
-      runtimeType, status, tileType, buildingType, buildingDirection);
+  int get hashCode => Object.hash(runtimeType, status, tileType, buildingType,
+      buildingDirection, garbageLoaderFlow);
 
   @JsonKey(ignore: true)
   @override
@@ -184,7 +203,8 @@ abstract class _ConstructionState implements ConstructionState {
       {required final ConstructionMode status,
       final TileType? tileType,
       final BuildingType? buildingType,
-      final Directions? buildingDirection}) = _$ConstructionStateImpl;
+      final Directions? buildingDirection,
+      final GarbageLoaderFlow? garbageLoaderFlow}) = _$ConstructionStateImpl;
 
   @override
   ConstructionMode get status;
@@ -194,6 +214,8 @@ abstract class _ConstructionState implements ConstructionState {
   BuildingType? get buildingType;
   @override
   Directions? get buildingDirection;
+  @override
+  GarbageLoaderFlow? get garbageLoaderFlow;
   @override
   @JsonKey(ignore: true)
   _$$ConstructionStateImplCopyWith<_$ConstructionStateImpl> get copyWith =>

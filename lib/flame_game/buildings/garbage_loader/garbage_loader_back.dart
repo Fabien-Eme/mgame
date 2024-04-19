@@ -17,6 +17,7 @@ class GarbageLoaderBack extends SpriteComponent with HasGameRef {
     size = Vector2(120, 129);
     priority = 90;
     anchor = Anchor.bottomRight;
+    scale = Vector2(0.75, 0.75);
     updateSprite();
 
     paint = Paint()..filterQuality = FilterQuality.low;

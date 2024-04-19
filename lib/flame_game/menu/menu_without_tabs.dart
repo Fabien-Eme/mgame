@@ -2,6 +2,7 @@ import 'package:flame/components.dart';
 
 import '../../gen/assets.gen.dart';
 import '../game.dart';
+import '../level.dart';
 import 'close_button.dart';
 
 class MenuWithoutTabs extends PositionComponent with HasGameReference<MGame> {
@@ -34,5 +35,13 @@ class MenuWithoutTabs extends PositionComponent with HasGameReference<MGame> {
     );
 
     if (isCloseButtonShown) world.add(CloseButton(position: Vector2(boxSize.x / 2 - 40, -boxSize.y / 2 + 40)));
+  }
+
+  @override
+  void onRemove() {
+    (game.findByKeyName('level') as Level?)?.levelWorld.buildings.forEach((element) {
+      element.deselect();
+    });
+    super.onRemove();
   }
 }

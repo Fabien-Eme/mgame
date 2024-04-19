@@ -3,7 +3,6 @@ import 'dart:math';
 import 'package:flame/components.dart' hide Timer;
 import 'package:flame_riverpod/flame_riverpod.dart';
 import 'package:mgame/flame_game/buildings/city/city.dart';
-import 'package:mgame/flame_game/buildings/incinerator/incinerator.dart';
 import 'package:mgame/flame_game/tile/tile_helper.dart';
 import 'package:mgame/flame_game/truck/truck_model.dart';
 
@@ -21,7 +20,7 @@ import 'controller/building_controller.dart';
 import 'controller/construction_controller.dart';
 import 'controller/cursor_controller.dart';
 import 'controller/drag_zoom_controller.dart';
-import 'controller/garbage_controller.dart';
+import 'controller/waste_controller.dart';
 import 'controller/grid_controller.dart';
 import 'controller/mouse_controller.dart';
 import 'controller/tap_controller.dart';
@@ -51,7 +50,7 @@ class LevelWorld extends World with HasGameReference<MGame>, IgnoreEvents, River
   late final BuildingController buildingController;
   late final ConvertRotations convertRotations;
   late final TruckController truckController;
-  late final GarbageController garbageController;
+  late final WasteController wasteController;
   late final TaskController taskController;
   late final AStarController aStarController;
 
@@ -71,7 +70,7 @@ class LevelWorld extends World with HasGameReference<MGame>, IgnoreEvents, River
       buildingController = BuildingController(),
       convertRotations = ConvertRotations(),
       truckController = TruckController(),
-      garbageController = GarbageController(),
+      wasteController = WasteController(),
       taskController = TaskController(),
       aStarController = AStarController(),
     ]);
@@ -105,7 +104,7 @@ class LevelWorld extends World with HasGameReference<MGame>, IgnoreEvents, River
   void addLevelBuildings(int level) async {
     switch (level) {
       case 0:
-        game.router.previousRoute!.resumeTime();
+        game.router.previousRoute?.resumeTime();
         animateMenuBackground();
         break;
       case 1:
@@ -218,7 +217,7 @@ class LevelWorld extends World with HasGameReference<MGame>, IgnoreEvents, River
       Future.delayed(const Duration(milliseconds: 100)).then((value) => add(ref.read(allTrucksControllerProvider).trucksOwned[ref.read(allTrucksControllerProvider).lastTruckAddedId]!));
     }
     if (isMounted) await Future.delayed(const Duration(seconds: 5));
-    if (isMounted) (gridController.getBuildingOnTile(const Point<int>(10, -4)) as Incinerator).upgradeToRecycler();
+    //if (isMounted) (gridController.getBuildingOnTile(const Point<int>(10, -4)) as Incinerator).upgradeToRecycler();
     if (isMounted) await Future.delayed(const Duration(seconds: 20));
     if (isMounted) ref.read(allTrucksControllerProvider.notifier).addTruck(TruckType.blue, const Point<int>(14, -11));
     if (isMounted) {
@@ -249,4 +248,4 @@ class LevelWorld extends World with HasGameReference<MGame>, IgnoreEvents, River
 ///
 /// TileCursor : 400
 ///
-///
+/// WasteStackCount : 399

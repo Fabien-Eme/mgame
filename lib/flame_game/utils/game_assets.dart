@@ -28,6 +28,8 @@ extension MGameAssets on MGame {
 
       ///
       /// BUILDINGS
+      for (AssetGenImage element in Assets.images.buildings.buryer.values) () => images.load(element.path),
+
       for (AssetGenImage element in Assets.images.buildings.city.values) () => images.load(element.path),
 
       for (AssetGenImage element in Assets.images.buildings.garbageConveyor.values) () => images.load(element.path),
@@ -43,8 +45,8 @@ extension MGameAssets on MGame {
       for (AssetGenImage element in Assets.images.buildings.values) () => images.load(element.path),
 
       ///
-      /// GARBAGE
-      for (AssetGenImage element in Assets.images.garbage.values) () => images.load(element.path),
+      /// WASTE
+      for (AssetGenImage element in Assets.images.waste.values) () => images.load(element.path),
 
       ///
       /// UTILS

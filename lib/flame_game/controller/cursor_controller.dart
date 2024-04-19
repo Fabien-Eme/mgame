@@ -35,16 +35,13 @@ class CursorController extends Component with HasGameRef<MGame>, HasWorldReferen
         if (constructionState.status != ConstructionMode.construct && constructionState.status != ConstructionMode.destruct) {
           game.isMouseHoveringBuilding = world.gridController.getTileAtDimetricCoordinates(newMouseTilePos)?.buildingOnTile;
           game.myMouseCursor.hoverEnterButton();
-          world.tileCursor.hideTileCursor();
         } else {
           game.isMouseHoveringBuilding = null;
           game.myMouseCursor.resetMouseCursor();
-          world.tileCursor.showTileCursor();
         }
       } else {
         game.isMouseHoveringBuilding = null;
         game.myMouseCursor.resetMouseCursor();
-        world.tileCursor.showTileCursor();
       }
 
       /// Move Cursor to current Tile

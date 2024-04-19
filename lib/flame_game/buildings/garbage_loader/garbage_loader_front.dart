@@ -27,6 +27,7 @@ class GarbageLoaderFront extends SpriteAnimationComponent with HasGameReference 
     size = Vector2(120, 129);
     priority = 110;
     anchor = Anchor.bottomRight;
+    scale = Vector2(0.75, 0.75);
     updateSprite();
     paint = Paint()..filterQuality = FilterQuality.low;
 
@@ -43,28 +44,28 @@ class GarbageLoaderFront extends SpriteAnimationComponent with HasGameReference 
   void updateSprite() {
     switch (direction) {
       case Directions.S:
-        if (garbageLoaderFlow == GarbageLoaderFlow.flowIn) {
-          asset = Assets.images.buildings.garbageLoader.garbageLoaderSINSpritesheet.path;
+        if (garbageLoaderFlow == GarbageLoaderFlow.flowStandard) {
+          asset = Assets.images.buildings.garbageLoader.garbageLoaderSFLOWSSpritesheet.path;
         } else {
-          asset = Assets.images.buildings.garbageLoader.garbageLoaderSOUTSpritesheet.path;
+          asset = Assets.images.buildings.garbageLoader.garbageLoaderNFLOWSSpritesheet.path;
         }
       case Directions.W:
-        if (garbageLoaderFlow == GarbageLoaderFlow.flowIn) {
-          asset = Assets.images.buildings.garbageLoader.garbageLoaderEOUTSpritesheet.path;
+        if (garbageLoaderFlow == GarbageLoaderFlow.flowStandard) {
+          asset = Assets.images.buildings.garbageLoader.garbageLoaderWFLOWWSpritesheet.path;
         } else {
-          asset = Assets.images.buildings.garbageLoader.garbageLoaderEINSpritesheet.path;
+          asset = Assets.images.buildings.garbageLoader.garbageLoaderEFLOWWSpritesheet.path;
         }
       case Directions.N:
-        if (garbageLoaderFlow == GarbageLoaderFlow.flowIn) {
-          asset = Assets.images.buildings.garbageLoader.garbageLoaderSOUTSpritesheet.path;
+        if (garbageLoaderFlow == GarbageLoaderFlow.flowStandard) {
+          asset = Assets.images.buildings.garbageLoader.garbageLoaderNFLOWNSpritesheet.path;
         } else {
-          asset = Assets.images.buildings.garbageLoader.garbageLoaderSINSpritesheet.path;
+          asset = Assets.images.buildings.garbageLoader.garbageLoaderSFLOWNSpritesheet.path;
         }
       case Directions.E:
-        if (garbageLoaderFlow == GarbageLoaderFlow.flowIn) {
-          asset = Assets.images.buildings.garbageLoader.garbageLoaderEINSpritesheet.path;
+        if (garbageLoaderFlow == GarbageLoaderFlow.flowStandard) {
+          asset = Assets.images.buildings.garbageLoader.garbageLoaderEFLOWESpritesheet.path;
         } else {
-          asset = Assets.images.buildings.garbageLoader.garbageLoaderEOUTSpritesheet.path;
+          asset = Assets.images.buildings.garbageLoader.garbageLoaderWFLOWESpritesheet.path;
         }
     }
 
@@ -90,4 +91,4 @@ class GarbageLoaderFront extends SpriteAnimationComponent with HasGameReference 
   }
 }
 
-enum GarbageLoaderFlow { flowIn, flowOut }
+enum GarbageLoaderFlow { flowStandard, flowMirror }

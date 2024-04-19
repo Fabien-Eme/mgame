@@ -13,14 +13,13 @@ class CircleBackground extends PositionComponent {
 
   @override
   FutureOr<void> onLoad() {
-    priority = 199;
     circleComponent = CircleComponent(
       radius: radius,
       anchor: Anchor.center,
       paint: Paint()..color = Palette.white,
     );
     add(circleComponent);
-    decorator.addLast(PaintDecorator.blur(5));
+    decorator.addLast(PaintDecorator.blur(3));
 
     return super.onLoad();
   }

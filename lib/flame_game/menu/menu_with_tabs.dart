@@ -3,6 +3,7 @@ import 'package:mgame/flame_game/menu/dialog_tabs.dart';
 
 import '../../gen/assets.gen.dart';
 import '../game.dart';
+import '../level.dart';
 import 'close_button.dart';
 
 class MenuWithTabs extends PositionComponent with HasGameReference<MGame> {
@@ -71,5 +72,13 @@ class MenuWithTabs extends PositionComponent with HasGameReference<MGame> {
         dialogTab.deSelect();
       }
     });
+  }
+
+  @override
+  void onRemove() {
+    (game.findByKeyName('level') as Level?)?.levelWorld.buildings.forEach((element) {
+      element.deselect();
+    });
+    super.onRemove();
   }
 }

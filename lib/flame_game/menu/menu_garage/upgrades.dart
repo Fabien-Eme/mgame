@@ -1,13 +1,12 @@
 import 'dart:async';
 
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flame/components.dart';
 import 'package:flame_riverpod/flame_riverpod.dart';
 
 import '../../game.dart';
 import '../../level.dart';
 
-import '../../riverpod_controllers/user_controller.dart';
+import '../../riverpod_controllers/game_user_controller.dart';
 import '../dialog_button.dart';
 import '../../utils/my_text_style.dart';
 
@@ -43,12 +42,12 @@ class UpgradeTrucksContent extends Component with HasGameReference<MGame>, River
         if (!isFetchingData) {
           isFetchingData = true;
           String upgradeText = "";
-          final doc = await FirebaseFirestore.instance.collection('users').doc(ref.read(userControllerProvider)!.email!).get();
-          if (doc.data() != null && (doc.data()!['EcoCredits'] as int) >= 2) {
+
+          int ecoCredits = ref.read(gameUserControllerProvider.notifier).getUserEcoCredits();
+          if (ecoCredits >= 2) {
             upgradeText = 'Upgrade Bought';
-            await FirebaseFirestore.instance.collection('users').doc(ref.read(userControllerProvider)!.email!).update({
-              "EcoCredits": FieldValue.increment(-2),
-            });
+            ref.read(gameUserControllerProvider.notifier).updateGameUser(ecoCredits: ecoCredits - 2);
+
             (game.findByKeyName('level') as Level).isPurpleTruckAvailable = true;
           } else {
             upgradeText = 'Insufficient EcoCredits';
@@ -82,12 +81,11 @@ class UpgradeTrucksContent extends Component with HasGameReference<MGame>, River
         if (!isFetchingData) {
           isFetchingData = true;
           String upgradeText = "";
-          final doc = await FirebaseFirestore.instance.collection('users').doc(ref.read(userControllerProvider)!.email!).get();
-          if (doc.data() != null && (doc.data()!['EcoCredits'] as int) >= 2) {
+
+          int ecoCredits = ref.read(gameUserControllerProvider.notifier).getUserEcoCredits();
+          if (ecoCredits >= 5) {
             upgradeText = 'Upgrade Bought';
-            await FirebaseFirestore.instance.collection('users').doc(ref.read(userControllerProvider)!.email!).update({
-              "EcoCredits": FieldValue.increment(-5),
-            });
+            ref.read(gameUserControllerProvider.notifier).updateGameUser(ecoCredits: ecoCredits - 5);
             (game.findByKeyName('level') as Level).isBlueTruckAvailable = true;
           } else {
             upgradeText = 'Insufficient EcoCredits';

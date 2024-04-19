@@ -4,8 +4,7 @@ import 'dart:ui';
 import 'package:flame/components.dart';
 import 'package:flame_riverpod/flame_riverpod.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
-import 'package:mgame/flame_game/buildings/garbage_loader/garbage_loader.dart';
-import 'package:mgame/flame_game/buildings/garbage_loader/garbage_loader_front.dart';
+import 'package:mgame/flame_game/buildings/buryer/buryer.dart';
 import 'package:mgame/flame_game/buildings/incinerator/incinerator.dart';
 import 'package:mgame/flame_game/level_world.dart';
 import 'package:mgame/flame_game/utils/convert_coordinates.dart';
@@ -13,9 +12,12 @@ import 'package:mgame/flame_game/utils/convert_coordinates.dart';
 import '../game.dart';
 import '../riverpod_controllers/rotation_controller.dart';
 import '../tile/tile.dart';
+import '../truck/truck.dart';
 import '../utils/convert_rotations.dart';
 import 'city/city.dart';
 import 'garage/garage.dart';
+import 'garbage_loader/garbage_loader.dart';
+import 'garbage_loader/garbage_loader_front.dart';
 
 abstract class Building extends PositionComponent with HasGameReference<MGame>, HasWorldReference<LevelWorld>, RiverpodComponentMixin {
   Directions direction;
@@ -27,13 +29,12 @@ abstract class Building extends PositionComponent with HasGameReference<MGame>, 
   Building({this.direction = Directions.E, required this.anchorTile, super.position});
 
   Point<int> shownDimetricCoordinates = const Point<int>(0, 0);
-  List<Vector2> listInitialGarbagePosition = [];
-  Vector2 finalGarbagePosition = Vector2(0, 0);
+  List<Vector2> listInitialWastePosition = [];
 
   bool isDoorOpen = false;
   bool isDoorClosed = true;
   List<Point<int>> listTilesWithDoor = [];
-  String? garbageStackId;
+  List<String> listWasteStackId = [];
 
   @override
   void onMount() {
@@ -42,7 +43,6 @@ abstract class Building extends PositionComponent with HasGameReference<MGame>, 
           Point<int> offsetSizeInTile = world.convertRotations.rotateOffsetSizeInTile(sizeInTile);
           Vector2 updatedPosition = convertDimetricPointToWorldCoordinates(world.convertRotations.rotateCoordinates(dimetricCoordinates - offsetSizeInTile));
           shownDimetricCoordinates = world.convertRotations.rotateCoordinates(dimetricCoordinates - offsetSizeInTile);
-
           updatePosition(updatedPosition);
 
           Directions updatedDirection = world.convertRotations.rotateDirections(direction);
@@ -54,22 +54,14 @@ abstract class Building extends PositionComponent with HasGameReference<MGame>, 
   }
 
   void setPosition(Point<int> newPosition) {
-    dimetricCoordinates = newPosition;
+    Point<int> offsetSizeInTile = world.convertRotations.rotateOffsetSizeInTile(sizeInTile);
+    dimetricCoordinates = newPosition + offsetSizeInTile;
     shownDimetricCoordinates = dimetricCoordinates;
 
-    Vector2 updatedPosition = convertDimetricPointToWorldCoordinates(world.convertRotations.rotateCoordinates(dimetricCoordinates));
+    Vector2 updatedPosition = convertDimetricPointToWorldCoordinates(world.convertRotations.rotateCoordinates(newPosition));
     updatePosition(updatedPosition);
     updatePriority(updatedPosition);
   }
-  // void setPosition(Point<int> newPosition) {
-  //   Point<int> initialOffsetSizeInTile = world.convertRotations.rotateOffsetSizeInTile(sizeInTile);
-  //   dimetricCoordinates = newPosition + initialOffsetSizeInTile;
-
-  //   Point<int> offsetSizeInTile = world.convertRotations.rotateOffsetSizeInTile(sizeInTile);
-  //   Vector2 updatedPosition = convertDimetricPointToWorldCoordinates(world.convertRotations.rotateCoordinates(dimetricCoordinates - offsetSizeInTile));
-  //   updatePosition(updatedPosition);
-  //   updatePriority(updatedPosition);
-  // }
 
   void setDirection(Directions newDirection) {
     direction = world.convertRotations.unRotateDirections(newDirection);
@@ -83,7 +75,10 @@ abstract class Building extends PositionComponent with HasGameReference<MGame>, 
   double get buildingCost;
 
   @mustBeOverridden
-  int get sizeInTile;
+  bool get isRefundable;
+
+  @mustBeOverridden
+  Point<int> get sizeInTile;
 
   @mustBeOverridden
   void updatePosition(Vector2 updatedPosition) {}
@@ -113,6 +108,12 @@ abstract class Building extends PositionComponent with HasGameReference<MGame>, 
   void closeDoor() {}
 
   @mustBeOverridden
+  void select() {}
+
+  @mustBeOverridden
+  void deselect() {}
+
+  @mustBeOverridden
   @override
   void onRemove() {
     super.onRemove();
@@ -120,23 +121,24 @@ abstract class Building extends PositionComponent with HasGameReference<MGame>, 
 
   @mustBeOverridden
   void initialize() {}
+
+  @mustBeOverridden
+  Truck? isOccupiedByTruck() {
+    return null;
+  }
 }
 
-Building createBuilding({required BuildingType buildingType, Directions? direction = Directions.E, Point<int> anchorTile = const Point(0, 0), CityType cityType = CityType.normal}) {
+Building createBuilding(
+    {required BuildingType buildingType, Directions? direction = Directions.E, Point<int> anchorTile = const Point(0, 0), CityType cityType = CityType.normal, GarbageLoaderFlow? garbageLoaderFlow}) {
   direction ??= Directions.E;
   return switch (buildingType) {
-    BuildingType.garbageLoader => GarbageLoader(direction: direction, garbageLoaderFlow: GarbageLoaderFlow.flowOut, anchorTile: anchorTile),
+    BuildingType.garbageLoader => GarbageLoader(direction: direction, garbageLoaderFlow: garbageLoaderFlow ?? GarbageLoaderFlow.flowStandard, anchorTile: anchorTile),
     BuildingType.recycler => Incinerator(direction: direction, anchorTile: anchorTile),
     BuildingType.incinerator => Incinerator(direction: direction, anchorTile: anchorTile),
     BuildingType.garage => Garage(direction: direction, anchorTile: anchorTile),
     BuildingType.city => City(direction: direction, anchorTile: anchorTile, loadTileCoordinate: getCityLoadTileCoordinate(anchorTile: anchorTile, direction: direction), cityType: cityType),
+    BuildingType.buryer => Buryer(direction: direction, anchorTile: anchorTile, unLoadTileCoordinate: getBuryerUnLoadTileCoordinate(anchorTile: anchorTile, direction: direction)),
   };
 }
 
-enum BuildingType {
-  city,
-  garbageLoader,
-  recycler,
-  incinerator,
-  garage;
-}
+enum BuildingType { city, garbageLoader, recycler, incinerator, garage, buryer }

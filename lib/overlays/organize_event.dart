@@ -3,7 +3,7 @@ import 'dart:math';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:mgame/flame_game/riverpod_controllers/user_controller.dart';
+import 'package:mgame/flame_game/riverpod_controllers/game_user_controller.dart';
 
 import '../flame_game/game.dart';
 
@@ -48,7 +48,7 @@ class OrganizeEventState extends ConsumerState<OrganizeEvent> {
         'description': description,
         'dateAndAdress': dateAndAdress,
         'date': FieldValue.serverTimestamp(),
-        'user': ref.read(userControllerProvider)?.email ?? "",
+        'user': ref.read(gameUserControllerProvider.notifier).getUserEmail() ?? "",
         'numberOfParticipants': 0,
         'code': code,
       });

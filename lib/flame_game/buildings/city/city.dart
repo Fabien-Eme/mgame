@@ -5,9 +5,12 @@ import 'dart:ui';
 import 'package:flame/components.dart';
 import 'package:mgame/flame_game/buildings/building.dart';
 import 'package:mgame/flame_game/buildings/city/city_component.dart';
+import 'package:mgame/flame_game/buildings/city/city_outline_component.dart';
+import 'package:mgame/flame_game/waste/waste.dart';
 
-import '../../controller/garbage_controller.dart';
+import '../../controller/waste_controller.dart';
 import '../../game.dart';
+import '../../truck/truck.dart';
 import '../../utils/convert_coordinates.dart';
 import '../../utils/convert_rotations.dart';
 
@@ -16,8 +19,13 @@ class City extends Building {
   CityType cityType;
   City({super.direction, super.position, required super.anchorTile, required this.loadTileCoordinate, required this.cityType});
 
+  Map<WasteType, Vector2> mapWastePosition = {};
+
   late final CityComponent cityComponent;
+  late final CityOutlineComponent cityOutlineComponent;
   late final Vector2 offset;
+
+  int offsetPriority = 0;
 
   double reductionRate = 1;
 
@@ -26,36 +34,33 @@ class City extends Building {
     offset = convertDimetricVectorToWorldCoordinates(Vector2(0, 1)) + Vector2(0, -3);
 
     cityComponent = CityComponent(direction: direction, position: position + offset);
+    cityOutlineComponent = CityOutlineComponent(direction: direction, position: position + offset);
     updatePosition(position + offset);
 
-    world.add(
-      cityComponent,
-    );
-    world.garbageController.createGarbageStack(building: this, garbageRate: cityType.cityRate * reductionRate);
+    world.add(cityComponent);
+    world.add(cityOutlineComponent);
+    cityOutlineComponent.opacity = 0;
+
+    addWasteStacks();
+
     return super.onLoad();
   }
 
   @override
   void updatePosition(Vector2 updatedPosition) async {
     cityComponent.position = updatedPosition + offset;
+    cityOutlineComponent.position = updatedPosition + offset;
 
-    finalGarbagePosition = updatedPosition + offset + const Point(-1, 1).convertDimetricPointToWorldCoordinates();
-    listInitialGarbagePosition = [
-      updatedPosition + offset + const Point(0, 0).convertDimetricPointToWorldCoordinates() + Vector2(0, MGame.tileHeight),
-      updatedPosition + offset + const Point(0, 1).convertDimetricPointToWorldCoordinates() + Vector2(0, MGame.tileHeight),
-      updatedPosition + offset + const Point(0, 2).convertDimetricPointToWorldCoordinates() + Vector2(0, MGame.tileHeight),
-      updatedPosition + offset + const Point(-1, 0).convertDimetricPointToWorldCoordinates() + Vector2(0, MGame.tileHeight),
-      updatedPosition + offset + const Point(-2, 0).convertDimetricPointToWorldCoordinates() + Vector2(0, MGame.tileHeight),
-      updatedPosition + offset + const Point(-1, 1).convertDimetricPointToWorldCoordinates() + Vector2(0, MGame.tileHeight),
-      updatedPosition + offset + const Point(-2, 1).convertDimetricPointToWorldCoordinates() + Vector2(0, MGame.tileHeight),
-      updatedPosition + offset + const Point(-1, 2).convertDimetricPointToWorldCoordinates() + Vector2(0, MGame.tileHeight),
-    ];
+    mapWastePosition[WasteType.garbageCan] = updatedPosition + offset + const Point(-1, 1).convertDimetricPointToWorldCoordinates();
+    mapWastePosition[WasteType.recyclable] = updatedPosition + offset + const Point(1, 1).convertDimetricPointToWorldCoordinates();
+    mapWastePosition[WasteType.organic] = updatedPosition + offset + const Point(-1, -1).convertDimetricPointToWorldCoordinates();
+    mapWastePosition[WasteType.toxic] = updatedPosition + offset + const Point(1, -1).convertDimetricPointToWorldCoordinates();
 
     ///
-    /// Update garbages anchored to this
-    for (GarbageStack garbageStack in world.garbageController.mapGarbageStack.values) {
-      if (garbageStack.component.anchorBuilding == this) {
-        garbageStack.component.position = finalGarbagePosition;
+    /// Update wastes anchored to this
+    for (WasteStack wasteStack in world.wasteController.mapWasteStack.values) {
+      if (wasteStack.component.anchorBuilding == this) {
+        wasteStack.component.position = mapWastePosition[wasteStack.wasteType]!;
       }
     }
   }
@@ -63,12 +68,26 @@ class City extends Building {
   @override
   void updateDirection(Directions updatedDirection) {
     cityComponent.updateDirection(updatedDirection);
+    cityOutlineComponent.updateDirection(updatedDirection);
   }
 
   @override
   void updatePriority(Vector2 updatedPosition) {
-    final int offsetPriority = ((updatedPosition.y + offset.y) / MGame.gameHeight * 100).toInt();
+    offsetPriority = ((updatedPosition.y + offset.y) / MGame.gameHeight * 100).toInt();
     cityComponent.priority = 90 + offsetPriority;
+    cityOutlineComponent.priority = 89 + offsetPriority;
+
+    world.wasteController.updateWasteStackPriority(anchorBuilding: this, priority: 91 + offsetPriority);
+  }
+
+  @override
+  void select() {
+    cityOutlineComponent.opacity = 1;
+  }
+
+  @override
+  void deselect() {
+    cityOutlineComponent.opacity = 0;
   }
 
   @override
@@ -80,7 +99,7 @@ class City extends Building {
   BuildingType get buildingType => BuildingType.city;
 
   @override
-  int get sizeInTile => 3;
+  Point<int> get sizeInTile => const Point<int>(3, 3);
 
   @override
   void changeColor(Color color) {
@@ -114,7 +133,22 @@ class City extends Building {
   }
 
   @override
+  bool get isRefundable => false;
+
+  @override
   double get buildingCost => 0;
+
+  void addWasteStacks() {
+    world.wasteController.createWasteStack(building: this, wasteRate: cityType.wasteRate(WasteType.garbageCan) * reductionRate, wasteType: WasteType.garbageCan);
+    world.wasteController.createWasteStack(building: this, wasteRate: cityType.wasteRate(WasteType.recyclable) * reductionRate, wasteType: WasteType.recyclable);
+    world.wasteController.createWasteStack(building: this, wasteRate: cityType.wasteRate(WasteType.organic) * reductionRate, wasteType: WasteType.organic);
+    world.wasteController.createWasteStack(building: this, wasteRate: cityType.wasteRate(WasteType.toxic) * reductionRate, wasteType: WasteType.toxic);
+  }
+
+  @override
+  Truck? isOccupiedByTruck() {
+    return null;
+  }
 }
 
 Point<int> getCityLoadTileCoordinate({required Point<int> anchorTile, required Directions direction}) {
@@ -134,12 +168,39 @@ enum CityType {
   normal,
   polluting;
 
-  double get cityRate {
+  double wasteRate(WasteType? wasteType) {
     switch (this) {
       case CityType.normal:
-        return 1;
+        switch (wasteType) {
+          case WasteType.garbageCan:
+            return 0.2;
+          case WasteType.recyclable:
+            return 0.5;
+          case WasteType.organic:
+            return 0.5;
+          case WasteType.toxic:
+            return 0.01;
+          case WasteType.ultimate:
+            return 0;
+          default:
+            return 1;
+        }
+
       case CityType.polluting:
-        return 2;
+        switch (wasteType) {
+          case WasteType.garbageCan:
+            return 1;
+          case WasteType.recyclable:
+            return 0.1;
+          case WasteType.organic:
+            return 0.1;
+          case WasteType.toxic:
+            return 0.03;
+          case WasteType.ultimate:
+            return 0;
+          default:
+            return 1;
+        }
     }
   }
 
@@ -155,9 +216,9 @@ enum CityType {
   String get cityText {
     switch (this) {
       case CityType.normal:
-        return "This city produce garbage at the rate of 1 every 2 seconds.";
+        return "This city produce waste at the rate of 1 every 2 seconds.";
       case CityType.polluting:
-        return "This city produce garbage at the rate of 1 every second.";
+        return "This city produce waste at the rate of 1 every second.";
     }
   }
 }

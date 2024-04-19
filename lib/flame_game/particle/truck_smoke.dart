@@ -25,14 +25,15 @@ class TruckSmoke extends PositionComponent with HasGameReference<MGame>, HasWorl
             count: rng.nextInt(5),
             generator: (i) {
               return MovingParticle(
-                  from: position - Vector2(20, 0),
-                  to: position + Vector2(rng.nextDouble() * 100, rng.nextDouble() * -150 - 100),
-                  curve: Curves.easeInQuad,
+                  from: position - Vector2(0, 0),
+                  to: position + Vector2(rng.nextDouble() * 100, rng.nextDouble() * -150 - 200),
+                  curve: Curves.easeOut,
                   child: ScalingParticle(
                     to: 5,
+                    lifespan: 7,
                     child: SpriteParticle(
                       sprite: Sprite(game.images.fromCache(Assets.images.pollution.smoke.path)),
-                      size: Vector2.all(rng.nextDouble() * 10 + 5),
+                      size: Vector2.all(rng.nextDouble() * 10 + 10),
                       overridePaint: Paint()..filterQuality = FilterQuality.none,
                     ),
                   ));

@@ -4,9 +4,10 @@ import 'dart:ui';
 import 'package:flame/components.dart';
 
 import '../../../gen/assets.gen.dart';
+import '../../game.dart';
 import '../../utils/convert_rotations.dart';
 
-class CityComponent extends SpriteComponent with HasGameRef {
+class CityComponent extends SpriteComponent with HasGameReference<MGame> {
   CityComponent({required this.direction, super.position});
   Directions direction;
   late String asset;

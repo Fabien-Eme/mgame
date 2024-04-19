@@ -49,7 +49,7 @@ class ConstructionController extends Component with HasGameRef<MGame>, HasWorldR
 
     /// Destroy building on tile
     if (tile?.buildingOnTile != null) {
-      (game.findByKeyName('level') as Level).money.addValue(tile!.buildingOnTile!.buildingCost);
+      if (tile!.buildingOnTile!.isRefundable) (game.findByKeyName('level') as Level).money.addValue(tile.buildingOnTile!.buildingCost);
       world.taskController.buildingDestroyed(tile.buildingOnTile!);
 
       world.remove(tile.buildingOnTile!);

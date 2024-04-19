@@ -11,9 +11,12 @@ import 'package:mgame/flame_game/ui/show_garbage_processed_tick.dart';
 import 'package:mgame/flame_game/ui/show_pollution_tick.dart';
 
 import '../../game.dart';
+import '../../tile/tile.dart';
+import '../../truck/truck.dart';
 import '../../utils/convert_coordinates.dart';
 import '../../utils/convert_rotations.dart';
 import 'incinerator_door.dart';
+import 'incinerator_outline.dart';
 
 class Incinerator extends Building {
   Incinerator({super.direction, super.position, required super.anchorTile});
@@ -21,6 +24,7 @@ class Incinerator extends Building {
   late final IncineratorFront incineratorFront;
   late final IncineratorBack incineratorBack;
   late final IncineratorDoor incineratorDoor;
+  late final IncineratorOutline incineratorOutline;
   late final Vector2 offset;
   late final Vector2 smokeOffset;
 
@@ -43,12 +47,16 @@ class Incinerator extends Building {
     incineratorFront = IncineratorFront(direction: direction, position: position + offset);
     incineratorBack = IncineratorBack(direction: direction, position: position + offset);
     incineratorDoor = IncineratorDoor(direction: direction, position: position + offset);
+    incineratorOutline = IncineratorOutline(direction: direction, position: position + offset);
 
     world.addAll([
       incineratorFront,
       incineratorBack,
       incineratorDoor,
+      incineratorOutline,
     ]);
+
+    incineratorOutline.opacity = 0;
 
     timer = Timer(1, autoStart: false, onTick: () => closeDoor());
 
@@ -62,6 +70,7 @@ class Incinerator extends Building {
     incineratorFront.position = updatedPosition + offset;
     incineratorBack.position = updatedPosition + offset;
     incineratorDoor.position = updatedPosition + offset;
+    incineratorOutline.position = updatedPosition + offset + Vector2(5, 5);
 
     deliveryPointDimetric = dimetricCoordinates + const Point<int>(-1, 1);
 
@@ -95,6 +104,7 @@ class Incinerator extends Building {
     incineratorFront.updateDirection(updatedDirection);
     incineratorBack.updateDirection(updatedDirection);
     incineratorDoor.updateDirection(updatedDirection);
+    incineratorOutline.updateDirection(updatedDirection);
   }
 
   @override
@@ -103,6 +113,7 @@ class Incinerator extends Building {
     incineratorFront.priority = 110 + offsetPriority;
     incineratorBack.priority = 90 + offsetPriority;
     incineratorDoor.priority = 110 + offsetPriority;
+    incineratorOutline.priority = 89 + offsetPriority;
   }
 
   @override
@@ -116,7 +127,7 @@ class Incinerator extends Building {
   BuildingType get buildingType => BuildingType.incinerator;
 
   @override
-  int get sizeInTile => 3;
+  Point<int> get sizeInTile => const Point<int>(3, 3);
 
   @override
   void changeColor(Color color) {
@@ -182,11 +193,22 @@ class Incinerator extends Building {
   }
 
   @override
+  void select() {
+    incineratorOutline.opacity = 1;
+  }
+
+  @override
+  void deselect() {
+    incineratorOutline.opacity = 0;
+  }
+
+  @override
   void onRemove() {
     if (incineratorBack.ancestors().isNotEmpty) {
       world.remove(incineratorFront);
       world.remove(incineratorBack);
       world.remove(incineratorDoor);
+      world.remove(incineratorOutline);
     }
     super.onRemove();
   }
@@ -216,8 +238,41 @@ class Incinerator extends Building {
 
   void upgradeToRecycler() {
     isRecycler = true;
+
     incineratorFront.isRecycler = true;
     incineratorFront.updateSprite();
+
+    incineratorOutline.isRecycler = true;
+    incineratorOutline.updateSprite();
+
     pollutionReduction = 0.0;
   }
+
+  @override
+  Truck? isOccupiedByTruck() {
+    Point<int> transitCoordinates = switch (direction) {
+      Directions.S => dimetricCoordinates + const Point<int>(-1, 0),
+      Directions.W => dimetricCoordinates + const Point<int>(-2, 1),
+      Directions.N => dimetricCoordinates + const Point<int>(-1, 2),
+      Directions.E => dimetricCoordinates + const Point<int>(0, 1),
+    };
+
+    Tile? tileDelivery = world.gridController.getTileAtDimetricCoordinates(deliveryPointDimetric);
+    Tile? tileTransit = world.gridController.getTileAtDimetricCoordinates(transitCoordinates);
+
+    if ((tileDelivery?.listTrucksOnTile.isEmpty ?? false) && (tileTransit?.listTrucksOnTile.isEmpty ?? false)) {
+      return null;
+    } else {
+      if (tileDelivery?.listTrucksOnTile.isNotEmpty ?? false) {
+        return tileDelivery?.listTrucksOnTile.first;
+      }
+      if (tileTransit?.listTrucksOnTile.isNotEmpty ?? false) {
+        return tileTransit?.listTrucksOnTile.first;
+      }
+      return null;
+    }
+  }
+
+  @override
+  bool get isRefundable => true;
 }

@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:math';
 
 import 'package:flame/components.dart' hide Timer;
+import 'package:flame/events.dart';
 import 'package:flame_riverpod/flame_riverpod.dart';
 import 'package:flutter/widgets.dart';
 import 'package:mgame/flame_game/controller/task_controller.dart';
@@ -21,7 +22,7 @@ import '../tile/tile.dart';
 import '../utils/convert_rotations.dart';
 import 'truck_model.dart';
 
-class Truck extends SpriteComponent with HasGameReference<MGame>, HasWorldReference<LevelWorld>, RiverpodComponentMixin {
+class Truck extends SpriteComponent with HasGameReference<MGame>, HasWorldReference<LevelWorld>, RiverpodComponentMixin, HoverCallbacks {
   TruckType truckType;
   Directions truckDirection;
 
@@ -134,6 +135,7 @@ class Truck extends SpriteComponent with HasGameReference<MGame>, HasWorldRefere
       startMove();
       return true;
     }
+
     return false;
   }
 
@@ -151,22 +153,72 @@ class Truck extends SpriteComponent with HasGameReference<MGame>, HasWorldRefere
 
   ///
   ///
+  /// Check if next [Tile] is occupied by another truck going in the same direction
+  bool isNextTileOccupied() {
+    if (pathListCoordinates.length <= 1) return false;
+    Tile? nextTile = world.gridController.getRealTileAtDimetricCoordinates(pathListCoordinates[1]);
+
+    List<Truck>? listTrucksonTile = nextTile?.listTrucksOnTile;
+
+    if (listTrucksonTile == null || listTrucksonTile.isEmpty) {
+      return false;
+    } else {
+      for (Truck truck in listTrucksonTile) {
+        if (truck.truckDirection == truckDirection) {
+          return true;
+        }
+      }
+    }
+    return false;
+  }
+
+  ///
+  ///
+  /// Check if I am not alone on my [Tile] and in this case if I am prioritary
+  bool amIPrioritaryOnMyTile() {
+    if (currentTile.listTrucksOnTile.length <= 1) return true;
+
+    bool areWeCrossingEachOther = true;
+    for (Truck truck in currentTile.listTrucksOnTile) {
+      if (truck.id != id && truck.truckDirection == truckDirection) areWeCrossingEachOther = false;
+    }
+
+    if (areWeCrossingEachOther) return true;
+
+    currentTile.listTrucksOnTile.sort((a, b) => a.id.compareTo(b.id));
+    if (currentTile.listTrucksOnTile.first.id == id) return true;
+    return false;
+  }
+
+  ///
+  ///
+  /// Turn to next direction
+  void turnToNextDirection() {
+    if (pathListCoordinates.length >= 2) {
+      Tile tempDestinationTile = world.gridController.getRealTileAtDimetricCoordinates(pathListCoordinates[1])!;
+      Directions destinationTileDirection = world.gridController.getNeigbhorTileDirection(me: currentTile, neighbor: tempDestinationTile)!;
+
+      if (destinationTileDirection != truckDirection) {
+        truckDirection = destinationTileDirection;
+        updateTruckSprite(truckDirection.angle);
+      }
+    }
+  }
+
+  ///
+  ///
   /// Initiate move to a tile
   void startMove() {
-    truckSmoke.resumeSmoke();
-    if (pathListCoordinates.isEmpty) {
+    turnToNextDirection();
+
+    if (!amIPrioritaryOnMyTile()) {
+      stopMovement();
+    } else if (isNextTileOccupied()) {
       stopMovement();
     } else {
       pathListCoordinates.removeAt(0);
       if (pathListCoordinates.isNotEmpty) {
         destinationTile = world.gridController.getRealTileAtDimetricCoordinates(pathListCoordinates[0])!;
-        Directions destinationTileDirection = world.gridController.getNeigbhorTileDirection(me: currentTile, neighbor: destinationTile!)!;
-
-        if (destinationTileDirection != truckDirection) {
-          truckDirection = destinationTileDirection;
-          updateTruckSprite(truckDirection.angle);
-        }
-
         isTruckMoving = true;
       } else {
         endMovement();
@@ -176,10 +228,20 @@ class Truck extends SpriteComponent with HasGameReference<MGame>, HasWorldRefere
 
   ///
   ///
+  /// Stop the movement
+  stopMovement() {
+    isTruckMoving = false;
+    startingTile = currentTile;
+  }
+
+  ///
+  ///
   /// Complete moving to a tile
   void completeMove() {
     isTruckMoving = false;
+    currentTile.listTrucksOnTile.remove(this);
     currentTile = destinationTile!;
+    currentTile.listTrucksOnTile.add(this);
     destinationTile = null;
 
     (game.findByKeyName('pollutionBar') as PollutionBar).addValue(truckType.model.pollutionPerTile.toDouble());
@@ -200,12 +262,6 @@ class Truck extends SpriteComponent with HasGameReference<MGame>, HasWorldRefere
     }
   }
 
-  stopMovement() {
-    truckSmoke.stopSmoke();
-    isTruckMoving = false;
-    startingTile = currentTile;
-  }
-
   ///
   ///
   /// Affect [Task] to truck
@@ -219,6 +275,7 @@ class Truck extends SpriteComponent with HasGameReference<MGame>, HasWorldRefere
   @override
   void update(double dt) {
     super.update(dt);
+
     timerGoToDepot.update(dt);
 
     if (!isTruckMoving) {
@@ -232,6 +289,7 @@ class Truck extends SpriteComponent with HasGameReference<MGame>, HasWorldRefere
     }
 
     if (isTruckMoving) {
+      /// If is moving without purpose, immediatly go to depot
       if (!isGoingToDepot && currentTask == null) {
         timerGoToDepot.stop();
         goToDepot();
@@ -242,7 +300,9 @@ class Truck extends SpriteComponent with HasGameReference<MGame>, HasWorldRefere
         List<Building> listBuilding = world.buildings.where((building) => building.listTilesWithDoor.isNotEmpty).toList();
         for (Building building in listBuilding) {
           if (building.listTilesWithDoor.contains(currentTile.dimetricCoordinates) && building.listTilesWithDoor.contains(destinationTile!.dimetricCoordinates)) {
-            if (building.isDoorClosed) {
+            if (building.isOccupiedByTruck() != null && building.isOccupiedByTruck() != this) {
+              canMove = false;
+            } else if (building.isDoorClosed) {
               canMove = false;
               building.openDoor();
             }
@@ -250,6 +310,7 @@ class Truck extends SpriteComponent with HasGameReference<MGame>, HasWorldRefere
         }
 
         if (canMove) {
+          truckSmoke.resumeSmoke();
           Vector2 destinationPosition = destinationTile!.dimetricCoordinates.convertDimetricPointToWorldCoordinates();
           Vector2 movementVector = destinationPosition - realPosition;
           // movementVector = game.convertRotations.rotateVector(movementVector);
@@ -259,8 +320,12 @@ class Truck extends SpriteComponent with HasGameReference<MGame>, HasWorldRefere
             updatePosition(destinationPosition);
             completeMove();
           }
+        } else {
+          truckSmoke.stopSmoke();
         }
       }
+    } else {
+      truckSmoke.stopSmoke();
     }
   }
 
@@ -270,5 +335,18 @@ class Truck extends SpriteComponent with HasGameReference<MGame>, HasWorldRefere
     updatePosition(realPosition + movementVector * truckSpeedCorrected * dt);
     priority = 100 + ((position.y) / MGame.gameHeight * 100).toInt();
     acceleration = (acceleration + acceleration * dt).clamp(0, 5);
+  }
+
+  /// TODO Fix ONHOVER (thinking this might be canceled by cursorcontroller)
+  @override
+  void onHoverEnter() {
+    game.myMouseCursor.hoverEnterButton();
+    super.onHoverEnter();
+  }
+
+  @override
+  void onHoverExit() {
+    game.myMouseCursor.hoverExitButton();
+    super.onHoverExit();
   }
 }

@@ -1,8 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:mgame/flame_game/riverpod_controllers/user_controller.dart';
+import 'package:mgame/flame_game/riverpod_controllers/game_user_controller.dart';
 import 'package:mgame/gen/assets.gen.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:http/http.dart' as http;
@@ -29,7 +28,7 @@ class _ViewMyEventsState extends ConsumerState<ViewMyEvents> {
 
   @override
   Widget build(BuildContext context) {
-    Future<List<Map<String, dynamic>>> listMapEvents = fetchListMapEvents(ref.read(userControllerProvider));
+    Future<List<Map<String, dynamic>>> listMapEvents = fetchListMapEvents();
 
     return Scaffold(
       backgroundColor: Colors.white.withOpacity(0),
@@ -166,16 +165,17 @@ class _ViewMyEventsState extends ConsumerState<ViewMyEvents> {
     );
   }
 
-  Future<List<Map<String, dynamic>>> fetchListMapEvents(User? user) async {
+  Future<List<Map<String, dynamic>>> fetchListMapEvents() async {
     List<Map<String, dynamic>> listMapEvents = [];
     final result = await widget.db.collection('events').get();
-    final userMail = user?.email ?? "";
+
+    String userEmail = ref.read(gameUserControllerProvider.notifier).getUserEmail() ?? "";
 
     for (final doc in result.docs) {
       final map = doc.data();
       final eventUser = map['user'];
 
-      if (eventUser == userMail) {
+      if (eventUser == userEmail) {
         listMapEvents.add(doc.data());
       }
     }
@@ -187,7 +187,7 @@ class _ViewMyEventsState extends ConsumerState<ViewMyEvents> {
   Future<void> addToGoogleWallet(String selected) async {
     String response = "";
 
-    String userName = ref.read(userControllerProvider)?.email ?? "";
+    String userName = ref.read(gameUserControllerProvider.notifier).getUserEmail() ?? "";
 
     final url = Uri.https('us-west1-mgame-8c88b.cloudfunctions.net', 'createJoinMyTeamPass');
     final res = await http.post(url, body: {'eventTitle': selected, 'userName': userName});

@@ -2,7 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:mgame/flame_game/riverpod_controllers/user_controller.dart';
+import 'package:mgame/flame_game/riverpod_controllers/game_user_controller.dart';
 
 import '../flame_game/game.dart';
 
@@ -44,7 +44,7 @@ class _ValidateParticipationState extends ConsumerState<ValidateParticipation> {
           if (doc.data()['code'] == code) {
             codeFound = true;
 
-            String currentUserMail = ref.read(userControllerProvider)?.email ?? "";
+            String currentUserMail = ref.read(gameUserControllerProvider.notifier).getUserEmail() ?? "";
             String organizerMail = doc.data()['user'] as String;
 
             if (currentUserMail != organizerMail) {

@@ -7,7 +7,12 @@ import 'palette.dart';
 class MyTextStyle {
   static TextPaint title = TextPaint(style: const TextStyle(fontSize: 48, color: Palette.darkGrey, fontFamily: 'Play', fontWeight: FontWeight.w700));
   static TextPaint button = TextPaint(style: const TextStyle(fontSize: 24, color: Palette.darkGrey, fontFamily: 'Play', fontWeight: FontWeight.w700));
+  static TextPaint bigButton = TextPaint(style: const TextStyle(fontSize: 34, color: Palette.darkGrey, fontFamily: 'Play', fontWeight: FontWeight.w700));
   static TextPaint buttonRed = TextPaint(style: const TextStyle(fontSize: 24, color: Palette.red, fontFamily: 'Play', fontWeight: FontWeight.w700));
+
+  static TextPaint buttonLevelTitle = TextPaint(style: const TextStyle(fontSize: 20, color: Palette.darkGrey, fontFamily: 'Play', fontWeight: FontWeight.w700));
+  static TextPaint buttonLevelNumber = TextPaint(style: const TextStyle(fontSize: 40, color: Palette.darkGrey, fontFamily: 'Play', fontWeight: FontWeight.w700));
+
   static TextPaint tab = TextPaint(style: const TextStyle(fontSize: 18, color: Palette.darkGrey, fontFamily: 'Play', fontWeight: FontWeight.w700));
   static TextPaint text = TextPaint(style: const TextStyle(fontSize: 20, color: Palette.darkGrey, fontFamily: 'Play', fontWeight: FontWeight.w400));
   static TextPaint textGreen = TextPaint(style: const TextStyle(fontSize: 20, color: Palette.darkGreen, fontFamily: 'Play', fontWeight: FontWeight.w400));

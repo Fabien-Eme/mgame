@@ -1,8 +1,7 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flame/components.dart';
 import 'package:flame_riverpod/flame_riverpod.dart';
+import 'package:mgame/flame_game/riverpod_controllers/game_user_controller.dart';
 
-import '../riverpod_controllers/user_controller.dart';
 import '../utils/my_text_style.dart';
 import 'dialog_button.dart';
 import 'menu_without_tabs.dart';
@@ -76,17 +75,13 @@ class MenuLevelWon extends MenuWithoutTabs with RiverpodComponentMixin {
       subText.text = "You received an Achievement.\nAdd it to your Google Wallet in the Main Menu";
     }
 
-    await FirebaseFirestore.instance.collection('users').doc(ref.read(userControllerProvider)!.email!).update({
-      "lastLevelCompleted": game.currentLevel,
-      "achievements": FieldValue.arrayUnion(listAchievementsToAdd),
-      "EcoCredits": FieldValue.increment(5),
-    });
-
     for (String achievement in listAchievementsToAdd) {
-      await FirebaseFirestore.instance.collection('achievements').doc(achievement).update({
-        "citizen": FieldValue.increment(1),
-      });
+      ref.read(gameUserControllerProvider.notifier).addUserAchievements(achievement);
     }
+
+    int ecoCredits = ref.read(gameUserControllerProvider.notifier).getUserEcoCredits();
+    ref.read(gameUserControllerProvider.notifier).updateGameUser(ecoCredits: ecoCredits + 5, levelToUpdate: game.currentLevel.toString(), isCompleted: true, score: 3);
+    ref.read(gameUserControllerProvider.notifier).updateGameUser(levelToUpdate: (game.currentLevel + 1).toString(), isAvailable: true);
   }
 
   void addMenu() {

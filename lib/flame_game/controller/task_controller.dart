@@ -3,6 +3,7 @@ import 'dart:math';
 import 'package:flame/components.dart';
 import 'package:flame_riverpod/flame_riverpod.dart';
 import 'package:mgame/flame_game/buildings/building.dart';
+import 'package:mgame/flame_game/buildings/buryer/buryer.dart';
 import 'package:mgame/flame_game/buildings/incinerator/incinerator.dart';
 import 'package:mgame/flame_game/level_world.dart';
 import 'package:mgame/flame_game/truck/truck.dart';
@@ -13,6 +14,7 @@ import '../game.dart';
 import '../level.dart';
 import '../ui/garbage_bar.dart';
 import '../ui/pollution_bar.dart';
+import 'waste_controller.dart';
 
 class TaskController extends Component with HasGameReference<MGame>, HasWorldReference<LevelWorld>, RiverpodComponentMixin {
   Map<String, Task> globalMapTask = {};
@@ -29,19 +31,22 @@ class TaskController extends Component with HasGameReference<MGame>, HasWorldRef
     String? linkedTaskId,
     List<String>? vehiculeAffected,
     Building? taskBuilding,
+    BuildingType? taskBuildingType,
   }) {
     Uuid uuid = const Uuid();
     String id = uuid.v4();
     Task task = Task(
-        id: id,
-        taskType: taskType,
-        taskCoordinate: taskCoordinate,
-        taskPriority: taskPriority ?? 0,
-        taskRestrictions: taskRestrictions ?? [],
-        taskReward: taskReward ?? [],
-        linkedTaskId: linkedTaskId,
-        vehiculeAffected: vehiculeAffected ?? [],
-        taskBuilding: taskBuilding);
+      id: id,
+      taskType: taskType,
+      taskCoordinate: taskCoordinate,
+      taskPriority: taskPriority ?? 0,
+      taskRestrictions: taskRestrictions ?? [],
+      taskReward: taskReward ?? [],
+      linkedTaskId: linkedTaskId,
+      vehiculeAffected: vehiculeAffected ?? [],
+      taskBuilding: taskBuilding,
+      taskBuildingType: taskBuildingType,
+    );
 
     globalMapTask[id] = task;
   }
@@ -131,9 +136,13 @@ class TaskController extends Component with HasGameReference<MGame>, HasWorldRef
       int priorityComparison = taskB.taskPriority.compareTo(taskA.taskPriority);
       if (priorityComparison != 0) return priorityComparison;
 
-      // If taskPriority is equal, compare by vehiculeAffected length
-      int vehiculeComparison = taskA.vehiculeAffected.length.compareTo(taskB.vehiculeAffected.length);
-      if (vehiculeComparison != 0) return vehiculeComparison;
+      // If taskPriority is equal, compare by totalWaste count
+      int totalWasteComparison = getLoadingTaskTotalWaste(task: taskA).compareTo(getLoadingTaskTotalWaste(task: taskB));
+      if (totalWasteComparison != 0) return -totalWasteComparison;
+
+      // // If taskPriority is equal, compare by vehiculeAffected length
+      // int vehiculeComparison = taskA.vehiculeAffected.length.compareTo(taskB.vehiculeAffected.length);
+      // if (vehiculeComparison != 0) return vehiculeComparison;
 
       // If both are equal, use the pre-assigned random key
       return (a['randomKey'] as double).compareTo((b['randomKey'] as double));
@@ -151,19 +160,53 @@ class TaskController extends Component with HasGameReference<MGame>, HasWorldRef
         for (City city in world.buildings.whereType<City>()) {
           if (city.loadTileCoordinate == building.anchorTile) {
             createTask(
-                taskType: TaskType.collection, taskCoordinate: city.loadTileCoordinate, taskRestrictions: [TaskRestriction.simpleCollect()], taskReward: [TaskReward.loadGarbage], taskBuilding: city);
+              taskType: TaskType.collection,
+              taskCoordinate: city.loadTileCoordinate,
+              taskRestrictions: [TaskRestriction.simpleCollect()],
+              taskReward: [TaskReward.loadWaste],
+              taskBuilding: city,
+              taskBuildingType: BuildingType.city,
+            );
+          }
+        }
+
+        for (Buryer buryer in world.buildings.whereType<Buryer>()) {
+          if (buryer.unLoadTileCoordinate == building.anchorTile) {
+            if (!buryer.isBuryerFull) {
+              createTask(
+                taskType: TaskType.delivery,
+                taskCoordinate: buryer.unLoadTileCoordinate,
+                taskRestrictions: [TaskRestriction.simpleDelivery()],
+                taskReward: [TaskReward.unloadAll],
+                taskBuilding: buryer,
+                taskBuildingType: BuildingType.buryer,
+              );
+            }
           }
         }
       case BuildingType.recycler:
+        createTask(
+          taskType: TaskType.delivery,
+          taskCoordinate: (building as Incinerator).deliveryPointDimetric,
+          taskRestrictions: [TaskRestriction.simpleDelivery()],
+          taskReward: [TaskReward.unloadAll],
+          taskBuilding: building,
+          taskBuildingType: BuildingType.recycler,
+        );
         break;
       case BuildingType.incinerator:
         createTask(
-            taskType: TaskType.delivery,
-            taskCoordinate: (building as Incinerator).deliveryPointDimetric,
-            taskRestrictions: [TaskRestriction.simpleDelivery()],
-            taskReward: [TaskReward.unloadAll],
-            taskBuilding: building);
+          taskType: TaskType.delivery,
+          taskCoordinate: (building as Incinerator).deliveryPointDimetric,
+          taskRestrictions: [TaskRestriction.simpleDelivery()],
+          taskReward: [TaskReward.unloadAll],
+          taskBuilding: building,
+          taskBuildingType: BuildingType.incinerator,
+        );
+        break;
       case BuildingType.garage:
+        break;
+      case BuildingType.buryer:
         break;
     }
   }
@@ -240,16 +283,35 @@ class TaskController extends Component with HasGameReference<MGame>, HasWorldRef
     }
   }
 
+  int getLoadingTaskTotalWaste({required Task task}) {
+    int totalWaste = 0;
+    for (String wasteStackId in task.taskBuilding?.listWasteStackId ?? []) {
+      totalWaste += world.wasteController.mapWasteStack[wasteStackId]?.stackQuantity ?? 0;
+    }
+    return totalWaste;
+  }
+
+  WasteStack? getHighestWasteStack({required Task task}) {
+    List<String> listWasteStackId = task.taskBuilding?.listWasteStackId ?? [];
+
+    return world.wasteController.getHighestWasteStackFromList(listWasteStackId: listWasteStackId);
+  }
+
   void completeTask({required Truck truck, required Task task}) async {
     for (TaskReward taskReward in task.taskReward) {
       switch (taskReward) {
-        case TaskReward.loadGarbage:
+        case TaskReward.loadWaste:
           await Future.delayed(const Duration(seconds: 1));
-          int stackMax = world.garbageController.mapGarbageStack[task.taskBuilding!.garbageStackId]?.stackQuantity ?? 0;
+
+          WasteStack? wasteStack = getHighestWasteStack(task: task);
+          if (wasteStack == null) break;
+          int stackMax = wasteStack.stackQuantity;
+
           int loadMax = truck.maxLoad;
           int load = min(stackMax, loadMax);
 
-          world.garbageController.mapGarbageStack[task.taskBuilding!.garbageStackId]?.stackQuantity = stackMax - load;
+          world.wasteController.mapWasteStack[wasteStack.id]?.stackQuantity = stackMax - load;
+
           await Future.delayed(const Duration(seconds: 1));
           truck.loadQuantity = load;
           truck.loadType = LoadType.garbageCan;
@@ -257,31 +319,56 @@ class TaskController extends Component with HasGameReference<MGame>, HasWorldRef
           truck.currentTask = null;
           truck.isCompletingTask = false;
           break;
-        case TaskReward.unloadGarbage:
+        case TaskReward.unloadWaste:
           break;
         case TaskReward.unloadAll:
-          await Future.delayed(const Duration(seconds: 1));
-          (game.findByKeyName('garbageBar') as GarbageBar).addValue(truck.loadQuantity.toDouble());
-          (game.findByKeyName('level') as Level).money.addValue(truck.loadQuantity.toDouble() * 100 * (task.taskBuilding as Incinerator).moneyBonus, false);
 
-          if (!(game.currentIncinerator?.isRecycler ?? false)) {
-            (game.findByKeyName('pollutionBar') as PollutionBar).addValue(truck.loadQuantity.toDouble() * 50 * (task.taskBuilding as Incinerator).pollutionReduction);
+          /// BURYER
+          if (task.taskBuildingType == BuildingType.buryer) {
+            await Future.delayed(const Duration(seconds: 1));
+            int loadQuantityRefused = (task.taskBuilding as Buryer).updateFillAmount(truck.loadQuantity);
+            int loadQuantityAccepted = truck.loadQuantity - loadQuantityRefused;
 
-            if (!(task.taskBuilding as Incinerator).isRecycler) {
-              (task.taskBuilding as Incinerator).incineratorSmoke.resumeSmokeForDuration(const Duration(seconds: 5));
+            if (loadQuantityRefused != truck.loadQuantity) (task.taskBuilding as Buryer).showGarbageProcessedTick(quantity: (loadQuantityAccepted));
+
+            (game.findByKeyName('garbageBar') as GarbageBar).addValue(loadQuantityAccepted.toDouble());
+
+            await Future.delayed(const Duration(seconds: 1));
+            truck.loadQuantity = loadQuantityRefused;
+            truck.currentTask = null;
+            truck.isCompletingTask = false;
+
+            if (loadQuantityRefused > 0) {
+              removeTask(taskId: task.id);
             }
           }
 
-          (task.taskBuilding as Incinerator).showGarbageProcessedTick(quantity: (truck.loadQuantity));
+          /// INCINERATOR
+          else {
+            await Future.delayed(const Duration(seconds: 1));
+            (game.findByKeyName('garbageBar') as GarbageBar).addValue(truck.loadQuantity.toDouble());
+            (game.findByKeyName('level') as Level).money.addValue(truck.loadQuantity.toDouble() * 100 * (task.taskBuilding as Incinerator).moneyBonus, false);
 
-          await Future.delayed(const Duration(seconds: 1));
-          if (!(game.currentIncinerator?.isRecycler ?? false)) {
-            (task.taskBuilding as Incinerator).showPollutionTick(quantity: (truck.loadQuantity.toDouble() * 50).round());
+            if (!(game.currentIncinerator?.isRecycler ?? false)) {
+              (game.findByKeyName('pollutionBar') as PollutionBar).addValue(truck.loadQuantity.toDouble() * 50 * (task.taskBuilding as Incinerator).pollutionReduction);
+
+              if (!(task.taskBuilding as Incinerator).isRecycler) {
+                (task.taskBuilding as Incinerator).incineratorSmoke.resumeSmokeForDuration(const Duration(seconds: 5));
+              }
+            }
+
+            (task.taskBuilding as Incinerator).showGarbageProcessedTick(quantity: (truck.loadQuantity));
+
+            await Future.delayed(const Duration(seconds: 1));
+            if (!(game.currentIncinerator?.isRecycler ?? false)) {
+              (task.taskBuilding as Incinerator).showPollutionTick(quantity: (truck.loadQuantity.toDouble() * 50).round());
+            }
+            truck.loadQuantity = 0;
+
+            truck.currentTask = null;
+            truck.isCompletingTask = false;
           }
-          truck.loadQuantity = 0;
 
-          truck.currentTask = null;
-          truck.isCompletingTask = false;
           break;
       }
     }
@@ -315,6 +402,7 @@ class Task {
   String? linkedTaskId;
   List<String> vehiculeAffected;
   Building? taskBuilding;
+  BuildingType? taskBuildingType;
 
   Task({
     required this.id,
@@ -326,6 +414,7 @@ class Task {
     required this.linkedTaskId,
     required this.vehiculeAffected,
     required this.taskBuilding,
+    required this.taskBuildingType,
   });
 }
 
@@ -372,7 +461,7 @@ enum VehiculeType {
 }
 
 enum TaskReward {
-  loadGarbage,
-  unloadGarbage,
+  loadWaste,
+  unloadWaste,
   unloadAll,
 }

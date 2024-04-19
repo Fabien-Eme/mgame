@@ -57,9 +57,9 @@ class DialogWindow extends PositionComponent with HasGameReference<MGame> {
         textRenderer: MyTextStyle.text,
         size: size,
         position: Vector2(0, 100),
-        boxConfig: TextBoxConfig(
+        boxConfig: const TextBoxConfig(
           maxWidth: 500,
-          margins: const EdgeInsets.symmetric(vertical: 10, horizontal: 15),
+          margins: EdgeInsets.symmetric(vertical: 10, horizontal: 15),
           timePerChar: 0.03,
         ),
       ),
@@ -91,9 +91,9 @@ class DialogWindow extends PositionComponent with HasGameReference<MGame> {
       textRenderer: MyTextStyle.text,
       size: size,
       position: Vector2(0, 100),
-      boxConfig: TextBoxConfig(
+      boxConfig: const TextBoxConfig(
         maxWidth: 500,
-        margins: const EdgeInsets.symmetric(vertical: 10, horizontal: 15),
+        margins: EdgeInsets.symmetric(vertical: 10, horizontal: 15),
         timePerChar: 0.03,
       ),
     );

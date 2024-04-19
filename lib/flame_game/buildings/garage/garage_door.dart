@@ -25,7 +25,7 @@ class GarageDoor extends SpriteAnimationComponent with HasGameRef {
   FutureOr<void> onLoad() {
     size = Vector2(300, 262);
     priority = 110;
-    anchor = Anchor.bottomRight;
+    anchor = Anchor.center;
     updateSprite();
     paint = Paint()..filterQuality = FilterQuality.low;
 

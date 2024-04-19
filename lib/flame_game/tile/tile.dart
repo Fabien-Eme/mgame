@@ -39,12 +39,15 @@ class Tile extends SpriteComponent with HasGameReference<MGame>, HasWorldReferen
 
   bool isLoadPoint = false;
   bool isUnLoadPoint = false;
+  Directions? loadPointDirection;
+  Directions? unLoadPointDirection;
 
   late Point<int> shownDimetricGridCoordinates;
   late TileType shownTileType;
 
   List<Directions> listConnectionRestriction = [];
   List<BuildingType> listOnlyBuildingsAllowed = [];
+
   List<Truck> listTrucksOnTile = [];
 
   @override
@@ -193,6 +196,30 @@ class Tile extends SpriteComponent with HasGameReference<MGame>, HasWorldReferen
     projectedTileType = null;
   }
 
+  void resetTile() {
+    defaultTyleType = TileType.grass;
+    setTileType(defaultTyleType);
+    listOnlyBuildingsAllowed = [];
+    beforeProjectionTileType = null;
+    projectedTileType = null;
+    isTileConstructible = true;
+    isTileDestructible = false;
+    isBuildingConstructible = true;
+    isBuildingDestructible = false;
+    isLoadPoint = false;
+    isUnLoadPoint = false;
+
+    if (buildingOnTile != null) {
+      world.constructionController.destroyBuilding(posDimetric: dimetricCoordinates);
+    }
+
+    Map<Directions, Tile?> mapNeighbors = world.gridController.getAllNeigbhorsTile(this);
+    for (Tile? tile in mapNeighbors.values) {
+      tile?.projectTileChange();
+      tile?.propagateTileChange();
+    }
+  }
+
   bool canTileConnectWithMe(Tile? neighborTile) {
     if (neighborTile == null) return false;
     Directions? neighborDirection = world.gridController.getNeigbhorTileDirection(me: this, neighbor: neighborTile);
@@ -277,14 +304,16 @@ class Tile extends SpriteComponent with HasGameReference<MGame>, HasWorldReferen
     buildingOnTile = building;
   }
 
-  void marksAsLoadPoint() {
+  void marksAsLoadPoint(Directions direction) {
     isLoadPoint = true;
+    loadPointDirection = direction;
     listOnlyBuildingsAllowed = [BuildingType.garbageLoader];
     isTileConstructible = false;
   }
 
-  void markAsUnloadPoint() {
+  void markAsUnloadPoint(Directions direction) {
     isUnLoadPoint = true;
+    unLoadPointDirection = direction;
     listOnlyBuildingsAllowed = [BuildingType.garbageLoader];
     isTileConstructible = false;
   }

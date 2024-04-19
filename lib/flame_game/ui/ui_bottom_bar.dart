@@ -8,7 +8,7 @@ class UIBottomBar extends PositionComponent with HasGameRef<MGame> {
   @override
   Future<void> onLoad() async {
     priority = 400;
-    size = Vector2(400, 100);
+    size = Vector2(500, 100);
     position = Vector2(0, MGame.gameHeight - size.y);
     super.onLoad();
   }
@@ -26,6 +26,7 @@ class UIBottomBar extends PositionComponent with HasGameRef<MGame> {
       UIBottomBarButton(buttonType: ButtonType.road, size: Vector2.all(100), position: Vector2(100 * 1, 0)),
       UIBottomBarButton(buttonType: ButtonType.garbageLoader, size: Vector2.all(100), position: Vector2(100 * 2, 0)),
       UIBottomBarButton(buttonType: ButtonType.incinerator, size: Vector2.all(100), position: Vector2(100 * 3, 0)),
+      UIBottomBarButton(buttonType: ButtonType.buryer, size: Vector2.all(100), position: Vector2(100 * 4, 0)),
     ]);
     super.onMount();
   }

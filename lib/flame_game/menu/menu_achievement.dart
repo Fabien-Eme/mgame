@@ -1,10 +1,9 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flame/components.dart';
 import 'package:flame_riverpod/flame_riverpod.dart';
 import 'package:mgame/flame_game/menu/add_to_google_wallet.dart';
 import 'package:mgame/flame_game/menu/forward_backward_button.dart';
 import 'package:mgame/flame_game/menu/menu_without_tabs.dart';
-import 'package:mgame/flame_game/riverpod_controllers/user_controller.dart';
+import 'package:mgame/flame_game/riverpod_controllers/game_user_controller.dart';
 
 import '../../gen/assets.gen.dart';
 import '../utils/my_text_style.dart';
@@ -52,10 +51,10 @@ class MenuAchievement extends MenuWithoutTabs with RiverpodComponentMixin {
   }
 
   void getAchievement() async {
-    final doc = await FirebaseFirestore.instance.collection('users').doc(ref.read(userControllerProvider)!.email!).get();
+    List<String> achievements = ref.read(gameUserControllerProvider.notifier).getUserAchievements();
 
-    for (final achievement in doc.data()!['achievements'] as Iterable) {
-      listAchievements.add(achievement as String);
+    for (final achievement in achievements) {
+      listAchievements.add(achievement);
     }
     displayAchievements();
 
@@ -114,7 +113,7 @@ class MenuAchievement extends MenuWithoutTabs with RiverpodComponentMixin {
 
       addToGoogleWallet = AddToGoogleWallet(
         achievementName: currentAchievement,
-        userMail: ref.read(userControllerProvider)!.email!,
+        userMail: ref.read(gameUserControllerProvider.notifier).getUserEmail() ?? "",
         position: Vector2(0, 175),
       );
       world.add(addToGoogleWallet);

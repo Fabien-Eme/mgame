@@ -1,9 +1,8 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flame/components.dart';
 import 'package:flame_riverpod/flame_riverpod.dart';
+import 'package:mgame/flame_game/riverpod_controllers/game_user_controller.dart';
 
 import '../level.dart';
-import '../riverpod_controllers/user_controller.dart';
 import '../utils/my_text_style.dart';
 
 import 'dialog_button.dart';
@@ -118,12 +117,11 @@ class MenuIncinerator extends MenuWithoutTabs with RiverpodComponentMixin {
         if (!isFetchingData) {
           isFetchingData = true;
           String upgradeText = "";
-          final doc = await FirebaseFirestore.instance.collection('users').doc(ref.read(userControllerProvider)!.email!).get();
-          if (doc.data() != null && (doc.data()!['EcoCredits'] as int) >= 5) {
+
+          int ecoCredits = ref.read(gameUserControllerProvider.notifier).getUserEcoCredits();
+          if (ecoCredits >= 5) {
             upgradeText = 'Upgrade Bought';
-            await FirebaseFirestore.instance.collection('users').doc(ref.read(userControllerProvider)!.email!).update({
-              "EcoCredits": FieldValue.increment(-5),
-            });
+            ref.read(gameUserControllerProvider.notifier).updateGameUser(ecoCredits: ecoCredits - 5);
             game.currentIncinerator!.upgradeToRecycler();
           } else {
             upgradeText = 'Insufficient EcoCredits';

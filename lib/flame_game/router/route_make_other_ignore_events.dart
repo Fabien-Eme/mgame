@@ -4,7 +4,7 @@ import 'route_can_ignore_events.dart';
 
 class RouteMakeOtherIgnoreEvents extends Route {
   bool doesPutGameInPause;
-  RouteMakeOtherIgnoreEvents(super.builder, {this.doesPutGameInPause = true, super.transparent, super.maintainState});
+  RouteMakeOtherIgnoreEvents(super.builder, {this.doesPutGameInPause = true, super.transparent, super.maintainState = false});
 
   @override
   void onPush(Route? previousRoute) {

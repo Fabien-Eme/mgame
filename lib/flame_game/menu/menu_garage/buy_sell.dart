@@ -103,13 +103,13 @@ class BuySellContent extends Component with HasGameReference<MGame>, RiverpodCom
     textBoxComponentTitleTruck = TextBoxComponent(
       text: getTruckTitleText(),
       textRenderer: MyTextStyle.header,
-      boxConfig: TextBoxConfig(maxWidth: 300),
+      boxConfig: const TextBoxConfig(maxWidth: 300),
       position: Vector2(0, -boxSize.y / 2 + 100),
     );
     textBoxComponentDescriptionTruck = TextBoxComponent(
       text: getTruckDescriptionText(),
       textRenderer: MyTextStyle.text,
-      boxConfig: TextBoxConfig(maxWidth: 300, timePerChar: 0.005),
+      boxConfig: const TextBoxConfig(maxWidth: 300, timePerChar: 0.005),
       position: Vector2(0, -boxSize.y / 2 + 150),
     );
     add(textBoxComponentTitleTruck!);

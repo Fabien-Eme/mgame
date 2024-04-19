@@ -18,28 +18,15 @@ import 'package:mgame/flame_game/level_world.dart';
 // ignore: implementation_imports
 import 'package:flame/src/events/flame_game_mixins/multi_drag_dispatcher.dart';
 
-import 'package:mgame/flame_game/menu/main_menu.dart';
-import 'package:mgame/flame_game/menu/menu_garage/menu_garage.dart';
-import 'package:mgame/flame_game/menu/menu_incinerator.dart';
-import 'package:mgame/flame_game/router/route_can_ignore_events.dart';
-
 import 'package:mgame/flame_game/utils/game_assets.dart';
+import 'package:mgame/flame_game/router/game_router.dart';
 
 import 'buildings/building.dart';
 import 'buildings/incinerator/incinerator.dart';
 import 'controller/audio_controller.dart';
 
-import 'dialog/tutorial.dart';
 import 'level.dart';
-import 'menu/briefing.dart';
-import 'menu/menu_achievement.dart';
-import 'menu/menu_city.dart';
-import 'menu/menu_game_won.dart';
-import 'menu/menu_level_lost.dart';
-import 'menu/menu_level_won.dart';
-import 'menu/menu_settings.dart';
-import 'menu/root.dart';
-import 'router/route_make_other_ignore_events.dart';
+
 import 'ui/mouse_cursor.dart';
 import 'utils/palette.dart';
 
@@ -73,8 +60,8 @@ class MGame extends FlameGame with MouseMovementDetector, ScrollDetector, MultiT
   Vector2 mousePosition = Vector2.zero();
 
   bool hasAudioBeenActivatedOnWeb = false;
-  double musicVolume = 0.2;
-  double soundVolume = 0.4;
+  double musicVolume = 0.0;
+  double soundVolume = 0.1;
 
   bool isMouseDragging = false;
   bool isMouseHoveringUI = false;
@@ -93,7 +80,7 @@ class MGame extends FlameGame with MouseMovementDetector, ScrollDetector, MultiT
   int lastLevelCompleted = 0;
   int currentLevel = 0;
 
-  bool isAudioEnabled = true;
+  bool isAudioEnabled = false;
 
   double globalAirQualityValue = 0;
   String globalAirQualityString = "";
@@ -109,7 +96,6 @@ class MGame extends FlameGame with MouseMovementDetector, ScrollDetector, MultiT
   @override
   FutureOr<void> onLoad() async {
     /// Load Sounds
-
     if (isAudioEnabled) {
       await preLoadAudio();
 
@@ -122,8 +108,6 @@ class MGame extends FlameGame with MouseMovementDetector, ScrollDetector, MultiT
     final futurePreLoadImages = preLoadAssetsImages().map((loadableBuilder) => loadableBuilder());
     await Future.wait<void>(futurePreLoadImages);
 
-    children.register<LevelWorld>();
-
     /// Hide system mouse cursor before adding custom one
     mouseCursor = SystemMouseCursors.none;
 
@@ -133,41 +117,15 @@ class MGame extends FlameGame with MouseMovementDetector, ScrollDetector, MultiT
     /// Add Audio controller
     add(audioController);
 
+    /// Register component for queries
     children.register<Level>();
+    children.register<LevelWorld>();
 
-    add(
-      router = RouterComponent(
-        routes: {
-          'root': RouteCanIgnoreEvents(Root.new, maintainState: false),
+    /// Add router
+    add(router = GameRouter());
 
-          ///
-          'mainMenu': RouteCanIgnoreEvents(MainMenu.new, transparent: true, maintainState: false),
-          'menuSettings': RouteMakeOtherIgnoreEvents(MenuSettings.new, transparent: true, maintainState: false),
-          'menuAchievements': RouteMakeOtherIgnoreEvents(MenuAchievement.new, transparent: true, maintainState: false),
-
-          ///
-          'levelBackground': RouteIgnoreEvents(() => Level(level: 0, key: ComponentKey.named('level')), maintainState: false),
-          'level1': RouteCanIgnoreEvents(() => Level(level: 1, key: ComponentKey.named('level')), maintainState: false),
-          'level2': RouteCanIgnoreEvents(() => Level(level: 2, key: ComponentKey.named('level')), maintainState: false),
-          'level3': RouteCanIgnoreEvents(() => Level(level: 3, key: ComponentKey.named('level')), maintainState: false),
-
-          ///
-          'levelWon': RouteMakeOtherIgnoreEvents(MenuLevelWon.new, transparent: true, maintainState: false),
-          'gameWon': RouteMakeOtherIgnoreEvents(MenuGameWon.new, transparent: true, maintainState: false),
-          'levelLost': RouteMakeOtherIgnoreEvents(MenuLevelLost.new, transparent: true, maintainState: false),
-          'tutorial': RouteMakeOtherIgnoreEvents(Tutorial.new, transparent: true, maintainState: false),
-          'briefing': RouteMakeOtherIgnoreEvents(Briefing.new, transparent: true, maintainState: false),
-
-          ///
-          'menuGarage': RouteMakeOtherIgnoreEvents(MenuGarage.new, doesPutGameInPause: false, transparent: true, maintainState: false),
-          'menuCity': RouteMakeOtherIgnoreEvents(MenuCity.new, doesPutGameInPause: false, transparent: true, maintainState: false),
-          'menuIncinerator': RouteMakeOtherIgnoreEvents(MenuIncinerator.new, doesPutGameInPause: false, transparent: true, maintainState: false),
-        },
-        initialRoute: 'root',
-      ),
-    );
-
-    // add(FpsTextComponent());
+    /// Debug
+    add(FpsTextComponent());
 
     return super.onLoad();
   }
@@ -186,22 +144,15 @@ class MGame extends FlameGame with MouseMovementDetector, ScrollDetector, MultiT
   ///
   ///
   /// Move [myMouseCursor] to follow mouse
-  ///
   void moveMouseCursor(Vector2 pos) {
     Vector2 futureMouseCursorPosition = camera.globalToLocal(pos);
-
-    if (futureMouseCursorPosition.x < 0) futureMouseCursorPosition.x = 0;
-    if (futureMouseCursorPosition.x > gameWidth - 5) futureMouseCursorPosition.x = gameWidth - 5;
-    if (futureMouseCursorPosition.y < 0) futureMouseCursorPosition.y = 0;
-    if (futureMouseCursorPosition.y > gameHeight - 5) futureMouseCursorPosition.y = gameHeight - 5;
-
+    futureMouseCursorPosition.clamp(Vector2(0, 0), Vector2(gameWidth - 5, gameHeight - 5));
     myMouseCursor.updatePosition(futureMouseCursorPosition);
   }
 
   ///
   ///
   /// Handle Keyboard
-
   @override
   KeyEventResult onKeyEvent(KeyEvent event, Set<LogicalKeyboardKey> keysPressed) {
     super.onKeyEvent(event, keysPressed);
@@ -211,8 +162,7 @@ class MGame extends FlameGame with MouseMovementDetector, ScrollDetector, MultiT
 
   ///
   ///
-  /// Handle Taps
-
+  /// Forward Taps to [tapController]
   @override
   void onTertiaryTapDown(TapDownInfo info) {
     if (router.currentRoute.name?.contains('level') ?? false) {
@@ -241,8 +191,7 @@ class MGame extends FlameGame with MouseMovementDetector, ScrollDetector, MultiT
 
   ///
   ///
-  /// Forward Mouse movement to Controller
-  ///
+  /// Forward Mouse movement to [mouseController]
   @override
   void onMouseMove(PointerHoverInfo info) {
     if (isDesktop) moveMouseCursor(info.eventPosition.global);
@@ -254,8 +203,7 @@ class MGame extends FlameGame with MouseMovementDetector, ScrollDetector, MultiT
 
   ///
   ///
-  /// Forward Scroll to Controller
-
+  /// Forward Scroll to [dragZoomController]
   @override
   void onScroll(PointerScrollInfo info) {
     if (router.currentRoute.name?.contains('level') ?? false) {
@@ -266,8 +214,7 @@ class MGame extends FlameGame with MouseMovementDetector, ScrollDetector, MultiT
 
   ///
   ///
-  /// Forward Drag to Controller
-
+  /// Forward Drag to [dragZoomController]
   @override
   void onDragStart(int pointerId, DragStartInfo info) {
     // Forward the event down the tree. This will lead to a PR in the future

@@ -23,8 +23,6 @@ class NumberDisplay extends PositionComponent with HasGameReference<MGame>, HasW
 
   @override
   FutureOr<void> onLoad() {
-    priority = 900;
-
     circleComponent = CircleComponent(
       radius: radius,
       anchor: Anchor.center,
@@ -57,6 +55,11 @@ class NumberDisplay extends PositionComponent with HasGameReference<MGame>, HasW
       isGeneratingPollution = false;
       changeColor(ColorType.normal);
     }
+
+    if (isGeneratingPollution && canGeneratePollution) {
+      (game.findByKeyName('pollutionBar') as PollutionBar).addValue(50);
+      add(ShowPollutionTick(quantity: 50));
+    }
   }
 
   void changeColor(ColorType colorType) {
@@ -73,25 +76,6 @@ class NumberDisplay extends PositionComponent with HasGameReference<MGame>, HasW
     } else {
       textComponent.textRenderer = MyTextStyle.numberDisplay;
     }
-  }
-
-  double timeElapsed = 0.0;
-
-  @override
-  void update(double dt) {
-    if (isGeneratingPollution && canGeneratePollution) {
-      timeElapsed += dt;
-
-      if (timeElapsed >= 1) {
-        (game.findByKeyName('pollutionBar') as PollutionBar).addValue(50);
-        add(ShowPollutionTick(quantity: 50));
-        timeElapsed = 0;
-      }
-    } else {
-      timeElapsed = 0;
-    }
-
-    super.update(dt);
   }
 
   void stopPollutionGeneration() {

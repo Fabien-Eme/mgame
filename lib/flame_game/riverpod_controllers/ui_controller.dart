@@ -55,6 +55,12 @@ class ActiveUIButtonController extends _$ActiveUIButtonController {
         } else {
           ref.read(constructionModeControllerProvider.notifier).enterConstructionMode(buildingType: BuildingType.incinerator, buildingDirection: Directions.S);
         }
+      case ButtonType.buryer:
+        if (state == buttonType) {
+          ref.read(constructionModeControllerProvider.notifier).exitConstructionMode();
+        } else {
+          ref.read(constructionModeControllerProvider.notifier).enterConstructionMode(buildingType: BuildingType.buryer, buildingDirection: Directions.S);
+        }
     }
   }
 
@@ -76,7 +82,8 @@ enum ButtonType {
   trash,
   garbageLoader,
   recycler,
-  incinerator;
+  incinerator,
+  buryer;
 
   String get path {
     return switch (this) {
@@ -85,6 +92,7 @@ enum ButtonType {
       ButtonType.garbageLoader => Assets.images.ui.uiGarbageLoader.path,
       ButtonType.recycler => Assets.images.ui.uiRecycler.path,
       ButtonType.incinerator => Assets.images.ui.uiIncinerator.path,
+      ButtonType.buryer => Assets.images.ui.uiBuryer.path,
     };
   }
 
@@ -95,6 +103,7 @@ enum ButtonType {
       ButtonType.garbageLoader => 10.0,
       ButtonType.recycler => 30.0,
       ButtonType.incinerator => 30.0,
+      ButtonType.buryer => 10.0,
     };
   }
 
@@ -105,6 +114,7 @@ enum ButtonType {
       ButtonType.garbageLoader => 10000,
       ButtonType.recycler => 30000,
       ButtonType.incinerator => 30000,
+      ButtonType.buryer => 10000,
     };
   }
 }

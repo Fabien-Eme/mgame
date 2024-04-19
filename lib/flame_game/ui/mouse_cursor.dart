@@ -3,12 +3,14 @@ import 'dart:ui';
 
 import 'package:flame/components.dart';
 import 'package:flame_riverpod/flame_riverpod.dart';
+import 'package:mgame/flame_game/level_world.dart';
 import 'package:mgame/flame_game/riverpod_controllers/construction_mode_controller.dart';
 
 import '../../gen/assets.gen.dart';
 import '../game.dart';
+import '../level.dart';
 
-class MyMouseCursor extends SpriteComponent with HasGameReference<MGame>, RiverpodComponentMixin {
+class MyMouseCursor extends SpriteComponent with HasGameReference<MGame>, HasWorldReference<LevelWorld>, RiverpodComponentMixin {
   MyMouseCursor({this.mouseCursorType = MouseCursorType.base, super.position, super.size});
 
   MouseCursorType mouseCursorType;
@@ -78,6 +80,7 @@ class MyMouseCursor extends SpriteComponent with HasGameReference<MGame>, Riverp
 
   void hoverEnterButton() {
     if (!game.isMobile) changeMouseCursorType(MouseCursorType.hand);
+    if (!game.isMobile) (game.findByKeyName('level') as Level?)?.levelWorld.tileCursor.hideTileCursor();
   }
 
   void hoverExitButton() {
@@ -86,6 +89,7 @@ class MyMouseCursor extends SpriteComponent with HasGameReference<MGame>, Riverp
 
   void resetMouseCursor() {
     if (!game.isMobile) _handleNewConstructionState();
+    if (!game.isMobile) (game.findByKeyName('level') as Level?)?.levelWorld.tileCursor.showTileCursor();
   }
 
   void updatePosition(Vector2 newPosition) {

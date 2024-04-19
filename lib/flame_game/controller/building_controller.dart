@@ -50,6 +50,7 @@ class BuildingController extends Component with HasGameReference<MGame>, HasWorl
 
       /// Give Building Transparency
       world.temporaryBuilding?.makeTransparent();
+      world.temporaryBuilding?.renderAboveAll();
     }
 
     ///Project Destruction
@@ -61,7 +62,7 @@ class BuildingController extends Component with HasGameReference<MGame>, HasWorl
   }
 
   void _addTemporaryBuildingOnWorld(ConstructionState constructionState, Point<int> dimetricTilePos) {
-    world.temporaryBuilding = createBuilding(buildingType: constructionState.buildingType!, direction: constructionState.buildingDirection);
+    world.temporaryBuilding = createBuilding(buildingType: constructionState.buildingType!, direction: constructionState.buildingDirection, garbageLoaderFlow: constructionState.garbageLoaderFlow);
     world.add(world.temporaryBuilding!);
     world.temporaryBuilding!.setPosition(dimetricTilePos);
   }
@@ -75,17 +76,13 @@ class BuildingController extends Component with HasGameReference<MGame>, HasWorl
   }
 
   bool isBuildingBuildable(Point<int> dimetricTilePos, Building building) {
-    int buildingSizeInTile = building.sizeInTile;
-    bool isBuildable = true;
-    for (int i = 0; i < buildingSizeInTile; i++) {
-      for (int j = 0; j < buildingSizeInTile; j++) {
-        if (!world.gridController.isTileBuildable(dimetricTilePos: dimetricTilePos + Point<int>(-i, j), buildingType: building.buildingType)) {
-          // if (building.buildingType == BuildingType.garbageLoader && !world.gridController.isBuildingOnTile(dimetricTilePos + Point<int>(-i, j))) {
-          //   isBuildable = true;
-          // } else {
-          //   isBuildable = false;
-          // }
+    int buildingSizeInTileX = building.sizeInTile.x;
+    int buildingSizeInTileY = building.sizeInTile.y;
 
+    bool isBuildable = true;
+    for (int i = 0; i < buildingSizeInTileX; i++) {
+      for (int j = 0; j < buildingSizeInTileY; j++) {
+        if (!world.gridController.isTileBuildable(dimetricTilePos: dimetricTilePos + Point<int>(-i, j), building: building)) {
           isBuildable = false;
         }
       }

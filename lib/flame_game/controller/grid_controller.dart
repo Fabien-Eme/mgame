@@ -4,6 +4,7 @@ import 'package:flame/components.dart';
 import 'package:flame_riverpod/flame_riverpod.dart';
 import 'package:mgame/flame_game/buildings/building.dart';
 import 'package:mgame/flame_game/buildings/city/city.dart';
+import 'package:mgame/flame_game/buildings/garbage_loader/garbage_loader_front.dart';
 import 'package:mgame/flame_game/riverpod_controllers/construction_mode_controller.dart';
 import 'package:mgame/flame_game/tile/tile_helper.dart';
 
@@ -76,11 +77,35 @@ class GridController extends Component with HasGameRef<MGame>, HasWorldReference
   ///
   /// Check if Tile is buildable
   ///
-  bool isTileBuildable({required Point<int> dimetricTilePos, required BuildingType buildingType}) {
+  bool isTileBuildable({required Point<int> dimetricTilePos, required Building building}) {
     Tile? tile = getTileAtDimetricCoordinates(dimetricTilePos);
     if (tile == null) return false;
-    if (tile.isBuildingConstructible && (tile.listOnlyBuildingsAllowed.isEmpty || tile.listOnlyBuildingsAllowed.contains(buildingType))) {
-      return true;
+    if (tile.isBuildingConstructible && (tile.listOnlyBuildingsAllowed.isEmpty || tile.listOnlyBuildingsAllowed.contains(building.buildingType))) {
+      if (building.buildingType == BuildingType.garbageLoader) {
+        if (tile.isLoadPoint || tile.isUnLoadPoint) {
+          Directions directionToPoint = world.convertRotations.rotateDirections(tile.loadPointDirection ?? tile.unLoadPointDirection ?? Directions.E);
+
+          GarbageLoaderFlow garbageLoaderFlow = (tile.isLoadPoint) ? GarbageLoaderFlow.flowStandard : GarbageLoaderFlow.flowMirror;
+
+          if (ref.read(constructionModeControllerProvider).buildingDirection != directionToPoint) {
+            Future.delayed(const Duration(milliseconds: 10)).then((value) {
+              ref.read(constructionModeControllerProvider.notifier).rotateBuildingToDirection(directionToPoint);
+            });
+          }
+
+          if (ref.read(constructionModeControllerProvider).garbageLoaderFlow != garbageLoaderFlow) {
+            Future.delayed(const Duration(milliseconds: 15)).then((value) {
+              ref.read(constructionModeControllerProvider.notifier).changeFlowDirection(garbageLoaderFlow);
+            });
+          }
+
+          return true;
+        } else {
+          return false;
+        }
+      } else {
+        return true;
+      }
     } else {
       return false;
     }
@@ -103,30 +128,43 @@ class GridController extends Component with HasGameRef<MGame>, HasWorldReference
   }
 
   Future<void> buildOnTile(Point<int> coordinates, ConstructionState constructionState) async {
-    Building building = createBuilding(buildingType: constructionState.buildingType!, direction: constructionState.buildingDirection, anchorTile: coordinates);
+    Building building = createBuilding(
+        buildingType: constructionState.buildingType ?? BuildingType.garbageLoader,
+        direction: constructionState.buildingDirection,
+        anchorTile: coordinates,
+        garbageLoaderFlow: constructionState.garbageLoaderFlow);
     (game.findByKeyName('level') as Level).money.addValue(-building.buildingCost);
     world.buildings.add(building);
     await world.add(building);
     building.setPosition(coordinates);
-    building.setDirection(constructionState.buildingDirection!);
+    building.setDirection(constructionState.buildingDirection ?? Directions.E);
     building.initialize();
     markTilesAsBuilt(world.convertRotations.rotateCoordinates(coordinates), building);
   }
 
   Future<void> internalBuildOnTile(
-      {required Point<int> coordinates, required BuildingType buildingType, required Directions direction, bool hideMoney = false, CityType cityType = CityType.normal}) async {
-    Building building = createBuilding(buildingType: buildingType, direction: direction, anchorTile: coordinates, cityType: cityType);
+      {required Point<int> coordinates,
+      required BuildingType buildingType,
+      required Directions direction,
+      bool hideMoney = false,
+      CityType cityType = CityType.normal,
+      GarbageLoaderFlow garbageLoaderFlow = GarbageLoaderFlow.flowStandard}) async {
+    Building building = createBuilding(buildingType: buildingType, direction: direction, anchorTile: coordinates, cityType: cityType, garbageLoaderFlow: garbageLoaderFlow);
     (game.findByKeyName('level') as Level).money.addValue(-building.buildingCost, hideMoney);
     world.buildings.add(building);
-    await world.add(world.buildings.last);
-    world.buildings.last.setPosition(coordinates);
-    world.buildings.last.setDirection(direction);
+    await world.add(building);
+    building.setPosition(coordinates);
+    building.setDirection(direction);
     building.initialize();
     markTilesAsBuilt(world.convertRotations.rotateCoordinates(coordinates), building);
   }
 
+  ///
+  ///
+  /// Register build on tile
   void markTilesAsBuilt(Point<int> coordinates, Building building) {
-    int buildingSizeInTile = building.sizeInTile;
+    int buildingSizeInTileX = building.sizeInTile.x;
+    int buildingSizeInTileY = building.sizeInTile.y;
     Directions buildingDirection = world.convertRotations.rotateDirections(building.direction);
 
     /// GARBAGE LOADER
@@ -147,8 +185,8 @@ class GridController extends Component with HasGameRef<MGame>, HasWorldReference
 
     /// INCINERATOR
     else if (building.buildingType == BuildingType.incinerator) {
-      for (int i = 0; i < buildingSizeInTile; i++) {
-        for (int j = 0; j < buildingSizeInTile; j++) {
+      for (int i = 0; i < buildingSizeInTileX; i++) {
+        for (int j = 0; j < buildingSizeInTileY; j++) {
           building.tilesIAmOn.add(getTileAtDimetricCoordinates(coordinates + Point<int>(-i, j)));
 
           if (buildingDirection == Directions.S && Point<int>(-i, j) == const Point<int>(-1, 0)) {
@@ -169,10 +207,7 @@ class GridController extends Component with HasGameRef<MGame>, HasWorldReference
           } else if (buildingDirection == Directions.E && Point<int>(-i, j) == const Point<int>(0, 1)) {
             getTileAtDimetricCoordinates(coordinates + Point<int>(-i, j))
               ?..markAsBuiltAndConstructible(building)
-              ..listConnectionRestriction = [
-                world.convertRotations.unRotateDirections(Directions.N),
-                world.convertRotations.unRotateDirections(Directions.S),
-              ];
+              ..listConnectionRestriction = [world.convertRotations.unRotateDirections(Directions.N), world.convertRotations.unRotateDirections(Directions.S)];
             world.constructionController.construct(posDimetric: coordinates + Point<int>(-i, j), tileType: TileType.road, hideMoney: true);
           } else if (buildingDirection == Directions.S && Point<int>(-i, j) == const Point<int>(-1, 1)) {
             getTileAtDimetricCoordinates(coordinates + Point<int>(-i, j))
@@ -219,8 +254,8 @@ class GridController extends Component with HasGameRef<MGame>, HasWorldReference
 
     /// GARAGE
     else if (building.buildingType == BuildingType.garage) {
-      for (int i = 0; i < buildingSizeInTile; i++) {
-        for (int j = 0; j < buildingSizeInTile; j++) {
+      for (int i = 0; i < buildingSizeInTileX; i++) {
+        for (int j = 0; j < buildingSizeInTileY; j++) {
           building.tilesIAmOn.add(getTileAtDimetricCoordinates(coordinates + Point<int>(-i, j)));
 
           if (buildingDirection == Directions.S && Point<int>(-i, j) == const Point<int>(-1, 0)) {
@@ -300,8 +335,8 @@ class GridController extends Component with HasGameRef<MGame>, HasWorldReference
 
     /// CITY
     else if (building.buildingType == BuildingType.city) {
-      for (int i = 0; i < buildingSizeInTile; i++) {
-        for (int j = 0; j < buildingSizeInTile; j++) {
+      for (int i = 0; i < buildingSizeInTileX; i++) {
+        for (int j = 0; j < buildingSizeInTileY; j++) {
           building.tilesIAmOn.add(getTileAtDimetricCoordinates(coordinates + Point<int>(-i, j)));
           getTileAtDimetricCoordinates(coordinates + Point<int>(-i, j))?.markAsBuiltAndIndestructible(building);
         }
@@ -311,22 +346,91 @@ class GridController extends Component with HasGameRef<MGame>, HasWorldReference
           getTileAtDimetricCoordinates(coordinates + const Point<int>(-1, -1))
             ?..setTileType(TileType.arrowS)
             ..defaultTyleType = TileType.arrowS
-            ..marksAsLoadPoint();
+            ..marksAsLoadPoint(buildingDirection);
         case Directions.W:
           getTileAtDimetricCoordinates(coordinates + const Point<int>(-3, 1))
             ?..setTileType(TileType.arrowW)
             ..defaultTyleType = TileType.arrowW
-            ..marksAsLoadPoint();
+            ..marksAsLoadPoint(buildingDirection);
         case Directions.N:
           getTileAtDimetricCoordinates(coordinates + const Point<int>(-1, 3))
             ?..setTileType(TileType.arrowN)
             ..defaultTyleType = TileType.arrowN
-            ..marksAsLoadPoint();
+            ..marksAsLoadPoint(buildingDirection);
         case Directions.E:
           getTileAtDimetricCoordinates(coordinates + const Point<int>(1, 1))
             ?..setTileType(TileType.arrowE)
             ..defaultTyleType = TileType.arrowE
-            ..marksAsLoadPoint();
+            ..marksAsLoadPoint(buildingDirection);
+      }
+    }
+
+    /// BURYER
+    else if (building.buildingType == BuildingType.buryer) {
+      building.tilesIAmOn.add(getTileAtDimetricCoordinates(coordinates + const Point<int>(0, 0)));
+      getTileAtDimetricCoordinates(coordinates + const Point<int>(0, 0))?.markAsBuilt(building);
+
+      Tile? tileToMarkAsArrow;
+
+      switch (buildingDirection) {
+        case Directions.S:
+          building.tilesIAmOn.add(getTileAtDimetricCoordinates(coordinates + const Point<int>(0, 1)));
+          getTileAtDimetricCoordinates(coordinates + const Point<int>(0, 1))?.markAsBuilt(building);
+
+          tileToMarkAsArrow = getTileAtDimetricCoordinates(coordinates + const Point<int>(0, -1));
+          break;
+
+        case Directions.W:
+          building.tilesIAmOn.add(getTileAtDimetricCoordinates(coordinates + const Point<int>(1, 0)));
+          getTileAtDimetricCoordinates(coordinates + const Point<int>(1, 0))?.markAsBuilt(building);
+
+          tileToMarkAsArrow = getTileAtDimetricCoordinates(coordinates + const Point<int>(-1, 0));
+          break;
+
+        case Directions.N:
+          building.tilesIAmOn.add(getTileAtDimetricCoordinates(coordinates + const Point<int>(0, -1)));
+          getTileAtDimetricCoordinates(coordinates + const Point<int>(0, -1))?.markAsBuilt(building);
+
+          tileToMarkAsArrow = getTileAtDimetricCoordinates(coordinates + const Point<int>(0, 1));
+          break;
+
+        case Directions.E:
+          building.tilesIAmOn.add(getTileAtDimetricCoordinates(coordinates + const Point<int>(-1, 0)));
+          getTileAtDimetricCoordinates(coordinates + const Point<int>(-1, 0))?.markAsBuilt(building);
+
+          tileToMarkAsArrow = getTileAtDimetricCoordinates(coordinates + const Point<int>(1, 0));
+          break;
+      }
+
+      Directions unRotatedBuildingDirection = world.convertRotations.unRotateDirections(buildingDirection);
+      switch (unRotatedBuildingDirection) {
+        case Directions.S:
+          tileToMarkAsArrow
+            ?..setTileType(TileType.arrowN)
+            ..defaultTyleType = TileType.arrowN
+            ..markAsUnloadPoint(Directions.N);
+          break;
+
+        case Directions.W:
+          tileToMarkAsArrow
+            ?..setTileType(TileType.arrowE)
+            ..defaultTyleType = TileType.arrowE
+            ..markAsUnloadPoint(Directions.E);
+          break;
+
+        case Directions.N:
+          tileToMarkAsArrow
+            ?..setTileType(TileType.arrowS)
+            ..defaultTyleType = TileType.arrowS
+            ..markAsUnloadPoint(Directions.S);
+          break;
+
+        case Directions.E:
+          tileToMarkAsArrow
+            ?..setTileType(TileType.arrowW)
+            ..defaultTyleType = TileType.arrowW
+            ..markAsUnloadPoint(Directions.W);
+          break;
       }
     }
     world.taskController.buildingBuilt(building);

@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:flame/components.dart';
 import 'package:flame_riverpod/flame_riverpod.dart';
 import 'package:mgame/flame_game/level_world.dart';
@@ -28,13 +30,11 @@ class ConstructionModeListener extends Component with HasGameRef<MGame>, HasWorl
         /// Remove Temporary building if we construct roads
         if (constructionState.buildingType != null) {
           /// If building, size Tile cursor properly
-          switch (createBuilding(buildingType: constructionState.buildingType!).sizeInTile) {
-            case 3:
-              world.tileCursor.scaleToThreeTile();
-              break;
-            default:
-              world.tileCursor.resetScale();
-              break;
+          Point<int> sizeInTile = createBuilding(buildingType: constructionState.buildingType!).sizeInTile;
+          if (sizeInTile == const Point<int>(3, 3)) {
+            world.tileCursor.scaleToThreeTile();
+          } else {
+            world.tileCursor.resetScale();
           }
         } else {
           await world.buildingController.removeTemporaryBuilding();

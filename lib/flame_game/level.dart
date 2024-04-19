@@ -133,10 +133,12 @@ class Level extends PositionComponent with HasGameReference<MGame> {
     }
   }
 
-  Map<String, Map<String, dynamic>> getMapLevel(double globalAirQualityValue) {
+  static int totalNumberOfLevel = 8;
+
+  static Map<String, Map<String, dynamic>> getMapLevel([double globalAirQualityValue = 0]) {
     return {
       "0": {
-        "levelTitle": "",
+        "levelTitle": "Level 0 - Init",
         "pollutionLimit": 0.0,
         "garbageTarget": 0.0,
         "startingMoney": 1000000.0,
@@ -147,12 +149,20 @@ class Level extends PositionComponent with HasGameReference<MGame> {
         "garbageTarget": 50.0,
         "startingMoney": 65000.0,
       },
+      // Testing Level
       "2": {
         "levelTitle": "Level 2 - Two cities",
-        "pollutionLimit": 20000.0 - (1 - globalAirQualityValue / 100) * 5000,
-        "garbageTarget": 200.0,
-        "startingMoney": 65000.0,
+        "pollutionLimit": 200000.0 - (1 - globalAirQualityValue / 100) * 5000,
+        "garbageTarget": 2000.0,
+        "startingMoney": 650000.0,
       },
+      // Original Level to restore
+      // "2": {
+      //   "levelTitle": "Level 2 - Two cities",
+      //   "pollutionLimit": 20000.0 - (1 - globalAirQualityValue / 100) * 5000,
+      //   "garbageTarget": 200.0,
+      //   "startingMoney": 65000.0,
+      // },
       "3": {
         "levelTitle": "Level 3 - Mission: Impossible",
         "pollutionLimit": 45000.0 - (1 - globalAirQualityValue / 100) * 5000,
@@ -161,4 +171,13 @@ class Level extends PositionComponent with HasGameReference<MGame> {
       },
     };
   }
+
+  //   Map<int, dynamic> mapLevel = {
+  //   1: {'title': 'Tutorial', 'completed': true, 'available': true, 'score': 3},
+  //   2: {'title': 'Two cities', 'completed': false, 'available': true, 'score': -1},
+  //   3: {'title': 'Impossible', 'completed': false, 'available': false, 'score': -1},
+  //   4: {'title': 'Impossible', 'completed': false, 'available': false, 'score': -1},
+  //   5: {'title': 'Impossible', 'completed': false, 'available': false, 'score': -1},
+  //   6: {'title': 'Impossible', 'completed': false, 'available': false, 'score': -1},
+  // };
 }

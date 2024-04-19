@@ -15,7 +15,7 @@ class GarageBack extends SpriteComponent with HasGameRef {
   FutureOr<void> onLoad() {
     size = Vector2(300, 262);
     priority = 90;
-    anchor = Anchor.bottomRight;
+    anchor = Anchor.center;
     updateSprite();
 
     paint = Paint()..filterQuality = FilterQuality.low;

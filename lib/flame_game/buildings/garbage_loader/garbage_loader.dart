@@ -6,8 +6,11 @@ import 'package:flame/components.dart';
 import 'package:mgame/flame_game/buildings/building.dart';
 import 'package:mgame/flame_game/buildings/garbage_loader/garbage_loader_back.dart';
 import 'package:mgame/flame_game/buildings/garbage_loader/garbage_loader_front.dart';
+import 'package:mgame/flame_game/buildings/garbage_loader/garbage_loader_outline.dart';
 
 import '../../game.dart';
+import '../../tile/tile.dart';
+import '../../truck/truck.dart';
 import '../../utils/convert_coordinates.dart';
 import '../../utils/convert_rotations.dart';
 
@@ -15,10 +18,11 @@ class GarbageLoader extends Building {
   GarbageLoaderFlow garbageLoaderFlow;
   GarbageLoader({super.direction, required this.garbageLoaderFlow, super.position, required super.anchorTile});
 
-  final Vector2 offset = convertDimetricVectorToWorldCoordinates(Vector2(2, 0)) + Vector2(10, 5);
+  final Vector2 offset = convertDimetricVectorToWorldCoordinates(Vector2(2, 0)) + Vector2(-4, -2);
 
   late final GarbageLoaderFront garbageLoaderFront;
   late final GarbageLoaderBack garbageLoaderBack;
+  late final GarbageLoaderOutline garbageLoaderOutline;
 
   late Timer timer;
 
@@ -26,10 +30,15 @@ class GarbageLoader extends Building {
   FutureOr<void> onLoad() async {
     garbageLoaderFront = GarbageLoaderFront(direction: direction, garbageLoaderFlow: garbageLoaderFlow, position: position + offset);
     garbageLoaderBack = GarbageLoaderBack(direction: direction, position: position + offset);
+    garbageLoaderOutline = GarbageLoaderOutline(direction: direction, position: position + offset);
+
     await world.addAll([
       garbageLoaderFront,
       garbageLoaderBack,
+      garbageLoaderOutline,
     ]);
+
+    garbageLoaderOutline.opacity = 0;
 
     timer = Timer(1, autoStart: false, onTick: () => closeDoor());
 
@@ -40,6 +49,7 @@ class GarbageLoader extends Building {
   void updatePosition(Vector2 updatedPosition) {
     garbageLoaderFront.position = updatedPosition + offset;
     garbageLoaderBack.position = updatedPosition + offset;
+    garbageLoaderOutline.position = updatedPosition + offset + Vector2(3, 3);
 
     listTilesWithDoor = [
       dimetricCoordinates,
@@ -68,6 +78,7 @@ class GarbageLoader extends Building {
   void updateDirection(Directions updatedDirection) {
     garbageLoaderFront.updateDirection(updatedDirection);
     garbageLoaderBack.updateDirection(updatedDirection);
+    garbageLoaderOutline.updateDirection(updatedDirection);
   }
 
   @override
@@ -75,6 +86,7 @@ class GarbageLoader extends Building {
     final int offsetPriority = ((updatedPosition.y + offset.y) / MGame.gameHeight * 100).toInt();
     garbageLoaderFront.priority = 110 + offsetPriority;
     garbageLoaderBack.priority = 90 + offsetPriority;
+    garbageLoaderOutline.priority = 89 + offsetPriority;
   }
 
   @override
@@ -87,7 +99,7 @@ class GarbageLoader extends Building {
   BuildingType get buildingType => BuildingType.garbageLoader;
 
   @override
-  int get sizeInTile => 1;
+  Point<int> get sizeInTile => const Point<int>(1, 1);
 
   @override
   void changeColor(Color color) {
@@ -149,10 +161,21 @@ class GarbageLoader extends Building {
   }
 
   @override
+  void select() {
+    garbageLoaderOutline.opacity = 1;
+  }
+
+  @override
+  void deselect() {
+    garbageLoaderOutline.opacity = 0;
+  }
+
+  @override
   void onRemove() {
     if (garbageLoaderFront.ancestors().isNotEmpty) {
       world.remove(garbageLoaderFront);
       world.remove(garbageLoaderBack);
+      world.remove(garbageLoaderOutline);
     }
     super.onRemove();
   }
@@ -165,4 +188,18 @@ class GarbageLoader extends Building {
     timer.update(dt);
     super.update(dt);
   }
+
+  @override
+  Truck? isOccupiedByTruck() {
+    Tile? tile = world.gridController.getTileAtDimetricCoordinates(dimetricCoordinates);
+
+    if (tile?.listTrucksOnTile.isEmpty ?? false) {
+      return null;
+    } else {
+      return tile?.listTrucksOnTile.first;
+    }
+  }
+
+  @override
+  bool get isRefundable => true;
 }

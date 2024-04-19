@@ -5,8 +5,10 @@ import 'dart:ui';
 import 'package:flame/components.dart';
 import 'package:flame/events.dart';
 import 'package:mgame/flame_game/buildings/building.dart';
+import 'package:mgame/flame_game/buildings/garage/garage_outline.dart';
 
 import '../../game.dart';
+import '../../truck/truck.dart';
 import '../../utils/convert_coordinates.dart';
 import '../../utils/convert_rotations.dart';
 import 'garage_back.dart';
@@ -19,6 +21,7 @@ class Garage extends Building with HoverCallbacks {
   late final GarageFront garageFront;
   late final GarageBack garageBack;
   late final GarageDoor garageDoor;
+  late final GarageOutline garageOutline;
   late final Vector2 offset;
 
   Point<int> spawnPointDimetric = const Point<int>(0, 0);
@@ -26,17 +29,21 @@ class Garage extends Building with HoverCallbacks {
 
   @override
   FutureOr<void> onLoad() {
-    offset = convertDimetricVectorToWorldCoordinates(Vector2(3, 1)) + Vector2(0, 2);
+    offset = convertDimetricVectorToWorldCoordinates(Vector2(-1, 2)) + Vector2(0, -4);
 
     garageFront = GarageFront(direction: direction, position: position + offset);
     garageBack = GarageBack(direction: direction, position: position + offset);
     garageDoor = GarageDoor(direction: direction, position: position + offset);
+    garageOutline = GarageOutline(direction: direction, position: position + offset);
 
     world.addAll([
       garageFront,
       garageBack,
       garageDoor,
+      garageOutline,
     ]);
+
+    garageOutline.opacity = 0;
 
     timer = Timer(1, autoStart: false, onTick: () => closeDoor());
 
@@ -48,6 +55,7 @@ class Garage extends Building with HoverCallbacks {
     garageFront.position = updatedPosition + offset;
     garageBack.position = updatedPosition + offset;
     garageDoor.position = updatedPosition + offset;
+    garageOutline.position = updatedPosition + offset;
 
     spawnPointDimetric = dimetricCoordinates + const Point<int>(-1, 1);
 
@@ -78,6 +86,7 @@ class Garage extends Building with HoverCallbacks {
     garageFront.updateDirection(updatedDirection);
     garageBack.updateDirection(updatedDirection);
     garageDoor.updateDirection(updatedDirection);
+    garageOutline.updateDirection(updatedDirection);
   }
 
   @override
@@ -86,6 +95,7 @@ class Garage extends Building with HoverCallbacks {
     garageFront.priority = 110 + offsetPriority;
     garageBack.priority = 90 + offsetPriority;
     garageDoor.priority = 110 + offsetPriority;
+    garageOutline.priority = 89 + offsetPriority;
   }
 
   @override
@@ -99,7 +109,7 @@ class Garage extends Building with HoverCallbacks {
   BuildingType get buildingType => BuildingType.garage;
 
   @override
-  int get sizeInTile => 3;
+  Point<int> get sizeInTile => const Point<int>(3, 3);
 
   @override
   void changeColor(Color color) {
@@ -164,11 +174,22 @@ class Garage extends Building with HoverCallbacks {
   }
 
   @override
+  void select() {
+    garageOutline.opacity = 1;
+  }
+
+  @override
+  void deselect() {
+    garageOutline.opacity = 0;
+  }
+
+  @override
   void onRemove() {
     if (garageFront.ancestors().isNotEmpty) {
       world.remove(garageFront);
       world.remove(garageBack);
       world.remove(garageDoor);
+      world.remove(garageOutline);
     }
     super.onRemove();
   }
@@ -181,4 +202,12 @@ class Garage extends Building with HoverCallbacks {
     timer.update(dt);
     super.update(dt);
   }
+
+  @override
+  Truck? isOccupiedByTruck() {
+    return null;
+  }
+
+  @override
+  bool get isRefundable => false;
 }

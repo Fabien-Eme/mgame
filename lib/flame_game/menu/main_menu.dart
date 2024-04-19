@@ -1,15 +1,15 @@
 import 'dart:async';
 
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flame/components.dart';
 import 'package:flame_riverpod/flame_riverpod.dart';
 import 'package:flutter/material.dart';
 import 'package:mgame/flame_game/menu/dialog_button.dart';
-import 'package:mgame/flame_game/riverpod_controllers/user_controller.dart';
+import 'package:mgame/flame_game/riverpod_controllers/game_user_controller.dart';
 import 'package:mgame/flame_game/ui/settings_button.dart';
 import 'package:mgame/flame_game/utils/my_text_style.dart';
 import 'package:mgame/flame_game/utils/palette.dart';
+import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 import '../game.dart';
 
@@ -32,10 +32,11 @@ class MainMenu extends PositionComponent with HasGameReference<MGame>, RiverpodC
   late final TextComponent ecoCreditsComponent;
 
   late final RectangleComponent globalAirQualityComponent;
+  late final TextBoxComponent globalAirQualityTextComponent;
 
   bool isLevelLoading = false;
 
-  User? user;
+  GameUser? user;
 
   @override
   FutureOr<void> onLoad() {
@@ -51,6 +52,10 @@ class MainMenu extends PositionComponent with HasGameReference<MGame>, RiverpodC
       Rect.fromCenter(center: const Offset(0, -25), width: 750, height: 450),
       paint: Paint()..color = Palette.blackTransparent,
     ));
+    world.add(RectangleComponent.fromRect(
+      Rect.fromCenter(center: const Offset(0, 330), width: 350, height: 210),
+      paint: Paint()..color = Palette.blackTransparent,
+    ));
 
     world.add(RectangleComponent.fromRect(
       Rect.fromCenter(center: const Offset(0, 300), width: 275, height: 80),
@@ -58,32 +63,13 @@ class MainMenu extends PositionComponent with HasGameReference<MGame>, RiverpodC
     ));
 
     playButton = DialogButton(
-      text: 'Play',
-      buttonSize: Vector2(100, 50),
-      onPressed: () async {
-        if (!isLevelLoading) {
-          isLevelLoading = true;
-
-          final doc = await FirebaseFirestore.instance.collection('users').doc(user?.email).get();
-          Map<String, dynamic>? docData = doc.data();
-          isLevelLoading = false;
-
-          int lastLevelCompleted = 0;
-          if (docData != null) {
-            lastLevelCompleted = docData['lastLevelCompleted'] as int;
-          } else {
-            lastLevelCompleted = 0;
-          }
-          game.lastLevelCompleted = lastLevelCompleted;
-          game.currentLevel = lastLevelCompleted + 1;
-
-          game.router.popUntilNamed('root');
-          game.router.pushNamed('level${lastLevelCompleted + 1}');
-
-          isLevelLoading = false;
-        }
+      text: 'Select Level',
+      textStyle: MyTextStyle.bigButton,
+      buttonSize: Vector2(300, 75),
+      onPressed: () {
+        game.router.pushNamed('menuSelectLevel');
       },
-      position: Vector2(0, -200),
+      position: Vector2(0, -187.5),
     );
 
     connectButton = DialogButton(
@@ -93,7 +79,7 @@ class MainMenu extends PositionComponent with HasGameReference<MGame>, RiverpodC
         game.mouseCursor = SystemMouseCursors.basic;
         game.overlays.add('signInUp');
       },
-      position: Vector2(0, -200),
+      position: Vector2(0, 380),
     );
 
     settingsButton = SettingsButton(
@@ -103,7 +89,12 @@ class MainMenu extends PositionComponent with HasGameReference<MGame>, RiverpodC
     achievementsButton = DialogButton(
       text: 'Achievements',
       onPressed: () {
-        game.router.pushNamed('menuAchievements');
+        if (user == null || user!.isLocal) {
+          game.mouseCursor = SystemMouseCursors.basic;
+          game.overlays.add('signInUp');
+        } else {
+          game.router.pushNamed('menuAchievements');
+        }
       },
       buttonSize: Vector2(225, 50),
       position: Vector2(0, -100),
@@ -112,8 +103,13 @@ class MainMenu extends PositionComponent with HasGameReference<MGame>, RiverpodC
     oraganizeEventButton = DialogButton(
       text: 'Organize IRL Event',
       onPressed: () {
-        game.mouseCursor = SystemMouseCursors.basic;
-        game.overlays.add('organizeEvent');
+        if (user == null || user!.isLocal) {
+          game.mouseCursor = SystemMouseCursors.basic;
+          game.overlays.add('signInUp');
+        } else {
+          game.mouseCursor = SystemMouseCursors.basic;
+          game.overlays.add('organizeEvent');
+        }
       },
       buttonSize: Vector2(275, 50),
       position: Vector2(-175, 25),
@@ -132,8 +128,13 @@ class MainMenu extends PositionComponent with HasGameReference<MGame>, RiverpodC
     viewMyEventsButton = DialogButton(
       text: 'My Events',
       onPressed: () {
-        game.mouseCursor = SystemMouseCursors.basic;
-        game.overlays.add('viewMyEvents');
+        if (user == null || user!.isLocal) {
+          game.mouseCursor = SystemMouseCursors.basic;
+          game.overlays.add('signInUp');
+        } else {
+          game.mouseCursor = SystemMouseCursors.basic;
+          game.overlays.add('viewMyEvents');
+        }
       },
       buttonSize: Vector2(225, 50),
       position: Vector2(175, 25),
@@ -142,8 +143,13 @@ class MainMenu extends PositionComponent with HasGameReference<MGame>, RiverpodC
     validateParticipationButton = DialogButton(
       text: 'Validate Participation',
       onPressed: () {
-        game.mouseCursor = SystemMouseCursors.basic;
-        game.overlays.add('validateParticipation');
+        if (user == null || user!.isLocal) {
+          game.mouseCursor = SystemMouseCursors.basic;
+          game.overlays.add('signInUp');
+        } else {
+          game.mouseCursor = SystemMouseCursors.basic;
+          game.overlays.add('validateParticipation');
+        }
       },
       buttonSize: Vector2(225, 75),
       position: Vector2(175, 127.5),
@@ -192,11 +198,12 @@ class MainMenu extends PositionComponent with HasGameReference<MGame>, RiverpodC
     globalAirQualityComponent = RectangleComponent.fromRect(
       const Rect.fromLTWH(-175, -MGame.gameHeight / 2 - 10, 350, 140),
       children: [
-        TextBoxComponent(
+        globalAirQualityTextComponent = TextBoxComponent(
           text: "",
+          align: Anchor.center,
           textRenderer: MyTextStyle.airInfo,
-          size: Vector2(300, 150),
-          position: Vector2(45, 35),
+          size: Vector2(350, 150),
+          position: Vector2(0, 0),
         )
       ],
     );
@@ -214,13 +221,16 @@ class MainMenu extends PositionComponent with HasGameReference<MGame>, RiverpodC
 
   @override
   void onMount() {
-    addToGameWidgetBuild(() => ref.listen(userControllerProvider, (previous, userStatus) {
-          user = userStatus;
-
-          updateMenu();
+    addToGameWidgetBuild(() => ref.listen(gameUserControllerProvider, (previous, userStatus) {
+          if (userStatus.hasValue) {
+            user = userStatus.value;
+            updateMenu();
+          }
         }));
     super.onMount();
-    user = ref.read(userControllerProvider);
+
+    AsyncValue<GameUser?> userStatus = ref.read(gameUserControllerProvider);
+    if (userStatus.hasValue) user = userStatus.value;
     updateGlobalAirQuality();
     updateMenu();
   }
@@ -228,7 +238,6 @@ class MainMenu extends PositionComponent with HasGameReference<MGame>, RiverpodC
   void updateMenu() {
     if (user == null) {
       if (playButton.isMounted) world.remove(playButton);
-      if (disconnectButton.isMounted) world.remove(disconnectButton);
       if (achievementsButton.isMounted) world.remove(achievementsButton);
       if (oraganizeEventButton.isMounted) world.remove(oraganizeEventButton);
       if (viewEventsButton.isMounted) world.remove(viewEventsButton);
@@ -236,41 +245,33 @@ class MainMenu extends PositionComponent with HasGameReference<MGame>, RiverpodC
       if (validateParticipationButton.isMounted) world.remove(validateParticipationButton);
       if (ecoCreditsComponent.isMounted) world.remove(ecoCreditsComponent);
       userEmailComponent.text = '';
-
-      world.add(connectButton);
     } else {
-      if (connectButton.isMounted) world.remove(connectButton);
-      getEcoCreditsCount();
+      ecoCreditsComponent.text = "${user!.ecoCredits} EcoCredits";
+      userEmailComponent.text = user!.email ?? 'Local User';
 
-      userEmailComponent.text = user!.email ?? "";
       world.add(playButton);
-      world.add(disconnectButton);
       world.add(achievementsButton);
       world.add(oraganizeEventButton);
       world.add(viewEventsButton);
       world.add(viewMyEventsButton);
       world.add(validateParticipationButton);
       world.add(ecoCreditsComponent);
+
+      if (user!.isLocal) {
+        world.add(connectButton);
+        if (disconnectButton.isMounted) world.remove(disconnectButton);
+      } else {
+        if (connectButton.isMounted) world.remove(connectButton);
+        world.add(disconnectButton);
+      }
     }
-  }
-
-  Future<void> getEcoCreditsCount() async {
-    final doc = await FirebaseFirestore.instance.collection('users').doc(user!.email).get();
-    final map = doc.data();
-    final count = map?['EcoCredits'] ?? 0;
-    ecoCreditsComponent.text = "$count EcoCredits";
-
-    FirebaseFirestore.instance.collection('users').doc(user!.email).snapshots().listen((event) {
-      final currentCount = event.data()?['EcoCredits'];
-      if (currentCount != null) ecoCreditsComponent.text = "$currentCount EcoCredits";
-    });
   }
 
   Future<void> updateGlobalAirQuality() async {
     if (game.globalAirQualityString == "") {
       await game.getGlobalAirQuality();
     }
-    (globalAirQualityComponent.children.first as TextComponent).text = "Universal AQI: ${game.globalAirQualityValue}/100\n\nWorld air quality: ${game.globalAirQualityString}";
+    globalAirQualityTextComponent.text = "Universal AQI: ${game.globalAirQualityValue}/100\n\nWorld air quality: ${game.globalAirQualityString}";
     globalAirQualityComponent.paint = Paint()..color = convertGlobalAirQualityColor(game.globalAirQualityColor);
   }
 }

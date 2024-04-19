@@ -43,6 +43,31 @@ class ConvertRotations extends Component with HasGameReference<MGame>, HasWorldR
         return dimetricGridCoordinates = Point((LevelWorld.gridHeight - 1) ~/ 2 - dimetricGridCoordinates.y, dimetricGridCoordinates.x - (LevelWorld.gridHeight - 1) ~/ 2);
     }
   }
+  // Point<int> rotateCoordinates(Point<int> dimetricCoordinates) {
+  //   switch (rotation) {
+  //     case Rotation.zero:
+  //       return dimetricCoordinates;
+  //     case Rotation.halfPi:
+  //       return dimetricCoordinates = Point((LevelWorld.gridHeight - 1) ~/ 2 - dimetricCoordinates.y, dimetricCoordinates.x - (LevelWorld.gridHeight - 1) ~/ 2);
+  //     case Rotation.pi:
+  //       return dimetricCoordinates = Point((LevelWorld.gridHeight - 1) - dimetricCoordinates.x, -dimetricCoordinates.y);
+  //     case Rotation.piAndHalf:
+  //       return dimetricCoordinates = Point((LevelWorld.gridHeight - 1) ~/ 2 + dimetricCoordinates.y, (LevelWorld.gridHeight - 1) ~/ 2 - dimetricCoordinates.x);
+  //   }
+  // }
+
+  // Point<int> unRotateCoordinates(Point<int> dimetricGridCoordinates) {
+  //   switch (rotation) {
+  //     case Rotation.zero:
+  //       return dimetricGridCoordinates;
+  //     case Rotation.halfPi:
+  //       return dimetricGridCoordinates = Point((LevelWorld.gridHeight - 1) ~/ 2 + dimetricGridCoordinates.y, (LevelWorld.gridHeight - 1) ~/ 2 - dimetricGridCoordinates.x);
+  //     case Rotation.pi:
+  //       return dimetricGridCoordinates = Point((LevelWorld.gridHeight - 1) - dimetricGridCoordinates.x, -dimetricGridCoordinates.y);
+  //     case Rotation.piAndHalf:
+  //       return dimetricGridCoordinates = Point((LevelWorld.gridHeight - 1) ~/ 2 - dimetricGridCoordinates.y, dimetricGridCoordinates.x - (LevelWorld.gridHeight - 1) ~/ 2);
+  //   }
+  // }
 
   Vector2 rotateVector(Vector2 vector) {
     // vector.rotate(rotation.angle, center: Vector2(MGame.gameWidth / 2, MGame.gameHeight / 2));
@@ -153,8 +178,8 @@ class ConvertRotations extends Component with HasGameReference<MGame>, HasWorldR
     }
   }
 
-  Point<int> rotateOffsetSizeInTile(int sizeInTile) {
-    int size = sizeInTile - 1;
+  Point<int> rotateOffsetSizeInTile(Point<int> sizeInTile) {
+    int size = sizeInTile.x - 1;
 
     switch (rotation) {
       case Rotation.zero:
@@ -170,8 +195,8 @@ class ConvertRotations extends Component with HasGameReference<MGame>, HasWorldR
     }
   }
 
-  Point<int> unRotateOffsetSizeInTile(int sizeInTile) {
-    int size = sizeInTile - 1;
+  Point<int> unRotateOffsetSizeInTile(Point<int> sizeInTile) {
+    int size = sizeInTile.x - 1;
 
     switch (rotation) {
       case Rotation.zero:

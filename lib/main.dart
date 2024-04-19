@@ -45,7 +45,7 @@ void main() async {
   runApp(
     ProviderScope(
       child: MaterialApp(
-        title: 'Namer App',
+        title: 'MGame - Waste Management Game',
         debugShowCheckedModeBanner: false,
         theme: ThemeData(
           useMaterial3: true,

@@ -5,9 +5,9 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:mgame/flame_game/riverpod_controllers/game_user_controller.dart';
 import 'package:mgame/overlays/organize_event.dart';
 import 'package:mgame/overlays/overlay_sign_in_up.dart';
-import 'package:mgame/flame_game/riverpod_controllers/user_controller.dart';
 import 'package:mgame/overlays/view_events.dart';
 
 import 'flame_game/game.dart';
@@ -42,7 +42,7 @@ class FlameGameWidget extends ConsumerWidget {
     );
 
     /// Make sure the provider will be mounted in first build of Flame Components
-    ref.read(userControllerProvider);
+    ref.read(gameUserControllerProvider);
 
     return RawGestureDetector(
       gestures: {

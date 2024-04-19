@@ -7,7 +7,7 @@ part of 'construction_mode_controller.dart';
 // **************************************************************************
 
 String _$constructionModeControllerHash() =>
-    r'f539dc6b516012267b45ea1472c9f5087f6583dd';
+    r'17ef7c83d292a7b4c55d099f9b557a2562748502';
 
 /// See also [ConstructionModeController].
 @ProviderFor(ConstructionModeController)

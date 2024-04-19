@@ -24,7 +24,6 @@ dependencies:
 
   flutter_native_splash: ^2.3.8
   shared_preferences: ^2.2.2
-  go_router: ^13.0.0
 
   audioplayers: ^5.2.1
   google_fonts: ^6.1.0
@@ -32,14 +31,9 @@ dependencies:
 
   flutter_animate: ^4.4.0
   
-  flame: ^1.15.0
-  flame_bloc: ^1.10.9
+  flame: ^1.17.0
   
   wakelock_plus: ^1.1.3
-
-  flutter_bloc: ^8.1.3
-  bloc: ^8.1.2
-  equatable: ^2.0.5
 
   flame_riverpod: ^5.2.0
   flame_audio: ^2.10.0
@@ -84,7 +78,7 @@ flutter:
     - assets/images/avatar/
     - assets/images/emote/
     - assets/images/pollution/
-    - assets/images/garbage/
+    - assets/images/waste/
     - assets/images/trucks/
     - assets/images/trucks/stacked/
     - assets/images/tiles/
@@ -93,6 +87,7 @@ flutter:
     - assets/images/ui/
     - assets/images/ui/dialog/
     - assets/images/buildings/
+    - assets/images/buildings/buryer/
     - assets/images/buildings/city/
     - assets/images/buildings/garbage_conveyor/
     - assets/images/buildings/garbage_loader/

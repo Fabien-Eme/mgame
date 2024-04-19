@@ -2,6 +2,7 @@ import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 import '../buildings/building.dart';
+import '../buildings/garbage_loader/garbage_loader_front.dart';
 import '../tile/tile_helper.dart';
 import '../utils/convert_rotations.dart';
 
@@ -15,8 +16,8 @@ class ConstructionModeController extends _$ConstructionModeController {
     return ConstructionState(status: ConstructionMode.initial);
   }
 
-  void enterConstructionMode({BuildingType? buildingType, Directions? buildingDirection, TileType? tileType}) {
-    state = state.copyWith(status: ConstructionMode.construct, tileType: tileType, buildingType: buildingType, buildingDirection: buildingDirection);
+  void enterConstructionMode({BuildingType? buildingType, Directions? buildingDirection, TileType? tileType, GarbageLoaderFlow? garbageLoaderFlow}) {
+    state = state.copyWith(status: ConstructionMode.construct, tileType: tileType, buildingType: buildingType, buildingDirection: buildingDirection, garbageLoaderFlow: garbageLoaderFlow);
   }
 
   void exitConstructionMode() {
@@ -45,6 +46,14 @@ class ConstructionModeController extends _$ConstructionModeController {
         break;
     }
   }
+
+  void rotateBuildingToDirection(Directions direction) {
+    state = state.copyWith(buildingDirection: direction);
+  }
+
+  void changeFlowDirection(GarbageLoaderFlow garbageLoaderFlow) {
+    state = state.copyWith(garbageLoaderFlow: garbageLoaderFlow);
+  }
 }
 
 @freezed
@@ -54,6 +63,7 @@ class ConstructionState with _$ConstructionState {
     TileType? tileType,
     BuildingType? buildingType,
     Directions? buildingDirection,
+    GarbageLoaderFlow? garbageLoaderFlow,
   }) = _ConstructionState;
 }
 
