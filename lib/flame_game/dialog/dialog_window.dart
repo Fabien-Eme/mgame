@@ -69,7 +69,7 @@ class DialogWindow extends PositionComponent with HasGameReference<MGame> {
   }
 
   void advanceDialog() {
-    if (textBoxComponent.finished) {
+    if (textBoxComponent.isMounted) {
       if (dialogText.length > 1) {
         dialogText.removeAt(0);
         updateTextBox();

@@ -7,7 +7,7 @@ part of 'game_user_controller.dart';
 // **************************************************************************
 
 String _$gameUserControllerHash() =>
-    r'a0e87d9612e43a12a9b0f46520330155c45533a4';
+    r'7033bc68ef70de4518d32e630eb9a1495bb41674';
 
 /// See also [GameUserController].
 @ProviderFor(GameUserController)

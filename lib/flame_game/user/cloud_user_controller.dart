@@ -28,10 +28,10 @@ Future<void> updateCloudUser({required String userEmail, int? ecoCredits, String
   if (ecoCredits != null) await FirebaseFirestore.instance.collection('users').doc(userEmail).update({'ecoCredits': ecoCredits});
 
   if (levelToUpdate != null) {
-    Map<String, dynamic> cloudMapLevelUser = map['mapLevelUser'] as Map<String, dynamic>? ?? {};
-    if (isCompleted != null) cloudMapLevelUser['levelToUpdate']['isCompleted'] = isCompleted;
-    if (isAvailable != null) cloudMapLevelUser['levelToUpdate']['isAvailable'] = isAvailable;
-    if (score != null) cloudMapLevelUser['levelToUpdate']['score'] = score;
+    Map<String, dynamic> cloudMapLevelUser = Map.from(map['mapLevelUser'] as Map<String, dynamic>? ?? {});
+    if (isCompleted != null) cloudMapLevelUser[levelToUpdate]['isCompleted'] = isCompleted;
+    if (isAvailable != null) cloudMapLevelUser[levelToUpdate]['isAvailable'] = isAvailable;
+    if (score != null) cloudMapLevelUser[levelToUpdate]['score'] = score;
 
     await FirebaseFirestore.instance.collection('users').doc(userEmail).update({'mapLevelUser': cloudMapLevelUser});
   }

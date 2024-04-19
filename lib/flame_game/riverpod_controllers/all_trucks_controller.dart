@@ -38,6 +38,6 @@ class AllTrucks with _$AllTrucks {
   }) = _AllTrucks;
 
   factory AllTrucks.initial() {
-    return AllTrucks(trucksOwned: {});
+    return AllTrucks(trucksOwned: {}, lastTruckAddedId: null);
   }
 }

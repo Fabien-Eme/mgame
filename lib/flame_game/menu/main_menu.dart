@@ -48,6 +48,8 @@ class MainMenu extends PositionComponent with HasGameReference<MGame>, RiverpodC
       world: world,
     ));
 
+    game.currentLevel = 0;
+
     world.add(RectangleComponent.fromRect(
       Rect.fromCenter(center: const Offset(0, -25), width: 750, height: 450),
       paint: Paint()..color = Palette.blackTransparent,

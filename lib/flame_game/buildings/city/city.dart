@@ -139,10 +139,13 @@ class City extends Building {
   double get buildingCost => 0;
 
   void addWasteStacks() {
-    world.wasteController.createWasteStack(building: this, wasteRate: cityType.wasteRate(WasteType.garbageCan) * reductionRate, wasteType: WasteType.garbageCan);
-    world.wasteController.createWasteStack(building: this, wasteRate: cityType.wasteRate(WasteType.recyclable) * reductionRate, wasteType: WasteType.recyclable);
-    world.wasteController.createWasteStack(building: this, wasteRate: cityType.wasteRate(WasteType.organic) * reductionRate, wasteType: WasteType.organic);
-    world.wasteController.createWasteStack(building: this, wasteRate: cityType.wasteRate(WasteType.toxic) * reductionRate, wasteType: WasteType.toxic);
+    for (WasteType wasteType in WasteType.values) {
+      if (wasteType != WasteType.ultimate) {
+        if (cityType.wasteRate(wasteType) > 0) {
+          world.wasteController.createWasteStack(building: this, wasteRate: cityType.wasteRate(wasteType) * reductionRate, wasteType: wasteType);
+        }
+      }
+    }
   }
 
   @override
@@ -165,11 +168,28 @@ Point<int> getCityLoadTileCoordinate({required Point<int> anchorTile, required D
 }
 
 enum CityType {
+  tutorial,
   normal,
   polluting;
 
   double wasteRate(WasteType? wasteType) {
     switch (this) {
+      case CityType.tutorial:
+        switch (wasteType) {
+          case WasteType.garbageCan:
+            return 1.0;
+          case WasteType.recyclable:
+            return 0.0;
+          case WasteType.organic:
+            return 0.0;
+          case WasteType.toxic:
+            return 0.0;
+          case WasteType.ultimate:
+            return 0;
+          default:
+            return 1;
+        }
+
       case CityType.normal:
         switch (wasteType) {
           case WasteType.garbageCan:
@@ -179,7 +199,7 @@ enum CityType {
           case WasteType.organic:
             return 0.5;
           case WasteType.toxic:
-            return 0.01;
+            return 0.0;
           case WasteType.ultimate:
             return 0;
           default:
@@ -206,6 +226,8 @@ enum CityType {
 
   String get cityTitle {
     switch (this) {
+      case CityType.tutorial:
+        return "TUTORIAL CITY";
       case CityType.normal:
         return "ECO-FRIENDLY CITY";
       case CityType.polluting:
@@ -215,10 +237,12 @@ enum CityType {
 
   String get cityText {
     switch (this) {
+      case CityType.tutorial:
+        return "This city produce only basic waste.";
       case CityType.normal:
-        return "This city produce waste at the rate of 1 every 2 seconds.";
+        return "This city produce mainly organic and recyclable waste.";
       case CityType.polluting:
-        return "This city produce waste at the rate of 1 every second.";
+        return "This city produce mainly unsorted waste.";
     }
   }
 }

@@ -49,6 +49,7 @@ class MenuSelectLevel extends MenuWithoutTabs with RiverpodComponentMixin {
           score: userMapLevel[buttonLevel]?['score'] as int? ?? -1,
           level: buttonLevel,
           onPressed: () {
+            game.currentLevel = int.parse(buttonLevel);
             game.router.popUntilNamed('root');
             game.router.pushNamed('level$buttonLevel');
           },

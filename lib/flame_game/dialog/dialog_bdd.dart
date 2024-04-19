@@ -14,7 +14,7 @@ class DialogBDD {
     "You'll need to build a waste loader at the indicated location to enable your vehicles to collect the waste.",
     "Then don't forget to build a road from the garage to the waste loader.",
     "Everything ok? ... Oh, I forgot one thing. When your vehicle is full of waste, think about building a waste treatment station.",
-    "There are a number of ways to treat waste. Incinerate it, recycle it, ... but I'll leave you to experiment!",
+    "There are a number of ways to treat waste. Incinerate it, bury it, ... but I'll leave you to experiment!",
     "Just bear in mind that not all processes are equally polluting. But some are slower, or cost more, or don't apply to all types of waste. Now you know why we need your help!",
     "Let's start with an incinerator, simple, efficient but... polluting. You'll have to improve this solution as soon as possible.",
     "Something very useful: you can rotate the view with the bottom right buttons. Speaking about rotation...",

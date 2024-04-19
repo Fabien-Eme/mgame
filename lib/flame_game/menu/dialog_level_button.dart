@@ -72,7 +72,6 @@ class DialogLevelButton extends PositionComponent with HasGameReference<MGame>, 
     ]);
 
     if (!isAvailable) {
-      // buttonDown.nineTileBox!.sprite.paint.;
       add(RectangleComponent.fromRect(const Rect.fromLTWH(0, 0, 150, 150))
         ..paint.color = Palette.blackTransparent
         ..priority = 10);

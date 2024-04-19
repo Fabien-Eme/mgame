@@ -21,6 +21,8 @@ class Tutorial extends Component with HasGameReference<MGame> {
   List<Vector2> dialogHighlightPositions = [];
   List<double> dialogHighlightRadius = [];
 
+  bool isTutorialFinished = false;
+
   @override
   void onLoad() {
     dialogHighlightPositions.addAll(DialogBDD.tutorialHighlightPositions);
@@ -71,12 +73,16 @@ class Tutorial extends Component with HasGameReference<MGame> {
               .gridController
               .internalBuildOnTile(coordinates: const Point<int>(31, 2), buildingType: BuildingType.garbageLoader, direction: Directions.S);
         });
-        Future.delayed(const Duration(milliseconds: 2500)).then((_) => game.router.previousRoute?.stopTime());
+        Future.delayed(const Duration(milliseconds: 2500)).then((_) {
+          if (!isTutorialFinished) game.router.previousRoute?.stopTime();
+        });
       }
 
       if (dialogHighlightPositions.length == 8) {
         game.router.previousRoute?.resumeTime();
-        Future.delayed(const Duration(milliseconds: 6000)).then((_) => game.router.previousRoute?.stopTime());
+        Future.delayed(const Duration(milliseconds: 6000)).then((_) {
+          if (!isTutorialFinished) game.router.previousRoute?.stopTime();
+        });
         for (int i = 0; i < 25; i++) {
           (game.findByKeyName('level') as Level?)?.levelWorld.constructionController.construct(posDimetric: Point<int>(7 + i, -1), tileType: TileType.road);
           await Future.delayed(const Duration(milliseconds: 100));
@@ -88,7 +94,9 @@ class Tutorial extends Component with HasGameReference<MGame> {
 
       if (dialogHighlightPositions.length == 4) {
         game.router.previousRoute?.resumeTime();
-        Future.delayed(const Duration(milliseconds: 2500)).then((_) => game.router.previousRoute?.stopTime());
+        Future.delayed(const Duration(milliseconds: 2500)).then((_) {
+          if (!isTutorialFinished) game.router.previousRoute?.stopTime();
+        });
         Future.delayed(const Duration(seconds: 1)).then((_) {
           (game.findByKeyName('level') as Level?)?.levelWorld.gridController.internalBuildOnTile(coordinates: const Point<int>(22, 2), buildingType: BuildingType.incinerator, direction: Directions.S);
         });
@@ -98,6 +106,7 @@ class Tutorial extends Component with HasGameReference<MGame> {
         (game.findByKeyName('level') as Level?)?.levelWorld.constructionController.construct(posDimetric: const Point<int>(21, 1), tileType: TileType.road);
       }
     } else {
+      isTutorialFinished = true;
       game.router.pop();
     }
   }

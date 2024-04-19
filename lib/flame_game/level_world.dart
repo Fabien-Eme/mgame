@@ -58,8 +58,6 @@ class LevelWorld extends World with HasGameReference<MGame>, IgnoreEvents, River
 
   @override
   void onMount() async {
-    super.onMount();
-
     await addAll([
       mouseController = MouseController(),
       dragZoomController = DragZoomController(),
@@ -98,7 +96,8 @@ class LevelWorld extends World with HasGameReference<MGame>, IgnoreEvents, River
     if (isDebugGridNumbersOn) addAll(generateDebugGridNumbers());
 
     addLevelBuildings(level);
-    ref.read(allTrucksControllerProvider.notifier).resetTruck();
+
+    super.onMount();
   }
 
   void addLevelBuildings(int level) async {
@@ -109,7 +108,7 @@ class LevelWorld extends World with HasGameReference<MGame>, IgnoreEvents, River
         break;
       case 1:
         await gridController.internalBuildOnTile(coordinates: const Point<int>(6, -2), buildingType: BuildingType.garage, direction: Directions.E, hideMoney: true);
-        await gridController.internalBuildOnTile(coordinates: const Point<int>(32, 3), buildingType: BuildingType.city, direction: Directions.S, hideMoney: true);
+        await gridController.internalBuildOnTile(coordinates: const Point<int>(32, 3), buildingType: BuildingType.city, direction: Directions.S, hideMoney: true, cityType: CityType.tutorial);
         break;
       case 2:
         await gridController.internalBuildOnTile(coordinates: const Point<int>(24, 9), buildingType: BuildingType.garage, direction: Directions.S, hideMoney: true);

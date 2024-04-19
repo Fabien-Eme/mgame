@@ -78,4 +78,10 @@ class MenuLevelLost extends MenuWithoutTabs with RiverpodComponentMixin {
 
     world.add(buttonMenu);
   }
+
+  @override
+  void onMount() {
+    ref.read(allTrucksControllerProvider.notifier).resetTruck();
+    super.onMount();
+  }
 }

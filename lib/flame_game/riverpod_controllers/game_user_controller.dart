@@ -44,9 +44,11 @@ class GameUserController extends _$GameUserController {
       if (!state.value!.isLocal && state.value!.email != null) {
         await updateCloudUser(
             userEmail: state.value!.email!, ecoCredits: ecoCredits, levelToUpdate: levelToUpdate, isCompleted: isCompleted, isAvailable: isAvailable, score: score, mapLevelUser: mapLevelUser);
+        state = AsyncData(await getCloudUser(userEmail: state.value!.email!));
       } else {
         await updateLocalUser(
             sharedPreferences: _sharedPreferences, ecoCredits: ecoCredits, levelToUpdate: levelToUpdate, isCompleted: isCompleted, isAvailable: isAvailable, score: score, mapLevelUser: mapLevelUser);
+        state = AsyncData(await getLocalUser(sharedPreferences: _sharedPreferences));
       }
     }
   }
