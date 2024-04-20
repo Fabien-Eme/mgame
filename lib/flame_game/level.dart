@@ -4,6 +4,7 @@ import 'package:flame/camera.dart';
 import 'package:flame/components.dart';
 import 'package:mgame/flame_game/level_world.dart';
 import 'package:mgame/flame_game/ui/garbage_bar.dart';
+import 'package:mgame/flame_game/ui/mini_top_drawer.dart';
 import 'package:mgame/flame_game/ui/money.dart';
 import 'package:mgame/flame_game/ui/pollution_bar.dart';
 import 'package:mgame/flame_game/ui/top_drawer.dart';
@@ -79,6 +80,7 @@ class Level extends PositionComponent with HasGameReference<MGame> {
       ///
       /// ADD TOP UI
       cameraComponent.viewport.addAll([
+        MiniTopDrawer(),
         TopDrawer(),
         pollutionBar = PollutionBar(
             title: 'POLLUTION',
@@ -174,13 +176,13 @@ class Level extends PositionComponent with HasGameReference<MGame> {
       },
       "1": {
         "levelTitle": "Level 1 - Tutorial",
-        "pollutionLimit": 10000.0 - (1 - globalAirQualityValue / 100) * 2000,
+        "pollutionLimit": 12000.0 - (1 - globalAirQualityValue / 100) * 2000,
         "garbageTarget": 30.0,
         "startingMoney": 65000.0,
       },
       "2": {
         "levelTitle": "Level 2 - Two cities",
-        "pollutionLimit": 20000.0 - (1 - globalAirQualityValue / 100) * 5000,
+        "pollutionLimit": 25000.0 - (1 - globalAirQualityValue / 100) * 5000,
         "garbageTarget": 200.0,
         "startingMoney": 65000.0,
       },

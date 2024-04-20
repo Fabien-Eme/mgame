@@ -294,7 +294,11 @@ class TaskController extends Component with HasGameReference<MGame>, HasWorldRef
   WasteStack? getHighestWasteStack({required Task task}) {
     List<String> listWasteStackId = task.taskBuilding?.listWasteStackId ?? [];
 
-    return world.wasteController.getHighestWasteStackFromList(listWasteStackId: listWasteStackId);
+    if (world.isMounted) {
+      return world.wasteController.getHighestWasteStackFromList(listWasteStackId: listWasteStackId);
+    } else {
+      return null;
+    }
   }
 
   void completeTask({required Truck truck, required Task task}) async {

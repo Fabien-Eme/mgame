@@ -18,29 +18,23 @@ void main() async {
     options: DefaultFirebaseOptions.currentPlatform,
   );
 
-  bool isMobile = false;
-
   if (kIsWeb) {
     BrowserContextMenu.disableContextMenu();
-    if (defaultTargetPlatform == TargetPlatform.iOS || defaultTargetPlatform == TargetPlatform.android) {
-      isMobile = true;
-    }
+    // if (defaultTargetPlatform == TargetPlatform.iOS || defaultTargetPlatform == TargetPlatform.android) {
+    //   isMobile = true;
+    // }
   } else {
     if (Platform.isAndroid || Platform.isIOS) {
-      isMobile = true;
+      WakelockPlus.enable();
+      // Put game into full screen mode on mobile devices.
+      await SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersiveSticky);
+      // Lock the game to landscape mode on mobile devices.
+      await SystemChrome.setPreferredOrientations([
+        DeviceOrientation.landscapeLeft,
+        DeviceOrientation.landscapeRight,
+      ]);
     }
   }
-  if (isMobile) {
-    WakelockPlus.enable();
-  }
-
-  // Put game into full screen mode on mobile devices.
-  await SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersiveSticky);
-  // Lock the game to landscape mode on mobile devices.
-  await SystemChrome.setPreferredOrientations([
-    DeviceOrientation.landscapeLeft,
-    DeviceOrientation.landscapeRight,
-  ]);
 
   runApp(
     ProviderScope(

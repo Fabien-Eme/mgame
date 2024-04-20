@@ -223,7 +223,7 @@ class Incinerator extends Building {
   double get buildingCost => 30000;
 
   void showPollutionTick({required int quantity}) {
-    if (!isRecycler) {
+    if (!isRecycler && isMounted) {
       world.add(ShowPollutionTick(quantity: quantity)
         ..position = showTickPosition
         ..priority = 1000);

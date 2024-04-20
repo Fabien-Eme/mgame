@@ -2,6 +2,7 @@ import 'package:flame/components.dart' hide ButtonState;
 import 'package:flame/events.dart';
 import 'package:flame/extensions.dart';
 import 'package:flame_audio/flame_audio.dart';
+import 'package:flutter/painting.dart';
 import 'package:mgame/flame_game/utils/my_text_style.dart';
 import 'package:mgame/flame_game/utils/palette.dart';
 
@@ -51,9 +52,9 @@ class DialogLevelButton extends PositionComponent with HasGameReference<MGame>, 
       text: title,
       textRenderer: MyTextStyle.buttonLevelTitle,
       priority: 3,
-      align: Anchor.topCenter,
-      size: buttonSize,
-      position: Vector2(0, 5),
+      align: Anchor.center,
+      size: Vector2(buttonSize.x, 60),
+      position: Vector2(0, 0),
     );
 
     levelTextComponent = TextBoxComponent(
@@ -70,6 +71,34 @@ class DialogLevelButton extends PositionComponent with HasGameReference<MGame>, 
       titleTextComponent,
       levelTextComponent,
     ]);
+
+    final Sprite starFullSprite = Sprite(game.images.fromCache(Assets.images.ui.starFull.path));
+    final Sprite starEmptySprite = Sprite(game.images.fromCache(Assets.images.ui.starEmpty.path));
+
+    add(SpriteComponent(
+      sprite: (score >= 1) ? starFullSprite : starEmptySprite,
+      anchor: Anchor.center,
+      position: Vector2(40, 120),
+      size: Vector2(30, 30),
+      paint: Paint()..filterQuality = FilterQuality.low,
+      priority: 10,
+    ));
+    add(SpriteComponent(
+      sprite: (score >= 2) ? starFullSprite : starEmptySprite,
+      anchor: Anchor.center,
+      position: Vector2(75, 120),
+      size: Vector2(30, 30),
+      paint: Paint()..filterQuality = FilterQuality.low,
+      priority: 10,
+    ));
+    add(SpriteComponent(
+      sprite: (score >= 3) ? starFullSprite : starEmptySprite,
+      anchor: Anchor.center,
+      position: Vector2(110, 120),
+      size: Vector2(30, 30),
+      paint: Paint()..filterQuality = FilterQuality.low,
+      priority: 10,
+    ));
 
     if (!isAvailable) {
       add(RectangleComponent.fromRect(const Rect.fromLTWH(0, 0, 150, 150))

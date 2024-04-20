@@ -8,6 +8,7 @@ import 'package:mgame/flame_game/riverpod_controllers/ui_controller.dart';
 import '../buildings/building.dart';
 import '../game.dart';
 import '../level.dart';
+import '../utils/convert_rotations.dart';
 import '../utils/palette.dart';
 import '../riverpod_controllers/construction_mode_controller.dart';
 
@@ -42,7 +43,7 @@ class BuildingController extends Component with HasGameReference<MGame>, HasWorl
 
       /// Color the building if destination is buildable
 
-      if (isBuildingBuildable(dimetricTilePos, createBuilding(buildingType: constructionState.buildingType!))) {
+      if (isBuildingBuildable(dimetricTilePos, createBuilding(buildingType: constructionState.buildingType!), constructionState.buildingDirection!)) {
         world.temporaryBuilding?.changeColor(Palette.greenTransparent);
       } else {
         world.temporaryBuilding?.changeColor(Palette.redTransparent);
@@ -75,15 +76,29 @@ class BuildingController extends Component with HasGameReference<MGame>, HasWorl
     }
   }
 
-  bool isBuildingBuildable(Point<int> dimetricTilePos, Building building) {
+  bool isBuildingBuildable(Point<int> dimetricTilePos, Building building, Directions buildingDirection) {
     int buildingSizeInTileX = building.sizeInTile.x;
     int buildingSizeInTileY = building.sizeInTile.y;
 
     bool isBuildable = true;
-    for (int i = 0; i < buildingSizeInTileX; i++) {
-      for (int j = 0; j < buildingSizeInTileY; j++) {
-        if (!world.gridController.isTileBuildable(dimetricTilePos: dimetricTilePos + Point<int>(-i, j), building: building)) {
-          isBuildable = false;
+
+    if (building.buildingType == BuildingType.buryer) {
+      List<Point<int>> listPoint = [];
+      (buildingDirection == Directions.N || buildingDirection == Directions.S)
+          ? listPoint = [const Point<int>(0, -1), const Point<int>(0, 0), const Point<int>(0, 1)]
+          : listPoint = [const Point<int>(-1, 0), const Point<int>(0, 0), const Point<int>(1, 0)];
+
+      if (!world.gridController.isTileBuildable(dimetricTilePos: dimetricTilePos + listPoint[0], building: building) ||
+          !world.gridController.isTileBuildable(dimetricTilePos: dimetricTilePos + listPoint[1], building: building) ||
+          !world.gridController.isTileBuildable(dimetricTilePos: dimetricTilePos + listPoint[2], building: building)) {
+        isBuildable = false;
+      }
+    } else {
+      for (int i = 0; i < buildingSizeInTileX; i++) {
+        for (int j = 0; j < buildingSizeInTileY; j++) {
+          if (!world.gridController.isTileBuildable(dimetricTilePos: dimetricTilePos + Point<int>(-i, j), building: building)) {
+            isBuildable = false;
+          }
         }
       }
     }
@@ -95,7 +110,7 @@ class BuildingController extends Component with HasGameReference<MGame>, HasWorl
 
     if (!game.isMobile) {
       if ((game.findByKeyName('level') as Level).money.hasEnoughMoney(createBuilding(buildingType: constructionState.buildingType!).buildingCost)) {
-        if (isBuildingBuildable(world.currentMouseTilePos, createBuilding(buildingType: constructionState.buildingType!))) {
+        if (isBuildingBuildable(world.currentMouseTilePos, createBuilding(buildingType: constructionState.buildingType!), constructionState.buildingDirection!)) {
           await world.gridController.buildOnTile(world.convertRotations.unRotateCoordinates(world.currentMouseTilePos), constructionState);
           ref.read(constructionModeControllerProvider.notifier).exitConstructionMode();
           ref.read(activeUIButtonControllerProvider.notifier).resetButtons();
@@ -104,7 +119,7 @@ class BuildingController extends Component with HasGameReference<MGame>, HasWorl
     } else {
       if (game.mobileTempCurrentMouseTilePos == world.currentMouseTilePos && game.mobileTempBuildingType == constructionState.buildingType!) {
         if ((game.findByKeyName('level') as Level).money.hasEnoughMoney(createBuilding(buildingType: constructionState.buildingType!).buildingCost)) {
-          if (isBuildingBuildable(world.currentMouseTilePos, createBuilding(buildingType: constructionState.buildingType!))) {
+          if (isBuildingBuildable(world.currentMouseTilePos, createBuilding(buildingType: constructionState.buildingType!), constructionState.buildingDirection!)) {
             await world.gridController.buildOnTile(world.convertRotations.unRotateCoordinates(world.currentMouseTilePos), constructionState);
             ref.read(constructionModeControllerProvider.notifier).exitConstructionMode();
             ref.read(activeUIButtonControllerProvider.notifier).resetButtons();

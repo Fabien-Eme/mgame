@@ -31,6 +31,8 @@
 .pub-cache/
 .pub/
 build/
+.firebase/
+public/
 
 # Android related
 **/android/**/gradle-wrapper.jar

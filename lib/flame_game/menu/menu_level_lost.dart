@@ -53,9 +53,10 @@ class MenuLevelLost extends MenuWithoutTabs with RiverpodComponentMixin {
     /// BUTTONS
     final buttonConfirm = DialogButton(
       text: 'Try again',
-      onPressed: () {
+      onPressed: () async {
         ref.read(allTrucksControllerProvider.notifier).resetTruck();
         game.router.popUntilNamed('root');
+        await Future.delayed(const Duration(milliseconds: 100));
         game.router.pushNamed('level${game.currentLevel}');
       },
       buttonSize: Vector2(175, 50),
