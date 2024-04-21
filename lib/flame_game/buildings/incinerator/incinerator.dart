@@ -200,11 +200,13 @@ class Incinerator extends Building {
 
   @override
   void select() {
+    super.select();
     incineratorOutline.opacity = 1;
   }
 
   @override
   void deselect() {
+    super.deselect();
     incineratorOutline.opacity = 0;
   }
 

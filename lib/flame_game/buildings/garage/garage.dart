@@ -188,11 +188,13 @@ class Garage extends Building with HoverCallbacks {
 
   @override
   void select() {
+    super.select();
     garageOutline.opacity = 1;
   }
 
   @override
   void deselect() {
+    super.deselect();
     garageOutline.opacity = 0;
   }
 

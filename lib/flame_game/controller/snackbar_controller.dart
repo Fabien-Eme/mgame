@@ -7,8 +7,13 @@ import '../level_world.dart';
 class SnackbarController extends Component with HasGameReference<MGame>, HasWorldReference<LevelWorld> {
   Map<int, bool> mapRankSnackBarAvailable = {0: true, 1: true, 2: true, 3: true, 4: true};
   List<SnackBar> listSnackBar = [];
+  bool hide;
+
+  SnackbarController({this.hide = false});
 
   void addSnackbar({required SnackbarType snackbarType}) {
+    if (hide) return;
+
     int? firstAvailableRank = getAvailableRank();
     if (firstAvailableRank != null) {
       mapRankSnackBarAvailable[firstAvailableRank] = false;

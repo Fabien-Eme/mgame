@@ -2,7 +2,6 @@ import 'dart:math';
 
 import 'package:flame/components.dart';
 import 'package:flame_riverpod/flame_riverpod.dart';
-import 'package:flutter/material.dart';
 import 'package:mgame/flame_game/menu/menu_garage/priority_box.dart';
 import 'package:mgame/flame_game/waste/waste.dart';
 

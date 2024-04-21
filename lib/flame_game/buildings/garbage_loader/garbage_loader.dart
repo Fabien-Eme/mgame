@@ -162,11 +162,13 @@ class GarbageLoader extends Building {
 
   @override
   void select() {
+    super.select();
     garbageLoaderOutline.opacity = 1;
   }
 
   @override
   void deselect() {
+    super.deselect();
     garbageLoaderOutline.opacity = 0;
   }
 

@@ -51,9 +51,9 @@ class PriorityBox extends PositionComponent with HasGameReference<MGame>, HasWor
 
   void updateSprite() {
     if (truck.mapWastePriorities[wasteType]! > 0) {
-      sprite = Sprite(game.images.fromCache(Assets.images.ui.uiButtonPressedGreen.path));
+      sprite = Sprite(game.images.fromCache(Assets.images.ui.priorityBox.priorityBoxGreen.path));
     } else {
-      sprite = Sprite(game.images.fromCache(Assets.images.ui.uiButtonPressedRed.path));
+      sprite = Sprite(game.images.fromCache(Assets.images.ui.priorityBox.priorityBoxRed.path));
     }
 
     spriteComponent.sprite = sprite;
@@ -63,8 +63,12 @@ class PriorityBox extends PositionComponent with HasGameReference<MGame>, HasWor
   void onTapDown(TapDownEvent event) {
     if (truck.mapWastePriorities[wasteType] == 4) {
       truck.mapWastePriorities[wasteType] = 0;
+      truck.currentTask = null;
+      truck.stopMovement();
     } else {
       truck.mapWastePriorities[wasteType] = truck.mapWastePriorities[wasteType]! + 1;
+      truck.currentTask = null;
+      truck.stopMovement();
     }
 
     textComponent.text = truck.mapWastePriorities[wasteType].toString();

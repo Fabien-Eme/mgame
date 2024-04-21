@@ -62,6 +62,8 @@ class WasteController extends Component with HasGameReference<MGame>, HasWorldRe
   }
 
   WasteStack? getHighestWasteStackFromList({required List<String> listWasteStackId}) {
+    if (listWasteStackId.isEmpty) return null;
+
     WasteStack? highestWasteStack;
     int wasteStackQuantity = 0;
     for (String wasteStackId in listWasteStackId) {

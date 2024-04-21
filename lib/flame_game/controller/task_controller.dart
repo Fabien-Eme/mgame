@@ -156,7 +156,9 @@ class TaskController extends Component with HasGameReference<MGame>, HasWorldRef
     return tasksWithRandom.map((e) => e['task']).cast<Task>().toList();
   }
 
-  void buildingBuilt(Building building) {
+  void buildingBuilt(Building? building) {
+    if (building == null) return;
+
     switch (building.buildingType) {
       case BuildingType.city:
         break;
@@ -280,6 +282,46 @@ class TaskController extends Component with HasGameReference<MGame>, HasWorldRef
   }
 
   void tryToMatchTaskWithVehicule() {
+    ///
+    /// Find task for empty truck according to their priority
+
+    List<Truck> listEmptyTrucksAvailable = world.truckController.getAvailableTrucks(onlyTruckEmpty: true);
+    List<Task> allTaskAvailableForEmptyTruck = [];
+    for (Task task in globalMapTask.values) {
+      for (TaskRestriction taskRestriction in task.taskRestrictions) {
+        if (taskRestriction.taskRestrictionType == TaskRestrictionType.loadMaxQuantity && taskRestriction.loadQuantity == 0) {
+          allTaskAvailableForEmptyTruck.add(task);
+        }
+      }
+    }
+    for (Truck truck in listEmptyTrucksAvailable) {
+      if (truck.doIHavePriorityWaste()) {
+        int priority = 4;
+        List<WasteStack> listHighestWasteTackForMyPriority = [];
+
+        while (priority > 0 && listHighestWasteTackForMyPriority.isEmpty) {
+          for (Task task in allTaskAvailableForEmptyTruck) {
+            WasteStack? wasteStack = getHighestWasteStackWithTruckPriority(truck: truck, task: task, specificPriority: priority);
+            if (wasteStack != null) listHighestWasteTackForMyPriority.add(wasteStack);
+          }
+          priority--;
+        }
+
+        WasteStack? highestWasteStack;
+        for (WasteStack wasteStack in listHighestWasteTackForMyPriority) {
+          if (wasteStack.stackQuantity > (highestWasteStack?.stackQuantity ?? 0)) highestWasteStack = wasteStack;
+        }
+        if (highestWasteStack != null) {
+          City city = highestWasteStack.anchorBuilding as City;
+          for (Task task in globalMapTask.values) {
+            if (task.taskBuilding == city) truck.affectTask(task);
+          }
+        }
+      }
+    }
+
+    ///
+    /// Find non-empty truck for prioritary task
     bool isMatchPossible = true;
     bool hasMatched = false;
 
@@ -287,11 +329,21 @@ class TaskController extends Component with HasGameReference<MGame>, HasWorldRef
       List<Task> allTaskAvailableOrdered = getAllTaskAvailableOrdered();
       if (allTaskAvailableOrdered.isNotEmpty) {
         do {
-          List<Truck> listTrucksAvailable = world.truckController.getAvailableTrucksOrdered();
+          List<Truck> listTrucksAvailable = world.truckController.getAvailableTrucks();
           if (listTrucksAvailable.isEmpty) isMatchPossible = false;
 
           Task task = allTaskAvailableOrdered.first;
-          List<Truck> listTruck = listTrucksAvailable.where((Truck truck) => doesTruckSatisfyRestriction(truck: truck, restrictions: task.taskRestrictions) == true).toList();
+          List<Truck> listTruck = listTrucksAvailable.where((Truck truck) {
+            if (doesTruckSatisfyRestriction(truck: truck, restrictions: task.taskRestrictions) == true) {
+              if (task.taskBuildingType == BuildingType.city) {
+                return doesCityHasWasteForTruck(truck: truck, task: task);
+              } else {
+                return true;
+              }
+            } else {
+              return false;
+            }
+          }).toList();
 
           if (listTruck.isNotEmpty) {
             task.vehiculeAffected.add(listTruck.first.id);
@@ -310,6 +362,22 @@ class TaskController extends Component with HasGameReference<MGame>, HasWorldRef
     }
   }
 
+  bool doesCityHasWasteForTruck({required Truck truck, required Task task}) {
+    List<WasteType> listWasteTypeTruckAccepts = [];
+    for (WasteType wasteType in truck.mapWastePriorities.keys) {
+      if (truck.mapWastePriorities[wasteType] != 0) {
+        listWasteTypeTruckAccepts.add(wasteType);
+      }
+    }
+
+    bool doesCityHaveWasteForMe = false;
+    for (WasteType wasteType in listWasteTypeTruckAccepts) {
+      if ((task.taskBuilding as City).cityType.wasteRate(wasteType) > 0) doesCityHaveWasteForMe = true;
+    }
+
+    return doesCityHaveWasteForMe;
+  }
+
   int getLoadingTaskTotalWaste({required Task task}) {
     int totalWaste = 0;
     for (String wasteStackId in task.taskBuilding?.listWasteStackId ?? []) {
@@ -318,8 +386,41 @@ class TaskController extends Component with HasGameReference<MGame>, HasWorldRef
     return totalWaste;
   }
 
-  WasteStack? getHighestWasteStack({required Task task}) {
-    List<String> listWasteStackId = task.taskBuilding?.listWasteStackId ?? [];
+  WasteStack? getHighestWasteStackWithTruckPriority({required Truck truck, required Task task, int? specificPriority}) {
+    int priority = 4;
+    List<WasteType> listMostPrioritaryWasteTypeOfTruck = [];
+
+    if (specificPriority == null) {
+      while (priority > 0 && listMostPrioritaryWasteTypeOfTruck.isEmpty) {
+        for (WasteType wasteType in truck.mapWastePriorities.keys) {
+          if (truck.mapWastePriorities[wasteType] == priority) {
+            listMostPrioritaryWasteTypeOfTruck.add(wasteType);
+          }
+        }
+        priority--;
+      }
+    } else {
+      for (WasteType wasteType in truck.mapWastePriorities.keys) {
+        if (truck.mapWastePriorities[wasteType] == specificPriority) {
+          listMostPrioritaryWasteTypeOfTruck.add(wasteType);
+        }
+      }
+    }
+
+    List<String> listWasteStackId = [];
+    listWasteStackId.addAll(task.taskBuilding?.listWasteStackId ?? []);
+
+    List<String> wasteStackIdToRemove = [];
+
+    for (String wasteStackId in listWasteStackId) {
+      if (!listMostPrioritaryWasteTypeOfTruck.contains(world.wasteController.getWasteStackType(wasteStackId))) {
+        wasteStackIdToRemove.add(wasteStackId);
+      }
+    }
+
+    for (String wasteStackId in wasteStackIdToRemove) {
+      listWasteStackId.remove(wasteStackId);
+    }
 
     if (world.isMounted) {
       return world.wasteController.getHighestWasteStackFromList(listWasteStackId: listWasteStackId);
@@ -334,14 +435,19 @@ class TaskController extends Component with HasGameReference<MGame>, HasWorldRef
         case TaskReward.loadWaste:
           await Future.delayed(const Duration(seconds: 1));
 
-          WasteStack? wasteStack = getHighestWasteStack(task: task);
-          if (wasteStack == null) break;
+          WasteStack? wasteStack = getHighestWasteStackWithTruckPriority(truck: truck, task: task);
+          if (wasteStack == null) {
+            truck.isCompletingTask = false;
+            truck.currentTask = null;
+            break;
+          }
+
           int stackMax = wasteStack.stackQuantity;
 
           int loadMax = truck.maxLoad;
           int load = min(stackMax, loadMax);
 
-          world.wasteController.mapWasteStack[wasteStack.id]?.stackQuantity = stackMax - load;
+          world.wasteController.mapWasteStack[wasteStack.id]?.changeStackQuantity(-load);
 
           await Future.delayed(const Duration(seconds: 1));
           truck.loadQuantity = load;
@@ -460,11 +566,41 @@ class TaskController extends Component with HasGameReference<MGame>, HasWorldRef
   }
 
   void dumpLoad({required Truck truck}) {
-    (game.findByKeyName('level') as Level).snackbarController.addSnackbar(snackbarType: SnackbarType.dumpWasteInGarage);
+    (game.findByKeyName('level') as Level?)?.snackbarController.addSnackbar(snackbarType: SnackbarType.dumpWasteInGarage);
     (game.findByKeyName('pollutionBar') as PollutionBar).addValue(truck.loadQuantity.toDouble() * 100);
     (world.buildings.firstWhere((building) => building is Garage) as Garage).showPollutionTick(quantity: (truck.loadQuantity.toDouble() * 100).round());
 
     truck.loadQuantity = 0;
+  }
+
+  void removeMyTask(Building building) {
+    List<String> listTaskIdToRemove = [];
+    for (Task task in globalMapTask.values) {
+      if (task.taskBuilding == building) listTaskIdToRemove.add(task.id);
+    }
+
+    List<Truck> listAllTrucks = world.truckController.getAllTrucks();
+    for (String id in listTaskIdToRemove) {
+      for (Truck truck in listAllTrucks) {
+        if (truck.currentTask?.id == id) truck.currentTask = null;
+      }
+
+      globalMapTask.remove(id);
+    }
+  }
+
+  void addMyTask(Building building) {
+    for (Task task in globalMapTask.values) {
+      if (task.taskBuilding == building) return;
+    }
+
+    if (building.buildingType == BuildingType.incinerator || building.buildingType == BuildingType.recycler) {
+      buildingBuilt(building);
+    } else if (building.buildingType == BuildingType.buryer) {
+      buildingBuilt(world.gridController.getBuildingOnTile((building as Buryer).unLoadTileCoordinate));
+    } else if (building.buildingType == BuildingType.composter) {
+      buildingBuilt(world.gridController.getBuildingOnTile((building as Composter).unLoadTileCoordinate));
+    }
   }
 }
 

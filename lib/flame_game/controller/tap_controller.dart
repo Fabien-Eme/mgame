@@ -23,6 +23,7 @@ class TapController extends Component with HasGameReference<MGame>, HasWorldRefe
       if (game.isMouseHoveringBuilding != null) {
         game.myMouseCursor.hoverExitButton();
         game.isMouseHoveringBuilding?.select();
+
         switch (game.isMouseHoveringBuilding?.buildingType) {
           case BuildingType.garage:
             game.router.pushNamed('menuGarage');
@@ -34,6 +35,15 @@ class TapController extends Component with HasGameReference<MGame>, HasWorldRefe
           case BuildingType.incinerator:
             game.currentIncinerator = (game.isMouseHoveringBuilding! as Incinerator);
             game.router.pushNamed('menuIncinerator');
+            break;
+          case BuildingType.recycler:
+            game.router.pushNamed('menuRecycler');
+            break;
+          case BuildingType.composter:
+            game.router.pushNamed('menuComposter');
+            break;
+          case BuildingType.buryer:
+            game.router.pushNamed('menuBuryer');
             break;
           default:
             break;

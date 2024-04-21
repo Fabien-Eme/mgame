@@ -38,6 +38,7 @@ abstract class Building extends PositionComponent with HasGameReference<MGame>, 
   List<String> listWasteStackId = [];
 
   bool isProcessingWaste = false;
+  bool isAcceptingWaste = true;
 
   @override
   void onMount() {
@@ -111,10 +112,16 @@ abstract class Building extends PositionComponent with HasGameReference<MGame>, 
   void closeDoor() {}
 
   @mustBeOverridden
-  void select() {}
+  @mustCallSuper
+  void select() {
+    game.currentlySelectedBuilding = this;
+  }
 
   @mustBeOverridden
-  void deselect() {}
+  @mustCallSuper
+  void deselect() {
+    game.currentlySelectedBuilding = null;
+  }
 
   @mustBeOverridden
   @override
@@ -128,6 +135,16 @@ abstract class Building extends PositionComponent with HasGameReference<MGame>, 
   @mustBeOverridden
   Truck? isOccupiedByTruck() {
     return null;
+  }
+
+  void changeWasteAcceptance(bool isCheckOn) {
+    isAcceptingWaste = isCheckOn;
+
+    if (isAcceptingWaste) {
+      world.taskController.addMyTask(this);
+    } else {
+      world.taskController.removeMyTask(this);
+    }
   }
 }
 

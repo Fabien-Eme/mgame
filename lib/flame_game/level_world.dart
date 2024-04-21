@@ -150,10 +150,19 @@ class LevelWorld extends World with HasGameReference<MGame>, IgnoreEvents, River
         await gridController.internalBuildOnTile(coordinates: const Point<int>(15, 3), buildingType: BuildingType.garage, direction: Directions.S, hideMoney: true);
         await gridController.internalBuildOnTile(coordinates: const Point<int>(9, -3), buildingType: BuildingType.city, direction: Directions.E, hideMoney: true, cityType: CityType.classicCity);
         await gridController.internalBuildOnTile(
-            coordinates: const Point<int>(18, 12), buildingType: BuildingType.city, direction: Directions.N, hideMoney: true, cityType: CityType.pollutingWithOrganic);
+            coordinates: const Point<int>(21, 10), buildingType: BuildingType.city, direction: Directions.S, hideMoney: true, cityType: CityType.pollutingWithOrganic);
         await gridController.internalBuildOnTile(coordinates: const Point<int>(28, -6), buildingType: BuildingType.city, direction: Directions.S, hideMoney: true, cityType: CityType.recycleALot);
         break;
       case 6:
+        await gridController.internalBuildOnTile(coordinates: const Point<int>(22, 10), buildingType: BuildingType.garage, direction: Directions.S, hideMoney: true);
+        await gridController.internalBuildOnTile(coordinates: const Point<int>(16, -9), buildingType: BuildingType.city, direction: Directions.S, hideMoney: true, cityType: CityType.classicCity);
+        await gridController.internalBuildOnTile(coordinates: const Point<int>(16, -5), buildingType: BuildingType.city, direction: Directions.N, hideMoney: true, cityType: CityType.classicCity);
+        await gridController.internalBuildOnTile(
+            coordinates: const Point<int>(20, -9), buildingType: BuildingType.city, direction: Directions.S, hideMoney: true, cityType: CityType.pollutingWithOrganic);
+        await gridController.internalBuildOnTile(
+            coordinates: const Point<int>(20, -5), buildingType: BuildingType.city, direction: Directions.N, hideMoney: true, cityType: CityType.pollutingWithOrganic);
+        break;
+      case 7:
         await gridController.internalBuildOnTile(coordinates: const Point<int>(8, -2), buildingType: BuildingType.garage, direction: Directions.E, hideMoney: true);
         await gridController.internalBuildOnTile(coordinates: const Point<int>(22, -10), buildingType: BuildingType.city, direction: Directions.N, hideMoney: true, cityType: CityType.classicCity);
         await gridController.internalBuildOnTile(coordinates: const Point<int>(16, 4), buildingType: BuildingType.city, direction: Directions.S, hideMoney: true, cityType: CityType.classicCity);

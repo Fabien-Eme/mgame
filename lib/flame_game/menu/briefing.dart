@@ -58,9 +58,15 @@ class Briefing extends MenuWithoutTabs {
   String getComponentTitle() {
     switch (game.currentLevel) {
       case 2:
-        return "Two cites : The good, The bad, ...";
+        return "Two cites : the good, the bad, ...";
       case 3:
-        return "Mission: Impossible";
+        return "Public Composters";
+      case 4:
+        return "Toxic waste?";
+      case 5:
+        return "3 Towns, 3 Processes";
+      case 6:
+        return "Everybody composts";
       default:
         return "";
     }
@@ -69,9 +75,15 @@ class Briefing extends MenuWithoutTabs {
   String getComponentText() {
     switch (game.currentLevel) {
       case 2:
-        return "This time, you'll have to manage the waste from two cities simultaneously.\n\nThe inhabitants of one of these two towns are careful about their waste and try to reduce it by prioritizing second-hand items, limiting the purchase of plastic items, avoiding non-recyclable packaging, etc.\n\nResidents of the other city consume as they please. The consequences are obvious and dramatic: a lot of waste is generated, and therefore a lot of pollution to deal with!\n\nFill up your processed waste gauge without exceeding the pollution limit!";
+        return "This time, you'll have to manage the waste from two cities simultaneously.\n\nThe inhabitants of one of these two towns are careful and try to sort their waste as much as possible, thus creating a lot of recyclable items.\n\nResidents of the other city consume as they please. The consequences are dramatic : a lot of waste is generated, therefore a lot of pollution to deal with, and few recycling items.\n\nFill up your processed waste gauge without exceeding the pollution limit!";
       case 3:
-        return "You're faced with an almost insurmountable task. That's the real reason you're here. No one has yet managed to deal with this situation.\n\n If I can give you one piece of advice: you're going to need your EcoCredits!";
+        return "The citizens of all towns are sorting their organic wastes as there are public composters where you can bring the organic wastes. They have a maximum capacity, but do not worry they slowly empty themselves, sweet ! However if you delete a composter you do not get any money back…\n\nOh and try not to let the number of unsorted waste of a city go over 60 or you will face extra pollution and lose a star in the process…";
+      case 4:
+        return "What?! A city is producing toxic waste here? You have no other option but to bury all that. It is a shame though, you will not earn any money from that…\n\nBut be careful, once you have built a buryer, there is no point deleting it, you will not get a refund!";
+      case 5:
+        return "Well it seems that here, every town has a different way of dealing with their waste.\n\nGood luck processing all of that!";
+      case 6:
+        return "Managing composters is a fine skill. Build just the right amount of composters so that when one is filled up, another one is ready, otherwise you will be overwhelmed quickly!";
       default:
         return "";
     }
@@ -80,9 +92,15 @@ class Briefing extends MenuWithoutTabs {
   Vector2 getBoxSize(int level) {
     switch (level) {
       case 2:
-        return Vector2(800, 475);
+        return Vector2(800, 450);
       case 3:
+        return Vector2(800, 375);
+      case 4:
+        return Vector2(800, 325);
+      case 5:
         return Vector2(800, 300);
+      case 6:
+        return Vector2(800, 275);
       default:
         return Vector2(800, 500);
     }

@@ -82,11 +82,13 @@ class City extends Building {
 
   @override
   void select() {
+    super.select();
     cityOutlineComponent.opacity = 1;
   }
 
   @override
   void deselect() {
+    super.deselect();
     cityOutlineComponent.opacity = 0;
   }
 

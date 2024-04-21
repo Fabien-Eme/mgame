@@ -359,6 +359,15 @@ class Truck extends SpriteComponent with HasGameReference<MGame>, HasWorldRefere
     acceleration = (acceleration + acceleration * dt).clamp(0, 5);
   }
 
+  bool doIHavePriorityWaste() {
+    int globalPriority = mapWastePriorities.values.first;
+
+    for (int value in mapWastePriorities.values) {
+      if (value != globalPriority) return true;
+    }
+    return false;
+  }
+
   /// TODO Fix ONHOVER (thinking this might be canceled by cursorcontroller)
   @override
   void onHoverEnter() {

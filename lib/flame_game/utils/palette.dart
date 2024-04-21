@@ -16,6 +16,7 @@ class Palette {
   static const Color darkBlue = Color.fromARGB(255, 36, 80, 225);
   static const Color blackTransparent = Color.fromARGB(75, 0, 0, 0);
   static const Color blackAlmostOpaque = Color.fromARGB(200, 0, 0, 0);
+  static const Color yellow = Color.fromARGB(255, 255, 234, 0);
   static const Color darkYellow = Color.fromARGB(255, 206, 172, 0);
 
   static const Color globalExcellent = Color.fromARGB(255, 0, 158, 58);

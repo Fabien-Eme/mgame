@@ -11,6 +11,7 @@ import '../../ui/show_garbage_processed_tick.dart';
 import '../../ui/show_money_gained_tick.dart';
 import '../../utils/convert_coordinates.dart';
 import '../../utils/convert_rotations.dart';
+import '../fill_indicator.dart';
 import 'composter_component.dart';
 import 'composter_outline.dart';
 
@@ -20,6 +21,7 @@ class Composter extends Building {
 
   late final ComposterComponent composterComponent;
   late final ComposterOutlineComponent composterOutlineComponent;
+  late final FillIndicator fillIndicator;
   late Vector2 offset;
 
   Point<int> deliveryPointDimetric = const Point<int>(0, 0);
@@ -29,7 +31,6 @@ class Composter extends Building {
   double reductionRate = 1;
 
   Vector2 currentPosition = Vector2(0, 0);
-
   Vector2 showTickPosition = Vector2.zero();
 
   bool isComposterFull = false;
@@ -43,10 +44,12 @@ class Composter extends Building {
 
     composterComponent = ComposterComponent(direction: direction, position: position + offset, fillCapacity: 30, fillAmount: 0);
     composterOutlineComponent = ComposterOutlineComponent(direction: direction, position: position + offset);
+    fillIndicator = FillIndicator();
     updatePosition(position + offset);
 
     world.add(composterComponent);
     world.add(composterOutlineComponent);
+    world.add(fillIndicator);
     composterOutlineComponent.opacity = 0;
 
     return super.onLoad();
@@ -66,6 +69,8 @@ class Composter extends Building {
 
     if (quantityRefused > 0) isComposterFull = true;
 
+    fillIndicator.changeFillAmount(composterComponent.fillAmount / composterComponent.fillCapacity);
+
     return quantityRefused;
   }
 
@@ -76,6 +81,7 @@ class Composter extends Building {
     composterOutlineComponent.position = updatedPosition + offset;
 
     showTickPosition = updatedPosition + Vector2(0, -50);
+    fillIndicator.position = updatedPosition + Vector2(25, -60);
   }
 
   @override
@@ -86,15 +92,18 @@ class Composter extends Building {
     offsetPriority = ((updatedPosition.y + offset.y) / MGame.gameHeight * 100).toInt();
     composterComponent.priority = 115 + offsetPriority;
     composterOutlineComponent.priority = 114 + offsetPriority;
+    fillIndicator.priority = 116 + offsetPriority;
   }
 
   @override
   void select() {
+    super.select();
     composterOutlineComponent.opacity = 1;
   }
 
   @override
   void deselect() {
+    super.deselect();
     composterOutlineComponent.opacity = 0;
   }
 
@@ -139,6 +148,7 @@ class Composter extends Building {
     if (composterComponent.ancestors().isNotEmpty) {
       world.remove(composterComponent);
       world.remove(composterOutlineComponent);
+      world.remove(fillIndicator);
       world.gridController.getRealTileAtDimetricCoordinates(getComposterUnLoadTileCoordinate(anchorTile: anchorTile, direction: direction))?.resetTile();
     }
     super.onRemove();
@@ -173,7 +183,10 @@ class Composter extends Building {
 
     if (timer >= 5) {
       timer = 0;
-      composterComponent.fillAmount -= 1;
+      if (composterComponent.fillAmount > 0) {
+        composterComponent.fillAmount -= 1;
+        fillIndicator.changeFillAmount(composterComponent.fillAmount / composterComponent.fillCapacity);
+      }
     }
 
     if (composterComponent.fillAmount == composterComponent.fillCapacity) {

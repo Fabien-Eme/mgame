@@ -1,5 +1,3 @@
-import 'dart:async';
-
 import 'package:flame/camera.dart';
 import 'package:flame/components.dart';
 import 'package:mgame/flame_game/controller/snackbar_controller.dart';
@@ -132,6 +130,7 @@ class Level extends PositionComponent with HasGameReference<MGame> {
           onComplete: () {},
           isHidden: true,
         ),
+        snackbarController = SnackbarController(hide: true)
       ]);
     }
 
@@ -198,25 +197,31 @@ class Level extends PositionComponent with HasGameReference<MGame> {
         "startingMoney": 78000.0,
       },
       "3": {
-        "levelTitle": "Level 3 - Compost fiesta",
+        "levelTitle": "Level 3 - Public Composters",
         "pollutionLimit": 23000.0 - (1 - globalAirQualityValue / 100) * 4000,
         "garbageTarget": 180.0,
         "startingMoney": 58000.0,
       },
       "4": {
-        "levelTitle": "Level 4 - Toxic City",
-        "pollutionLimit": 20000.0 - (1 - globalAirQualityValue / 100) * 4000,
-        "garbageTarget": 120.0,
+        "levelTitle": "Level 4 - Toxic waste?",
+        "pollutionLimit": 22000.0 - (1 - globalAirQualityValue / 100) * 4000,
+        "garbageTarget": 200.0,
         "startingMoney": 68000.0,
       },
       "5": {
-        "levelTitle": "Level 5 - A bit of everything",
+        "levelTitle": "Level 5 - 3 Towns, 3 Processes",
         "pollutionLimit": 28000.0 - (1 - globalAirQualityValue / 100) * 4000,
         "garbageTarget": 260.0,
         "startingMoney": 88000.0,
       },
       "6": {
-        "levelTitle": "Level 6 - Ultimate",
+        "levelTitle": "Level 6 - Everybody composts",
+        "pollutionLimit": 30000.0 - (1 - globalAirQualityValue / 100) * 4000,
+        "garbageTarget": 300.0,
+        "startingMoney": 98000.0,
+      },
+      "7": {
+        "levelTitle": "Level 7 - Ultimate",
         "pollutionLimit": 25000.0 - (1 - globalAirQualityValue / 100) * 4000,
         "garbageTarget": 200.0,
         "startingMoney": 400000.0,

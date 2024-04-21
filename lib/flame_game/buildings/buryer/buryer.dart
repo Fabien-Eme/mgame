@@ -10,6 +10,7 @@ import '../../truck/truck.dart';
 import '../../ui/show_garbage_processed_tick.dart';
 import '../../utils/convert_coordinates.dart';
 import '../../utils/convert_rotations.dart';
+import '../fill_indicator.dart';
 import 'buryer_component.dart';
 import 'buryer_outline.dart';
 
@@ -19,6 +20,7 @@ class Buryer extends Building {
 
   late final BuryerComponent buryerComponent;
   late final BuryerOutlineComponent buryerOutlineComponent;
+  late final FillIndicator fillIndicator;
   late Vector2 offset;
 
   Point<int> deliveryPointDimetric = const Point<int>(0, 0);
@@ -39,10 +41,12 @@ class Buryer extends Building {
 
     buryerComponent = BuryerComponent(direction: direction, position: position + offset, fillCapacity: 50, fillAmount: 0);
     buryerOutlineComponent = BuryerOutlineComponent(direction: direction, position: position + offset);
+    fillIndicator = FillIndicator();
     updatePosition(position + offset);
 
     world.add(buryerComponent);
     world.add(buryerOutlineComponent);
+    world.add(fillIndicator);
     buryerOutlineComponent.opacity = 0;
 
     return super.onLoad();
@@ -63,6 +67,8 @@ class Buryer extends Building {
 
     if (quantityRefused > 0) isBuryerFull = true;
 
+    fillIndicator.changeFillAmount(buryerComponent.fillAmount / buryerComponent.fillCapacity);
+
     return quantityRefused;
   }
 
@@ -73,6 +79,7 @@ class Buryer extends Building {
     buryerOutlineComponent.position = updatedPosition + offset;
 
     showTickPosition = updatedPosition + Vector2(0, -50);
+    fillIndicator.position = updatedPosition + Vector2(25, -40);
   }
 
   @override
@@ -105,15 +112,18 @@ class Buryer extends Building {
     offsetPriority = ((updatedPosition.y + offset.y) / MGame.gameHeight * 100).toInt();
     buryerComponent.priority = 115 + offsetPriority;
     buryerOutlineComponent.priority = 114 + offsetPriority;
+    fillIndicator.priority = 116 + offsetPriority;
   }
 
   @override
   void select() {
+    super.select();
     buryerOutlineComponent.opacity = 1;
   }
 
   @override
   void deselect() {
+    super.deselect();
     buryerOutlineComponent.opacity = 0;
   }
 
@@ -158,6 +168,7 @@ class Buryer extends Building {
     if (buryerComponent.ancestors().isNotEmpty) {
       world.remove(buryerComponent);
       world.remove(buryerOutlineComponent);
+      world.remove(fillIndicator);
       world.gridController.getRealTileAtDimetricCoordinates(getBuryerUnLoadTileCoordinate(anchorTile: anchorTile, direction: direction))?.resetTile();
     }
     super.onRemove();

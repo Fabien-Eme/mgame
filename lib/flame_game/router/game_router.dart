@@ -1,11 +1,14 @@
 import 'package:flame/components.dart';
 import 'package:flame/game.dart';
+import 'package:mgame/flame_game/menu/menu_composter.dart';
+import 'package:mgame/flame_game/menu/menu_recycler.dart';
 
 import '../dialog/tutorial.dart';
 import '../level.dart';
 import '../menu/briefing.dart';
 import '../menu/main_menu.dart';
 import '../menu/menu_achievement.dart';
+import '../menu/menu_buryer.dart';
 import '../menu/menu_city.dart';
 import '../menu/menu_game_won.dart';
 import '../menu/menu_garage/menu_garage.dart';
@@ -51,6 +54,9 @@ class GameRouter extends RouterComponent {
             'menuGarage': RouteMakeOtherIgnoreEvents(MenuGarage.new, doesPutGameInPause: false, transparent: true),
             'menuCity': RouteMakeOtherIgnoreEvents(MenuCity.new, doesPutGameInPause: false, transparent: true),
             'menuIncinerator': RouteMakeOtherIgnoreEvents(MenuIncinerator.new, doesPutGameInPause: false, transparent: true),
+            'menuRecycler': RouteMakeOtherIgnoreEvents(MenuRecycler.new, doesPutGameInPause: false, transparent: true),
+            'menuComposter': RouteMakeOtherIgnoreEvents(MenuComposter.new, doesPutGameInPause: false, transparent: true),
+            'menuBuryer': RouteMakeOtherIgnoreEvents(MenuBuryer.new, doesPutGameInPause: false, transparent: true),
           },
         );
 }

@@ -5,9 +5,9 @@ import 'package:flutter/material.dart';
 
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:mgame/flame_game_widget.dart';
 
 import 'package:firebase_core/firebase_core.dart';
+import 'package:mgame/loading.dart';
 import 'package:wakelock_plus/wakelock_plus.dart';
 import 'firebase_options.dart';
 
@@ -45,7 +45,8 @@ void main() async {
           useMaterial3: true,
           colorScheme: ColorScheme.fromSeed(seedColor: Colors.blue),
         ),
-        home: const FlameGameWidget(),
+        home: const Loading(),
+        // home: const FlameGameWidget(),
       ),
     ),
   );

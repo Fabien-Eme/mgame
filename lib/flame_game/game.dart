@@ -69,6 +69,7 @@ class MGame extends FlameGame with MouseMovementDetector, ScrollDetector, MultiT
   bool isMouseHoveringOverlay = false;
   bool isMouseHoveringOverlayButton = false;
 
+  Building? currentlySelectedBuilding;
   City? currentCity;
   Incinerator? currentIncinerator;
 

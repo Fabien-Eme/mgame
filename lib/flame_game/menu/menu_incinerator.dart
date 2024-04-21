@@ -1,6 +1,6 @@
 import 'package:flame/components.dart';
 import 'package:flame_riverpod/flame_riverpod.dart';
-import 'package:mgame/flame_game/riverpod_controllers/game_user_controller.dart';
+import 'package:mgame/flame_game/menu/addon_toggle_accept_waste.dart';
 
 import '../level.dart';
 import '../utils/my_text_style.dart';
@@ -20,6 +20,8 @@ class MenuIncinerator extends MenuWithoutTabs with RiverpodComponentMixin {
   void onLoad() {
     super.onLoad();
 
+    world.add(AddonToggleAcceptWaste(position: Vector2(0, boxSize.y / 2)));
+
     ///
     ///
     /// TITLE
@@ -34,7 +36,7 @@ class MenuIncinerator extends MenuWithoutTabs with RiverpodComponentMixin {
     ///
     /// TEXT
     world.add(TextComponent(
-      text: 'This factory burns garbage. It generates pollution.\nGarbage is processed this way and you earn money.',
+      text: 'This factory burns garbage. It generates pollution.\nGarbage processed this way and you earn money.',
       textRenderer: MyTextStyle.text,
       anchor: Anchor.topCenter,
       position: Vector2(0, -boxSize.y / 2 + 80),
