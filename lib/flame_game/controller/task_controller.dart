@@ -7,9 +7,13 @@ import 'package:mgame/flame_game/buildings/buryer/buryer.dart';
 import 'package:mgame/flame_game/buildings/incinerator/incinerator.dart';
 import 'package:mgame/flame_game/level_world.dart';
 import 'package:mgame/flame_game/truck/truck.dart';
+import 'package:mgame/flame_game/ui/snackbar.dart';
+import 'package:mgame/flame_game/waste/waste.dart';
 import 'package:uuid/uuid.dart';
 
 import '../buildings/city/city.dart';
+import '../buildings/composter/composter.dart';
+import '../buildings/garage/garage.dart';
 import '../game.dart';
 import '../level.dart';
 import '../ui/garbage_bar.dart';
@@ -162,7 +166,7 @@ class TaskController extends Component with HasGameReference<MGame>, HasWorldRef
             createTask(
               taskType: TaskType.collection,
               taskCoordinate: city.loadTileCoordinate,
-              taskRestrictions: [TaskRestriction.simpleCollect()],
+              taskRestrictions: [TaskRestriction.emptyLoad()],
               taskReward: [TaskReward.loadWaste],
               taskBuilding: city,
               taskBuildingType: BuildingType.city,
@@ -175,8 +179,9 @@ class TaskController extends Component with HasGameReference<MGame>, HasWorldRef
             if (!buryer.isBuryerFull) {
               createTask(
                 taskType: TaskType.delivery,
+                taskPriority: 1,
                 taskCoordinate: buryer.unLoadTileCoordinate,
-                taskRestrictions: [TaskRestriction.simpleDelivery()],
+                taskRestrictions: [TaskRestriction.hasLoad()],
                 taskReward: [TaskReward.unloadAll],
                 taskBuilding: buryer,
                 taskBuildingType: BuildingType.buryer,
@@ -184,11 +189,28 @@ class TaskController extends Component with HasGameReference<MGame>, HasWorldRef
             }
           }
         }
+
+        for (Composter composter in world.buildings.whereType<Composter>()) {
+          if (composter.unLoadTileCoordinate == building.anchorTile) {
+            if (!composter.isComposterFull) {
+              createTask(
+                taskType: TaskType.delivery,
+                taskPriority: 10,
+                taskCoordinate: composter.unLoadTileCoordinate,
+                taskRestrictions: [TaskRestriction.hasLoad(), TaskRestriction.loadIsOrganic()],
+                taskReward: [TaskReward.unloadAll],
+                taskBuilding: composter,
+                taskBuildingType: BuildingType.composter,
+              );
+            }
+          }
+        }
       case BuildingType.recycler:
         createTask(
           taskType: TaskType.delivery,
+          taskPriority: 10,
           taskCoordinate: (building as Incinerator).deliveryPointDimetric,
-          taskRestrictions: [TaskRestriction.simpleDelivery()],
+          taskRestrictions: [TaskRestriction.hasLoad(), TaskRestriction.loadIsRecyclable()],
           taskReward: [TaskReward.unloadAll],
           taskBuilding: building,
           taskBuildingType: BuildingType.recycler,
@@ -197,8 +219,9 @@ class TaskController extends Component with HasGameReference<MGame>, HasWorldRef
       case BuildingType.incinerator:
         createTask(
           taskType: TaskType.delivery,
+          taskPriority: 5,
           taskCoordinate: (building as Incinerator).deliveryPointDimetric,
-          taskRestrictions: [TaskRestriction.simpleDelivery()],
+          taskRestrictions: [TaskRestriction.hasLoad(), TaskRestriction.loadIsNotToxic()],
           taskReward: [TaskReward.unloadAll],
           taskBuilding: building,
           taskBuildingType: BuildingType.incinerator,
@@ -207,6 +230,8 @@ class TaskController extends Component with HasGameReference<MGame>, HasWorldRef
       case BuildingType.garage:
         break;
       case BuildingType.buryer:
+        break;
+      case BuildingType.composter:
         break;
     }
   }
@@ -234,7 +259,7 @@ class TaskController extends Component with HasGameReference<MGame>, HasWorldRef
     }
   }
 
-  doesTruckSatisfyRestriction({required Truck truck, required List<TaskRestriction> restrictions}) {
+  bool doesTruckSatisfyRestriction({required Truck truck, required List<TaskRestriction> restrictions}) {
     for (TaskRestriction taskRestriction in restrictions) {
       switch (taskRestriction.taskRestrictionType) {
         case TaskRestrictionType.loadMinQuantity:
@@ -243,6 +268,8 @@ class TaskController extends Component with HasGameReference<MGame>, HasWorldRef
           if (truck.loadQuantity > taskRestriction.loadQuantity!) return false;
         case TaskRestrictionType.loadType:
           if (truck.loadType != taskRestriction.loadType!) return false;
+        case TaskRestrictionType.forbiddenLoadType:
+          if (truck.loadType == taskRestriction.loadType!) return false;
         case TaskRestrictionType.vehiculeType:
           if (truck.vehiculeType != taskRestriction.vehiculeType!) return false;
         case TaskRestrictionType.vehiculeQuantity:
@@ -318,7 +345,7 @@ class TaskController extends Component with HasGameReference<MGame>, HasWorldRef
 
           await Future.delayed(const Duration(seconds: 1));
           truck.loadQuantity = load;
-          truck.loadType = LoadType.garbageCan;
+          truck.loadType = wasteStack.wasteType;
 
           truck.currentTask = null;
           truck.isCompletingTask = false;
@@ -329,6 +356,8 @@ class TaskController extends Component with HasGameReference<MGame>, HasWorldRef
 
           /// BURYER
           if (task.taskBuildingType == BuildingType.buryer) {
+            task.taskBuilding?.isProcessingWaste = true;
+
             await Future.delayed(const Duration(seconds: 1));
             int loadQuantityRefused = (task.taskBuilding as Buryer).updateFillAmount(truck.loadQuantity);
             int loadQuantityAccepted = truck.loadQuantity - loadQuantityRefused;
@@ -345,23 +374,59 @@ class TaskController extends Component with HasGameReference<MGame>, HasWorldRef
             if (loadQuantityRefused > 0) {
               removeTask(taskId: task.id);
             }
+
+            Future.delayed(const Duration(seconds: 1)).then((_) => task.taskBuilding?.isProcessingWaste = false);
           }
 
-          /// INCINERATOR
+          /// COMPOSTER
+          else if (task.taskBuildingType == BuildingType.composter) {
+            task.taskBuilding?.isProcessingWaste = true;
+
+            await Future.delayed(const Duration(seconds: 1));
+            int loadQuantityRefused = (task.taskBuilding as Composter).updateFillAmount(truck.loadQuantity);
+            int loadQuantityAccepted = truck.loadQuantity - loadQuantityRefused;
+
+            if (loadQuantityRefused != truck.loadQuantity) (task.taskBuilding as Composter).showGarbageProcessedTick(quantity: (loadQuantityAccepted));
+
+            (game.findByKeyName('garbageBar') as GarbageBar).addValue(loadQuantityAccepted.toDouble());
+
+            (game.findByKeyName('level') as Level).money.addValue(truck.loadQuantity.toDouble() * 200 * (task.taskBuilding as Composter).moneyBonus, false);
+
+            Future.delayed(const Duration(milliseconds: 500))
+                .then((_) => (task.taskBuilding as Composter).showMoneyGainedTick(quantity: (truck.loadQuantity.toDouble() * 200 * (task.taskBuilding as Composter).moneyBonus).toInt()));
+
+            await Future.delayed(const Duration(seconds: 1));
+            truck.loadQuantity = loadQuantityRefused;
+            truck.currentTask = null;
+            truck.isCompletingTask = false;
+
+            if (loadQuantityRefused > 0) {
+              removeTask(taskId: task.id);
+            }
+
+            Future.delayed(const Duration(seconds: 1)).then((_) => task.taskBuilding?.isProcessingWaste = false);
+          }
+
+          /// INCINERATOR && RECYCLER
           else {
+            task.taskBuilding?.isProcessingWaste = true;
+
             await Future.delayed(const Duration(seconds: 1));
             (game.findByKeyName('garbageBar') as GarbageBar).addValue(truck.loadQuantity.toDouble());
-            (game.findByKeyName('level') as Level).money.addValue(truck.loadQuantity.toDouble() * 100 * (task.taskBuilding as Incinerator).moneyBonus, false);
 
-            if (!(game.currentIncinerator?.isRecycler ?? false)) {
+            int baseMoneyPerWaste = 150;
+            if (!(task.taskBuilding as Incinerator).isRecycler) baseMoneyPerWaste = 200;
+            (game.findByKeyName('level') as Level).money.addValue(truck.loadQuantity.toDouble() * baseMoneyPerWaste * (task.taskBuilding as Incinerator).moneyBonus, false);
+
+            if (!(task.taskBuilding as Incinerator).isRecycler) {
               (game.findByKeyName('pollutionBar') as PollutionBar).addValue(truck.loadQuantity.toDouble() * 50 * (task.taskBuilding as Incinerator).pollutionReduction);
-
-              if (!(task.taskBuilding as Incinerator).isRecycler) {
-                (task.taskBuilding as Incinerator).incineratorSmoke.resumeSmokeForDuration(const Duration(seconds: 5));
-              }
+              (task.taskBuilding as Incinerator).incineratorSmoke.resumeSmokeForDuration(const Duration(seconds: 5));
             }
 
             (task.taskBuilding as Incinerator).showGarbageProcessedTick(quantity: (truck.loadQuantity));
+
+            Future.delayed(const Duration(milliseconds: 500)).then(
+                (_) => (task.taskBuilding as Incinerator).showMoneyGainedTick(quantity: (truck.loadQuantity.toDouble() * baseMoneyPerWaste * (task.taskBuilding as Incinerator).moneyBonus).toInt()));
 
             await Future.delayed(const Duration(seconds: 1));
             if (!(game.currentIncinerator?.isRecycler ?? false)) {
@@ -371,6 +436,8 @@ class TaskController extends Component with HasGameReference<MGame>, HasWorldRef
 
             truck.currentTask = null;
             truck.isCompletingTask = false;
+
+            Future.delayed(const Duration(seconds: 1)).then((_) => task.taskBuilding?.isProcessingWaste = false);
           }
 
           break;
@@ -390,6 +457,14 @@ class TaskController extends Component with HasGameReference<MGame>, HasWorldRef
       _accumulator = 0;
       tryToMatchTaskWithVehicule();
     }
+  }
+
+  void dumpLoad({required Truck truck}) {
+    (game.findByKeyName('level') as Level).snackbarController.addSnackbar(snackbarType: SnackbarType.dumpWasteInGarage);
+    (game.findByKeyName('pollutionBar') as PollutionBar).addValue(truck.loadQuantity.toDouble() * 100);
+    (world.buildings.firstWhere((building) => building is Garage) as Garage).showPollutionTick(quantity: (truck.loadQuantity.toDouble() * 100).round());
+
+    truck.loadQuantity = 0;
   }
 }
 
@@ -433,19 +508,31 @@ enum TaskType {
 class TaskRestriction {
   TaskRestrictionType taskRestrictionType;
   int? loadQuantity;
-  LoadType? loadType;
+  WasteType? loadType;
   VehiculeType? vehiculeType;
   int? vehiculeQuantity;
 
   TaskRestriction({required this.taskRestrictionType, this.loadQuantity, this.loadType, this.vehiculeType, this.vehiculeQuantity});
 
-  TaskRestriction.simpleCollect()
+  TaskRestriction.emptyLoad()
       : taskRestrictionType = TaskRestrictionType.loadMaxQuantity,
         loadQuantity = 0;
 
-  TaskRestriction.simpleDelivery()
+  TaskRestriction.hasLoad()
       : taskRestrictionType = TaskRestrictionType.loadMinQuantity,
         loadQuantity = 1;
+
+  TaskRestriction.loadIsNotToxic()
+      : taskRestrictionType = TaskRestrictionType.forbiddenLoadType,
+        loadType = WasteType.toxic;
+
+  TaskRestriction.loadIsRecyclable()
+      : taskRestrictionType = TaskRestrictionType.loadType,
+        loadType = WasteType.recyclable;
+
+  TaskRestriction.loadIsOrganic()
+      : taskRestrictionType = TaskRestrictionType.loadType,
+        loadType = WasteType.organic;
 }
 
 enum TaskRestrictionType {
@@ -454,10 +541,7 @@ enum TaskRestrictionType {
   loadType,
   vehiculeType,
   vehiculeQuantity,
-}
-
-enum LoadType {
-  garbageCan,
+  forbiddenLoadType,
 }
 
 enum VehiculeType {

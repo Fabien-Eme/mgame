@@ -6,6 +6,7 @@ import 'package:mgame/flame_game/riverpod_controllers/game_user_controller.dart'
 
 import '../level.dart';
 import '../riverpod_controllers/all_trucks_controller.dart';
+import '../riverpod_controllers/score_controller.dart';
 import '../utils/my_text_style.dart';
 
 class MenuSelectLevel extends MenuWithoutTabs with RiverpodComponentMixin {
@@ -51,6 +52,7 @@ class MenuSelectLevel extends MenuWithoutTabs with RiverpodComponentMixin {
           level: buttonLevel,
           onPressed: () {
             ref.read(allTrucksControllerProvider.notifier).resetTruck();
+            ref.read(scoreControllerProvider.notifier).reInitializeScore();
             game.currentLevel = int.parse(buttonLevel);
             game.router.popUntilNamed('root');
             game.router.pushNamed('level$buttonLevel');

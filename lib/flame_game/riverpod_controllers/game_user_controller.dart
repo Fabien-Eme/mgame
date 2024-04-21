@@ -61,6 +61,10 @@ class GameUserController extends _$GameUserController {
     return state.value!.ecoCredits;
   }
 
+  int getLevelScore(int level) {
+    return state.value!.mapLevelUser[level.toString()]['score'] as int? ?? 0;
+  }
+
   String? getUserEmail() {
     return state.value!.email;
   }

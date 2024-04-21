@@ -156,6 +156,14 @@ class MGame extends FlameGame with MouseMovementDetector, ScrollDetector, MultiT
   @override
   KeyEventResult onKeyEvent(KeyEvent event, Set<LogicalKeyboardKey> keysPressed) {
     super.onKeyEvent(event, keysPressed);
+
+    if (event is KeyDownEvent && keysPressed.contains(LogicalKeyboardKey.keyD)) {
+      (findByKeyName('level') as Level?)?.levelWorld.showHideDebugGrid();
+    }
+    if (event is KeyDownEvent && keysPressed.contains(LogicalKeyboardKey.keyW)) {
+      router.pushNamed('levelWon');
+    }
+
     // Return handled to prevent macOS noises.
     return KeyEventResult.handled;
   }

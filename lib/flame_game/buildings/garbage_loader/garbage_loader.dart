@@ -181,7 +181,7 @@ class GarbageLoader extends Building {
   }
 
   @override
-  double get buildingCost => 10000;
+  double get buildingCost => 5000;
 
   @override
   void update(double dt) {

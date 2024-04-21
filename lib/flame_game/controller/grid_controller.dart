@@ -150,7 +150,7 @@ class GridController extends Component with HasGameRef<MGame>, HasWorldReference
       CityType cityType = CityType.normal,
       GarbageLoaderFlow garbageLoaderFlow = GarbageLoaderFlow.flowStandard}) async {
     Building building = createBuilding(buildingType: buildingType, direction: direction, anchorTile: coordinates, cityType: cityType, garbageLoaderFlow: garbageLoaderFlow);
-    (game.findByKeyName('level') as Level).money.addValue(-building.buildingCost, hideMoney);
+    //(game.findByKeyName('level') as Level).money.addValue(-building.buildingCost, hideMoney);
     world.buildings.add(building);
     await world.add(building);
     building.setPosition(coordinates);
@@ -183,8 +183,8 @@ class GridController extends Component with HasGameRef<MGame>, HasWorldReference
       building.tilesIAmOn = [getTileAtDimetricCoordinates(coordinates)];
     }
 
-    /// INCINERATOR
-    else if (building.buildingType == BuildingType.incinerator) {
+    /// INCINERATOR - RECYCLER
+    else if (building.buildingType == BuildingType.incinerator || building.buildingType == BuildingType.recycler) {
       for (int i = 0; i < buildingSizeInTileX; i++) {
         for (int j = 0; j < buildingSizeInTileY; j++) {
           building.tilesIAmOn.add(getTileAtDimetricCoordinates(coordinates + Point<int>(-i, j)));
@@ -297,7 +297,8 @@ class GridController extends Component with HasGameRef<MGame>, HasWorldReference
                 world.convertRotations.unRotateDirections(Directions.N),
                 world.convertRotations.unRotateDirections(Directions.E),
                 world.convertRotations.unRotateDirections(Directions.W),
-              ];
+              ]
+              ..isGarageTile = true;
             world.constructionController.construct(posDimetric: coordinates + Point<int>(-i, j), tileType: TileType.roadS, isIndestructible: true, hideMoney: true);
           } else if (buildingDirection == Directions.W && Point<int>(-i, j) == const Point<int>(-1, 1)) {
             getTileAtDimetricCoordinates(coordinates + Point<int>(-i, j))
@@ -306,7 +307,8 @@ class GridController extends Component with HasGameRef<MGame>, HasWorldReference
                 world.convertRotations.unRotateDirections(Directions.N),
                 world.convertRotations.unRotateDirections(Directions.E),
                 world.convertRotations.unRotateDirections(Directions.S),
-              ];
+              ]
+              ..isGarageTile = true;
             world.constructionController.construct(posDimetric: coordinates + Point<int>(-i, j), tileType: TileType.roadW, isIndestructible: true, hideMoney: true);
           } else if (buildingDirection == Directions.N && Point<int>(-i, j) == const Point<int>(-1, 1)) {
             getTileAtDimetricCoordinates(coordinates + Point<int>(-i, j))
@@ -315,7 +317,8 @@ class GridController extends Component with HasGameRef<MGame>, HasWorldReference
                 world.convertRotations.unRotateDirections(Directions.S),
                 world.convertRotations.unRotateDirections(Directions.E),
                 world.convertRotations.unRotateDirections(Directions.W),
-              ];
+              ]
+              ..isGarageTile = true;
             world.constructionController.construct(posDimetric: coordinates + Point<int>(-i, j), tileType: TileType.roadN, isIndestructible: true, hideMoney: true);
           } else if (buildingDirection == Directions.E && Point<int>(-i, j) == const Point<int>(-1, 1)) {
             getTileAtDimetricCoordinates(coordinates + Point<int>(-i, j))
@@ -324,7 +327,8 @@ class GridController extends Component with HasGameRef<MGame>, HasWorldReference
                 world.convertRotations.unRotateDirections(Directions.N),
                 world.convertRotations.unRotateDirections(Directions.S),
                 world.convertRotations.unRotateDirections(Directions.W),
-              ];
+              ]
+              ..isGarageTile = true;
             world.constructionController.construct(posDimetric: coordinates + Point<int>(-i, j), tileType: TileType.roadE, isIndestructible: true, hideMoney: true);
           } else {
             getTileAtDimetricCoordinates(coordinates + Point<int>(-i, j))?.markAsBuiltAndIndestructible(building);
@@ -398,6 +402,60 @@ class GridController extends Component with HasGameRef<MGame>, HasWorldReference
           building.tilesIAmOn.add(getTileAtDimetricCoordinates(coordinates + const Point<int>(-1, 0)));
           getTileAtDimetricCoordinates(coordinates + const Point<int>(-1, 0))?.markAsBuilt(building);
 
+          tileToMarkAsArrow = getTileAtDimetricCoordinates(coordinates + const Point<int>(1, 0));
+          break;
+      }
+
+      Directions unRotatedBuildingDirection = world.convertRotations.unRotateDirections(buildingDirection);
+      switch (unRotatedBuildingDirection) {
+        case Directions.S:
+          tileToMarkAsArrow
+            ?..setTileType(TileType.arrowN)
+            ..defaultTyleType = TileType.arrowN
+            ..markAsUnloadPoint(Directions.N);
+          break;
+
+        case Directions.W:
+          tileToMarkAsArrow
+            ?..setTileType(TileType.arrowE)
+            ..defaultTyleType = TileType.arrowE
+            ..markAsUnloadPoint(Directions.E);
+          break;
+
+        case Directions.N:
+          tileToMarkAsArrow
+            ?..setTileType(TileType.arrowS)
+            ..defaultTyleType = TileType.arrowS
+            ..markAsUnloadPoint(Directions.S);
+          break;
+
+        case Directions.E:
+          tileToMarkAsArrow
+            ?..setTileType(TileType.arrowW)
+            ..defaultTyleType = TileType.arrowW
+            ..markAsUnloadPoint(Directions.W);
+          break;
+      }
+    }
+
+    /// COMPOSTER
+    else if (building.buildingType == BuildingType.composter) {
+      building.tilesIAmOn.add(getTileAtDimetricCoordinates(coordinates + const Point<int>(0, 0)));
+      getTileAtDimetricCoordinates(coordinates + const Point<int>(0, 0))?.markAsBuilt(building);
+
+      Tile? tileToMarkAsArrow;
+
+      switch (buildingDirection) {
+        case Directions.S:
+          tileToMarkAsArrow = getTileAtDimetricCoordinates(coordinates + const Point<int>(0, -1));
+          break;
+        case Directions.W:
+          tileToMarkAsArrow = getTileAtDimetricCoordinates(coordinates + const Point<int>(-1, 0));
+          break;
+        case Directions.N:
+          tileToMarkAsArrow = getTileAtDimetricCoordinates(coordinates + const Point<int>(0, 1));
+          break;
+        case Directions.E:
           tileToMarkAsArrow = getTileAtDimetricCoordinates(coordinates + const Point<int>(1, 0));
           break;
       }

@@ -7,10 +7,11 @@ import '../../../gen/assets.gen.dart';
 import '../../utils/convert_rotations.dart';
 
 class IncineratorFront extends SpriteComponent with HasGameRef {
-  IncineratorFront({required this.direction, super.position});
+  bool isRecycler;
+
+  IncineratorFront({required this.isRecycler, required this.direction, super.position});
   Directions direction;
   late String asset;
-  bool isRecycler = false;
 
   @override
   FutureOr<void> onLoad() {

@@ -16,10 +16,8 @@ extension MGameAssets on MGame {
       ///
       /// UI
       for (AssetGenImage element in Assets.images.ui.values) () => images.load(element.path),
-
-      ///
-      /// DIALOG
       for (AssetGenImage element in Assets.images.ui.dialog.values) () => images.load(element.path),
+      for (AssetGenImage element in Assets.images.ui.priorityBox.values) () => images.load(element.path),
 
       ///
       /// TRUCK
@@ -28,6 +26,8 @@ extension MGameAssets on MGame {
 
       ///
       /// BUILDINGS
+      for (AssetGenImage element in Assets.images.buildings.composter.values) () => images.load(element.path),
+
       for (AssetGenImage element in Assets.images.buildings.buryer.values) () => images.load(element.path),
 
       for (AssetGenImage element in Assets.images.buildings.city.values) () => images.load(element.path),

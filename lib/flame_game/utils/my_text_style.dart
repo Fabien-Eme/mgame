@@ -15,7 +15,11 @@ class MyTextStyle {
 
   static TextPaint tab = TextPaint(style: const TextStyle(fontSize: 18, color: Palette.darkGrey, fontFamily: 'Play', fontWeight: FontWeight.w700));
   static TextPaint text = TextPaint(style: const TextStyle(fontSize: 20, color: Palette.darkGrey, fontFamily: 'Play', fontWeight: FontWeight.w400));
+  static TextPaint textBold = TextPaint(style: const TextStyle(fontSize: 20, color: Palette.darkGrey, fontFamily: 'Play', fontWeight: FontWeight.w700));
   static TextPaint textGreen = TextPaint(style: const TextStyle(fontSize: 20, color: Palette.darkGreen, fontFamily: 'Play', fontWeight: FontWeight.w400));
+  static TextPaint textGreenBold = TextPaint(style: const TextStyle(fontSize: 20, color: Palette.darkGreen, fontFamily: 'Play', fontWeight: FontWeight.w700));
+  static TextPaint textMoneyBold = TextPaint(style: const TextStyle(fontSize: 20, color: Palette.darkYellow, fontFamily: 'Play', fontWeight: FontWeight.w700));
+
   static TextPaint bigText = TextPaint(style: const TextStyle(fontSize: 40, color: Palette.darkGrey, fontFamily: 'Play', fontWeight: FontWeight.w400));
   static TextPaint header = TextPaint(style: const TextStyle(fontSize: 22, color: Palette.darkGrey, fontFamily: 'Play', fontWeight: FontWeight.w700));
   static TextPaint numberDisplay = TextPaint(style: const TextStyle(fontSize: 16, color: Palette.white, fontFamily: 'Play', fontWeight: FontWeight.w700));
@@ -24,6 +28,8 @@ class MyTextStyle {
   static TextPaint money = TextPaint(style: const TextStyle(fontSize: 24, color: Palette.darkYellow, fontFamily: 'Play', fontWeight: FontWeight.w700));
   static TextPaint moneyNegative = TextPaint(style: const TextStyle(fontSize: 24, color: Palette.darkRed, fontFamily: 'Play', fontWeight: FontWeight.w700));
   static TextPaint moneyPositive = TextPaint(style: const TextStyle(fontSize: 24, color: Palette.darkGreen, fontFamily: 'Play', fontWeight: FontWeight.w700));
+
+  static TextPaint ecoCredits = TextPaint(style: const TextStyle(fontSize: 24, color: Palette.darkGreen, fontFamily: 'Play', fontWeight: FontWeight.w700));
 
   static TextPaint nameBar = TextPaint(style: const TextStyle(fontSize: 20, color: Palette.darkGrey, fontFamily: 'Play', fontWeight: FontWeight.w700));
   static TextPaint nameBarWhite = TextPaint(style: const TextStyle(fontSize: 20, color: Palette.white, fontFamily: 'Play', fontWeight: FontWeight.w700));

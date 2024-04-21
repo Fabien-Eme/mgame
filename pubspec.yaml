@@ -85,8 +85,10 @@ flutter:
     - assets/images/tiles/forest/
     - assets/images/tiles/arrows/
     - assets/images/ui/
+    - assets/images/ui/priority_box/
     - assets/images/ui/dialog/
     - assets/images/buildings/
+    - assets/images/buildings/composter/
     - assets/images/buildings/buryer/
     - assets/images/buildings/city/
     - assets/images/buildings/garbage_conveyor/

@@ -7,9 +7,11 @@ import 'package:mgame/flame_game/level_world.dart';
 import 'package:mgame/flame_game/riverpod_controllers/construction_mode_controller.dart';
 import 'package:mgame/flame_game/riverpod_controllers/ui_controller.dart';
 import 'package:mgame/flame_game/tile/tile_helper.dart';
+import 'package:mgame/flame_game/ui/snackbar.dart';
 
 import '../buildings/city/city.dart';
 import '../game.dart';
+import '../level.dart';
 
 class TapController extends Component with HasGameReference<MGame>, HasWorldReference<LevelWorld>, RiverpodComponentMixin {
   ///
@@ -50,7 +52,11 @@ class TapController extends Component with HasGameReference<MGame>, HasWorldRefe
           }
         } else if (constructionState.status == ConstructionMode.destruct) {
           if (world.gridController.isTileBuildingDestructible(world.currentMouseTilePos)) {
-            world.constructionController.destroyBuilding(posDimetric: world.currentMouseTilePos);
+            if (world.gridController.getTileAtDimetricCoordinates(world.currentMouseTilePos)?.buildingOnTile?.isProcessingWaste ?? false) {
+              (game.findByKeyName('level') as Level?)?.snackbarController.addSnackbar(snackbarType: SnackbarType.buildingIsProcessingWaste);
+            } else {
+              world.constructionController.destroyBuilding(posDimetric: world.currentMouseTilePos);
+            }
           }
           if (world.gridController.isTileDestructible(world.currentMouseTilePos)) {
             world.constructionController.destroy(posDimetric: world.currentMouseTilePos);

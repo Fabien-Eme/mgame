@@ -49,6 +49,7 @@ class Tile extends SpriteComponent with HasGameReference<MGame>, HasWorldReferen
   List<BuildingType> listOnlyBuildingsAllowed = [];
 
   List<Truck> listTrucksOnTile = [];
+  bool isGarageTile = false;
 
   @override
   FutureOr<void> onLoad() {

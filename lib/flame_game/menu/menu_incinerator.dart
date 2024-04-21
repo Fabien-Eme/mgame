@@ -13,7 +13,6 @@ class MenuIncinerator extends MenuWithoutTabs with RiverpodComponentMixin {
 
   late final DialogButton upgradeComposters;
   late final DialogButton upgradePlantTrees;
-  late final DialogButton upgradeStopPollutionGeneration;
 
   bool isFetchingData = false;
 
@@ -109,37 +108,6 @@ class MenuIncinerator extends MenuWithoutTabs with RiverpodComponentMixin {
       textRenderer: MyTextStyle.text,
       anchor: Anchor.centerLeft,
       position: Vector2(-boxSize.x / 2 + 20, -boxSize.y / 2 + 380),
-    ));
-
-    world.add(upgradeStopPollutionGeneration = DialogButton(
-      text: 'Buy upgrade',
-      onPressed: () async {
-        if (!isFetchingData) {
-          isFetchingData = true;
-          String upgradeText = "";
-
-          int ecoCredits = ref.read(gameUserControllerProvider.notifier).getUserEcoCredits();
-          if (ecoCredits >= 5) {
-            upgradeText = 'Upgrade Bought';
-            ref.read(gameUserControllerProvider.notifier).updateGameUser(ecoCredits: ecoCredits - 5);
-            game.currentIncinerator!.upgradeToRecycler();
-          } else {
-            upgradeText = 'Insufficient EcoCredits';
-          }
-          if (upgradeStopPollutionGeneration.isMounted) {
-            world.remove(upgradeStopPollutionGeneration);
-          }
-          world.add(TextComponent(
-            text: upgradeText,
-            textRenderer: MyTextStyle.text,
-            anchor: Anchor.center,
-            position: Vector2(boxSize.x / 2 - 150, -boxSize.y / 2 + 380),
-          ));
-          isFetchingData = false;
-        }
-      },
-      buttonSize: Vector2(200, 50),
-      position: Vector2(boxSize.x / 2 - 150, -boxSize.y / 2 + 380),
     ));
   }
 }

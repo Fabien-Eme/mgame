@@ -36,6 +36,9 @@ class GameRouter extends RouterComponent {
             'level1': RouteCanIgnoreEvents(() => Level(level: 1, key: ComponentKey.named('level'))),
             'level2': RouteCanIgnoreEvents(() => Level(level: 2, key: ComponentKey.named('level'))),
             'level3': RouteCanIgnoreEvents(() => Level(level: 3, key: ComponentKey.named('level'))),
+            'level4': RouteCanIgnoreEvents(() => Level(level: 4, key: ComponentKey.named('level'))),
+            'level5': RouteCanIgnoreEvents(() => Level(level: 5, key: ComponentKey.named('level'))),
+            'level6': RouteCanIgnoreEvents(() => Level(level: 6, key: ComponentKey.named('level'))),
 
             ///
             'levelWon': RouteMakeOtherIgnoreEvents(MenuLevelWon.new, transparent: true),

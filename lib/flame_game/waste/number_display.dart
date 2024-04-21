@@ -3,17 +3,23 @@ import 'dart:ui';
 
 import 'package:flame/components.dart';
 import 'package:flame_riverpod/flame_riverpod.dart';
+import 'package:mgame/flame_game/riverpod_controllers/score_controller.dart';
 import 'package:mgame/flame_game/ui/show_pollution_tick.dart';
+import 'package:mgame/flame_game/ui/snackbar.dart';
 import 'package:mgame/flame_game/utils/my_text_style.dart';
+import 'package:mgame/flame_game/waste/waste.dart';
 
 import '../game.dart';
+import '../level.dart';
+import '../level_world.dart';
 import '../ui/pollution_bar.dart';
 import '../utils/palette.dart';
 
-class NumberDisplay extends PositionComponent with HasGameReference<MGame>, HasWorldReference, RiverpodComponentMixin {
-  double radius;
+class NumberDisplay extends PositionComponent with HasGameReference<MGame>, HasWorldReference<LevelWorld>, RiverpodComponentMixin {
+  final double radius;
+  final WasteType wasteType;
 
-  NumberDisplay({required this.radius});
+  NumberDisplay({required this.radius, required this.wasteType});
 
   late final CircleComponent circleComponent;
   late final TextComponent textComponent;
@@ -57,8 +63,15 @@ class NumberDisplay extends PositionComponent with HasGameReference<MGame>, HasW
     }
 
     if (isGeneratingPollution && canGeneratePollution) {
+      if (game.currentLevel != 0) {
+        if (ref.read(scoreControllerProvider.notifier).cityHasGeneratedPollution()) {
+          (game.findByKeyName('level') as Level?)?.snackbarController.addSnackbar(snackbarType: SnackbarType.starLost);
+          (game.findByKeyName('level') as Level?)?.snackbarController.addSnackbar(snackbarType: SnackbarType.cityGenreatePollution);
+        }
+      }
+
       (game.findByKeyName('pollutionBar') as PollutionBar).addValue(50);
-      add(ShowPollutionTick(quantity: 50));
+      add(ShowPollutionTick(quantity: wasteType.pollutionGenerated));
     }
   }
 

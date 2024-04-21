@@ -2,7 +2,9 @@ import 'dart:async';
 
 import 'package:flame/camera.dart';
 import 'package:flame/components.dart';
+import 'package:mgame/flame_game/controller/snackbar_controller.dart';
 import 'package:mgame/flame_game/level_world.dart';
+import 'package:mgame/flame_game/ui/ecocredits.dart';
 import 'package:mgame/flame_game/ui/garbage_bar.dart';
 import 'package:mgame/flame_game/ui/mini_top_drawer.dart';
 import 'package:mgame/flame_game/ui/money.dart';
@@ -32,6 +34,8 @@ class Level extends PositionComponent with HasGameReference<MGame> {
   late final GarbageBar garbageBar;
 
   late final Money money;
+
+  late final SnackbarController snackbarController;
 
   bool isPurpleTruckAvailable = false;
   bool isBlueTruckAvailable = false;
@@ -81,13 +85,15 @@ class Level extends PositionComponent with HasGameReference<MGame> {
       /// ADD TOP UI
       cameraComponent.viewport.addAll([
         MiniTopDrawer(),
+        EcoCredits(),
         TopDrawer(),
         pollutionBar = PollutionBar(
-            title: 'POLLUTION',
-            totalBarValue: mapLevel[level.toString()]!["pollutionLimit"]! as double,
-            onComplete: () {
-              if (level != 0) game.router.pushNamed('levelLost');
-            }),
+          title: 'POLLUTION',
+          totalBarValue: mapLevel[level.toString()]!["pollutionLimit"]! as double,
+          onComplete: () {
+            if (level != 0) game.router.pushNamed('levelLost');
+          },
+        ),
         money = Money(
           startingAmount: mapLevel[level.toString()]!["startingMoney"]! as double,
         ),
@@ -95,7 +101,7 @@ class Level extends PositionComponent with HasGameReference<MGame> {
           title: 'GARBAGE PROCESSED',
           totalBarValue: mapLevel[level.toString()]!["garbageTarget"]! as double,
           onComplete: () {
-            if (game.lastLevelCompleted == 2) {
+            if (game.lastLevelCompleted == totalNumberOfLevel) {
               game.router.pushNamed('gameWon');
             } else if (level != 0) {
               game.router.pushNamed('levelWon');
@@ -103,6 +109,11 @@ class Level extends PositionComponent with HasGameReference<MGame> {
           },
         ),
       ]);
+
+      ///
+      ///
+      /// ADD SNACKBAR CONTROLLER
+      cameraComponent.viewport.add(snackbarController = SnackbarController());
     } else {
       cameraComponent.viewport.addAll([
         pollutionBar = PollutionBar(
@@ -182,15 +193,33 @@ class Level extends PositionComponent with HasGameReference<MGame> {
       },
       "2": {
         "levelTitle": "Level 2 - Two cities",
-        "pollutionLimit": 25000.0 - (1 - globalAirQualityValue / 100) * 5000,
-        "garbageTarget": 200.0,
-        "startingMoney": 65000.0,
+        "pollutionLimit": 15000.0 - (1 - globalAirQualityValue / 100) * 4000,
+        "garbageTarget": 120.0,
+        "startingMoney": 78000.0,
       },
       "3": {
-        "levelTitle": "Level 3 - Mission: Impossible",
-        "pollutionLimit": 45000.0 - (1 - globalAirQualityValue / 100) * 5000,
-        "garbageTarget": 400.0,
-        "startingMoney": 75000.0,
+        "levelTitle": "Level 3 - Compost fiesta",
+        "pollutionLimit": 23000.0 - (1 - globalAirQualityValue / 100) * 4000,
+        "garbageTarget": 180.0,
+        "startingMoney": 58000.0,
+      },
+      "4": {
+        "levelTitle": "Level 4 - Toxic City",
+        "pollutionLimit": 20000.0 - (1 - globalAirQualityValue / 100) * 4000,
+        "garbageTarget": 120.0,
+        "startingMoney": 68000.0,
+      },
+      "5": {
+        "levelTitle": "Level 5 - A bit of everything",
+        "pollutionLimit": 28000.0 - (1 - globalAirQualityValue / 100) * 4000,
+        "garbageTarget": 260.0,
+        "startingMoney": 88000.0,
+      },
+      "6": {
+        "levelTitle": "Level 6 - Ultimate",
+        "pollutionLimit": 25000.0 - (1 - globalAirQualityValue / 100) * 4000,
+        "garbageTarget": 200.0,
+        "startingMoney": 400000.0,
       },
     };
   }

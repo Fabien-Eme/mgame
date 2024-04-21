@@ -7,7 +7,7 @@ part of 'ui_controller.dart';
 // **************************************************************************
 
 String _$activeUIButtonControllerHash() =>
-    r'f9db01ee40445c8320374758317524561dae06b3';
+    r'15266e83c0d48e41efd71345a2ce059beae9bdba';
 
 /// See also [ActiveUIButtonController].
 @ProviderFor(ActiveUIButtonController)

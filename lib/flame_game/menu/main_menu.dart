@@ -273,7 +273,7 @@ class MainMenu extends PositionComponent with HasGameReference<MGame>, RiverpodC
     if (game.globalAirQualityString == "") {
       await game.getGlobalAirQuality();
     }
-    globalAirQualityTextComponent.text = "Universal AQI: ${game.globalAirQualityValue}/100\n\nWorld air quality: ${game.globalAirQualityString}";
+    globalAirQualityTextComponent.text = "Universal AQI: ${game.globalAirQualityValue}/100\n\nWorld air quality: ${game.globalAirQualityString}\nPollution limit in game is lower!";
     globalAirQualityComponent.paint = Paint()..color = convertGlobalAirQualityColor(game.globalAirQualityColor);
   }
 }

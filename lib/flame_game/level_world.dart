@@ -56,6 +56,8 @@ class LevelWorld extends World with HasGameReference<MGame>, IgnoreEvents, River
 
   Point<int> currentMouseTilePos = const Point(0, 0);
 
+  late final DebugGridNumbersHolder debugGridNumbersHolder;
+
   @override
   void onMount() async {
     await addAll([
@@ -93,11 +95,20 @@ class LevelWorld extends World with HasGameReference<MGame>, IgnoreEvents, River
     }
 
     /// Add debug grid
-    if (isDebugGridNumbersOn) addAll(generateDebugGridNumbers());
+    debugGridNumbersHolder = DebugGridNumbersHolder();
+    if (isDebugGridNumbersOn) add(debugGridNumbersHolder);
 
     addLevelBuildings(level);
 
     super.onMount();
+  }
+
+  void showHideDebugGrid() {
+    if (debugGridNumbersHolder.isMounted) {
+      remove(debugGridNumbersHolder);
+    } else {
+      add(debugGridNumbersHolder);
+    }
   }
 
   void addLevelBuildings(int level) async {
@@ -112,14 +123,41 @@ class LevelWorld extends World with HasGameReference<MGame>, IgnoreEvents, River
         break;
       case 2:
         await gridController.internalBuildOnTile(coordinates: const Point<int>(24, 9), buildingType: BuildingType.garage, direction: Directions.S, hideMoney: true);
-        await gridController.internalBuildOnTile(coordinates: const Point<int>(10, -6), buildingType: BuildingType.city, direction: Directions.E, hideMoney: true, cityType: CityType.polluting);
-        await gridController.internalBuildOnTile(coordinates: const Point<int>(17, -13), buildingType: BuildingType.city, direction: Directions.N, hideMoney: true, cityType: CityType.normal);
+        await gridController.internalBuildOnTile(
+            coordinates: const Point<int>(10, -6), buildingType: BuildingType.city, direction: Directions.E, hideMoney: true, cityType: CityType.pollutingWithRecyclable);
+        await gridController.internalBuildOnTile(coordinates: const Point<int>(17, -13), buildingType: BuildingType.city, direction: Directions.N, hideMoney: true, cityType: CityType.recycleALot);
         break;
       case 3:
-        await gridController.internalBuildOnTile(coordinates: const Point<int>(19, 0), buildingType: BuildingType.garage, direction: Directions.S, hideMoney: true);
-        await gridController.internalBuildOnTile(coordinates: const Point<int>(6, -3), buildingType: BuildingType.city, direction: Directions.E, hideMoney: true, cityType: CityType.polluting);
-        await gridController.internalBuildOnTile(coordinates: const Point<int>(29, -2), buildingType: BuildingType.city, direction: Directions.E, hideMoney: true, cityType: CityType.polluting);
-        await gridController.internalBuildOnTile(coordinates: const Point<int>(23, 13), buildingType: BuildingType.city, direction: Directions.S, hideMoney: true, cityType: CityType.polluting);
+        await gridController.internalBuildOnTile(coordinates: const Point<int>(19, 9), buildingType: BuildingType.garage, direction: Directions.S, hideMoney: true);
+        await gridController.internalBuildOnTile(
+            coordinates: const Point<int>(6, -3), buildingType: BuildingType.city, direction: Directions.E, hideMoney: true, cityType: CityType.pollutingWithOrganic);
+        await gridController.internalBuildOnTile(
+            coordinates: const Point<int>(13, -9), buildingType: BuildingType.city, direction: Directions.E, hideMoney: true, cityType: CityType.pollutingWithOrganic);
+        await gridController.internalBuildOnTile(
+            coordinates: const Point<int>(29, 4), buildingType: BuildingType.city, direction: Directions.S, hideMoney: true, cityType: CityType.pollutingWithOrganic);
+        await gridController.internalBuildOnTile(coordinates: const Point<int>(14, 2), buildingType: BuildingType.composter, direction: Directions.S, hideMoney: true);
+        await gridController.internalBuildOnTile(coordinates: const Point<int>(18, 1), buildingType: BuildingType.composter, direction: Directions.S, hideMoney: true);
+        await gridController.internalBuildOnTile(coordinates: const Point<int>(22, -3), buildingType: BuildingType.composter, direction: Directions.S, hideMoney: true);
+        break;
+      case 4:
+        await gridController.internalBuildOnTile(coordinates: const Point<int>(15, 5), buildingType: BuildingType.garage, direction: Directions.S, hideMoney: true);
+        await gridController.internalBuildOnTile(
+            coordinates: const Point<int>(22, -10), buildingType: BuildingType.city, direction: Directions.N, hideMoney: true, cityType: CityType.pollutingWithToxic);
+        await gridController.internalBuildOnTile(
+            coordinates: const Point<int>(23, 5), buildingType: BuildingType.city, direction: Directions.S, hideMoney: true, cityType: CityType.pollutingWithRecyclable);
+        break;
+      case 5:
+        await gridController.internalBuildOnTile(coordinates: const Point<int>(15, 3), buildingType: BuildingType.garage, direction: Directions.S, hideMoney: true);
+        await gridController.internalBuildOnTile(coordinates: const Point<int>(9, -3), buildingType: BuildingType.city, direction: Directions.E, hideMoney: true, cityType: CityType.classicCity);
+        await gridController.internalBuildOnTile(
+            coordinates: const Point<int>(18, 12), buildingType: BuildingType.city, direction: Directions.N, hideMoney: true, cityType: CityType.pollutingWithOrganic);
+        await gridController.internalBuildOnTile(coordinates: const Point<int>(28, -6), buildingType: BuildingType.city, direction: Directions.S, hideMoney: true, cityType: CityType.recycleALot);
+        break;
+      case 6:
+        await gridController.internalBuildOnTile(coordinates: const Point<int>(8, -2), buildingType: BuildingType.garage, direction: Directions.E, hideMoney: true);
+        await gridController.internalBuildOnTile(coordinates: const Point<int>(22, -10), buildingType: BuildingType.city, direction: Directions.N, hideMoney: true, cityType: CityType.classicCity);
+        await gridController.internalBuildOnTile(coordinates: const Point<int>(16, 4), buildingType: BuildingType.city, direction: Directions.S, hideMoney: true, cityType: CityType.classicCity);
+        await gridController.internalBuildOnTile(coordinates: const Point<int>(21, 3), buildingType: BuildingType.city, direction: Directions.S, hideMoney: true, cityType: CityType.classicCity);
         break;
     }
   }

@@ -88,6 +88,17 @@ List<Tile> generateGridForestRight() {
   );
 }
 
+class DebugGridNumbersHolder extends Component with HasGameReference, IgnoreEvents {
+  @override
+  void onLoad() async {
+    priority = 1000;
+
+    addAll([...generateDebugGridNumbers()]);
+
+    super.onLoad();
+  }
+}
+
 ///
 ///
 /// Method to add a text on each tile with its dimetric coordinates

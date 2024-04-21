@@ -26,11 +26,11 @@ class WasteController extends Component with HasGameReference<MGame>, HasWorldRe
   ///
   ///
   ///Create the stack wich will receive [Waste]
-  void createWasteStack({required Building building, required double wasteRate, required WasteType wasteType}) async {
-    Waste waste = Waste(wasteType: wasteType, anchorBuilding: building, hasNumber: true);
+  void createWasteStack({required Building building, required double wasteRate, required WasteType wasteType, required int startingValue}) async {
+    Waste waste = Waste(wasteType: wasteType, anchorBuilding: building, hasNumber: true, startingValue: startingValue);
     Uuid uuid = const Uuid();
     String id = uuid.v4();
-    WasteStack wasteStack = WasteStack(id: id, component: waste, stackQuantity: 0, anchorBuilding: building, wasteRate: wasteRate, wasteType: wasteType);
+    WasteStack wasteStack = WasteStack(id: id, component: waste, stackQuantity: startingValue, anchorBuilding: building, wasteRate: wasteRate, wasteType: wasteType);
 
     mapWasteStack[id] = wasteStack;
     mapTimeElapsed[id] = 0;

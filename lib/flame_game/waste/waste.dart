@@ -18,8 +18,9 @@ class Waste extends PositionComponent with HasGameReference<MGame>, HasWorldRefe
   NumberDisplay? numberDisplay;
   bool hasNumber;
   WasteType wasteType;
+  int startingValue;
 
-  Waste({required this.wasteType, required this.anchorBuilding, this.hasNumber = false});
+  Waste({required this.wasteType, required this.anchorBuilding, this.hasNumber = false, required this.startingValue});
 
   late final WasteComponent wasteComponent;
 
@@ -39,8 +40,10 @@ class Waste extends PositionComponent with HasGameReference<MGame>, HasWorldRefe
     );
 
     if (hasNumber) {
-      numberDisplay = NumberDisplay(radius: 20)..priority = 399;
+      numberDisplay = NumberDisplay(radius: 20, wasteType: wasteType)..priority = 399;
       world.add(numberDisplay!);
+
+      changeNumber(startingValue);
     }
     return super.onLoad();
   }
@@ -132,6 +135,21 @@ enum WasteType {
         return Assets.images.waste.toxicSmall.path;
       case WasteType.ultimate:
         return Assets.images.waste.ultimateSmall.path;
+    }
+  }
+
+  int get pollutionGenerated {
+    switch (this) {
+      case WasteType.garbageCan:
+        return 50;
+      case WasteType.recyclable:
+        return 30;
+      case WasteType.organic:
+        return 20;
+      case WasteType.toxic:
+        return 100;
+      case WasteType.ultimate:
+        return 50;
     }
   }
 }

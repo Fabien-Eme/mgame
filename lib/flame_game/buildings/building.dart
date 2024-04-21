@@ -15,6 +15,7 @@ import '../tile/tile.dart';
 import '../truck/truck.dart';
 import '../utils/convert_rotations.dart';
 import 'city/city.dart';
+import 'composter/composter.dart';
 import 'garage/garage.dart';
 import 'garbage_loader/garbage_loader.dart';
 import 'garbage_loader/garbage_loader_front.dart';
@@ -35,6 +36,8 @@ abstract class Building extends PositionComponent with HasGameReference<MGame>, 
   bool isDoorClosed = true;
   List<Point<int>> listTilesWithDoor = [];
   List<String> listWasteStackId = [];
+
+  bool isProcessingWaste = false;
 
   @override
   void onMount() {
@@ -133,12 +136,21 @@ Building createBuilding(
   direction ??= Directions.E;
   return switch (buildingType) {
     BuildingType.garbageLoader => GarbageLoader(direction: direction, garbageLoaderFlow: garbageLoaderFlow ?? GarbageLoaderFlow.flowStandard, anchorTile: anchorTile),
-    BuildingType.recycler => Incinerator(direction: direction, anchorTile: anchorTile),
+    BuildingType.recycler => Incinerator(isRecycler: true, direction: direction, anchorTile: anchorTile),
     BuildingType.incinerator => Incinerator(direction: direction, anchorTile: anchorTile),
     BuildingType.garage => Garage(direction: direction, anchorTile: anchorTile),
     BuildingType.city => City(direction: direction, anchorTile: anchorTile, loadTileCoordinate: getCityLoadTileCoordinate(anchorTile: anchorTile, direction: direction), cityType: cityType),
     BuildingType.buryer => Buryer(direction: direction, anchorTile: anchorTile, unLoadTileCoordinate: getBuryerUnLoadTileCoordinate(anchorTile: anchorTile, direction: direction)),
+    BuildingType.composter => Composter(direction: direction, anchorTile: anchorTile, unLoadTileCoordinate: getComposterUnLoadTileCoordinate(anchorTile: anchorTile, direction: direction)),
   };
 }
 
-enum BuildingType { city, garbageLoader, recycler, incinerator, garage, buryer }
+enum BuildingType {
+  city,
+  garbageLoader,
+  recycler,
+  incinerator,
+  garage,
+  buryer,
+  composter,
+}

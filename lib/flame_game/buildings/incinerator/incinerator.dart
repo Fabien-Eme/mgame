@@ -8,6 +8,7 @@ import 'package:mgame/flame_game/buildings/incinerator/incinerator_back.dart';
 import 'package:mgame/flame_game/buildings/incinerator/incinerator_front.dart';
 import 'package:mgame/flame_game/particle/incinerator_smoke.dart';
 import 'package:mgame/flame_game/ui/show_garbage_processed_tick.dart';
+import 'package:mgame/flame_game/ui/show_money_gained_tick.dart';
 import 'package:mgame/flame_game/ui/show_pollution_tick.dart';
 
 import '../../game.dart';
@@ -19,7 +20,9 @@ import 'incinerator_door.dart';
 import 'incinerator_outline.dart';
 
 class Incinerator extends Building {
-  Incinerator({super.direction, super.position, required super.anchorTile});
+  bool isRecycler;
+
+  Incinerator({this.isRecycler = false, super.direction, super.position, required super.anchorTile});
 
   late final IncineratorFront incineratorFront;
   late final IncineratorBack incineratorBack;
@@ -37,17 +40,16 @@ class Incinerator extends Building {
 
   double pollutionReduction = 1;
   double moneyBonus = 1;
-  bool isRecycler = false;
 
   @override
   FutureOr<void> onLoad() {
     offset = convertDimetricVectorToWorldCoordinates(Vector2(3, 1)) + Vector2(0, 2);
     smokeOffset = convertDimetricVectorToWorldCoordinates(Vector2(-4, 5)) + Vector2(12, 0);
 
-    incineratorFront = IncineratorFront(direction: direction, position: position + offset);
+    incineratorFront = IncineratorFront(isRecycler: isRecycler, direction: direction, position: position + offset);
     incineratorBack = IncineratorBack(direction: direction, position: position + offset);
     incineratorDoor = IncineratorDoor(direction: direction, position: position + offset);
-    incineratorOutline = IncineratorOutline(direction: direction, position: position + offset);
+    incineratorOutline = IncineratorOutline(isRecycler: isRecycler, direction: direction, position: position + offset);
 
     world.addAll([
       incineratorFront,
@@ -61,6 +63,10 @@ class Incinerator extends Building {
     timer = Timer(1, autoStart: false, onTick: () => closeDoor());
 
     add(incineratorSmoke..position = position + smokeOffset);
+
+    if (isRecycler) {
+      pollutionReduction = 0.0;
+    }
 
     return super.onLoad();
   }
@@ -96,7 +102,7 @@ class Incinerator extends Building {
     ];
 
     incineratorSmoke.position = updatedPosition + smokeOffset;
-    showTickPosition = updatedPosition + smokeOffset + Vector2(0, -50);
+    showTickPosition = updatedPosition + smokeOffset + Vector2(0, -25);
   }
 
   @override
@@ -124,7 +130,7 @@ class Incinerator extends Building {
   }
 
   @override
-  BuildingType get buildingType => BuildingType.incinerator;
+  BuildingType get buildingType => (isRecycler) ? BuildingType.recycler : BuildingType.incinerator;
 
   @override
   Point<int> get sizeInTile => const Point<int>(3, 3);
@@ -220,7 +226,7 @@ class Incinerator extends Building {
   }
 
   @override
-  double get buildingCost => 30000;
+  double get buildingCost => 20000;
 
   void showPollutionTick({required int quantity}) {
     if (!isRecycler && isMounted) {
@@ -236,16 +242,10 @@ class Incinerator extends Building {
       ..priority = 1000);
   }
 
-  void upgradeToRecycler() {
-    isRecycler = true;
-
-    incineratorFront.isRecycler = true;
-    incineratorFront.updateSprite();
-
-    incineratorOutline.isRecycler = true;
-    incineratorOutline.updateSprite();
-
-    pollutionReduction = 0.0;
+  void showMoneyGainedTick({required int quantity}) {
+    world.add(ShowMoneyGainedTick(quantity: quantity)
+      ..position = showTickPosition
+      ..priority = 1000);
   }
 
   @override

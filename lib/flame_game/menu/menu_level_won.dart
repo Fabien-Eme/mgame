@@ -1,6 +1,9 @@
+import 'dart:math';
+
 import 'package:flame/components.dart';
 import 'package:flame_riverpod/flame_riverpod.dart';
 import 'package:mgame/flame_game/riverpod_controllers/game_user_controller.dart';
+import 'package:mgame/flame_game/riverpod_controllers/score_controller.dart';
 
 import '../riverpod_controllers/all_trucks_controller.dart';
 import '../utils/my_text_style.dart';
@@ -87,7 +90,11 @@ class MenuLevelWon extends MenuWithoutTabs with RiverpodComponentMixin {
     }
 
     int ecoCredits = ref.read(gameUserControllerProvider.notifier).getUserEcoCredits();
-    await ref.read(gameUserControllerProvider.notifier).updateGameUser(ecoCredits: ecoCredits + 5, levelToUpdate: game.currentLevel.toString(), isCompleted: true, score: 3);
+    int previousScore = ref.read(gameUserControllerProvider.notifier).getLevelScore(game.currentLevel);
+    int currentScore = ref.read(scoreControllerProvider);
+    int score = max(previousScore, currentScore);
+
+    await ref.read(gameUserControllerProvider.notifier).updateGameUser(ecoCredits: ecoCredits + 5, levelToUpdate: game.currentLevel.toString(), isCompleted: true, score: score);
     await ref.read(gameUserControllerProvider.notifier).updateGameUser(levelToUpdate: (game.currentLevel + 1).toString(), isAvailable: true);
   }
 
@@ -102,6 +109,8 @@ class MenuLevelWon extends MenuWithoutTabs with RiverpodComponentMixin {
     final buttonConfirm = DialogButton(
       text: 'Next Level',
       onPressed: () async {
+        ref.read(scoreControllerProvider.notifier).reInitializeScore();
+        ref.read(allTrucksControllerProvider.notifier).resetTruck();
         game.router.popUntilNamed('root');
         await Future.delayed(const Duration(milliseconds: 100));
         game.router.pushNamed('level${game.currentLevel}');

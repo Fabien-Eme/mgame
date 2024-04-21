@@ -20,6 +20,7 @@ import '../level_world.dart';
 import '../riverpod_controllers/rotation_controller.dart';
 import '../tile/tile.dart';
 import '../utils/convert_rotations.dart';
+import '../waste/waste.dart';
 import 'truck_model.dart';
 
 class Truck extends SpriteComponent with HasGameReference<MGame>, HasWorldReference<LevelWorld>, RiverpodComponentMixin, HoverCallbacks {
@@ -50,7 +51,7 @@ class Truck extends SpriteComponent with HasGameReference<MGame>, HasWorldRefere
   Task? currentTask;
   bool isCompletingTask = false;
   int priorityForTask = 0;
-  LoadType? loadType;
+  WasteType? loadType;
   int loadQuantity = 0;
   VehiculeType vehiculeType = VehiculeType.truck;
   late int maxLoad;
@@ -61,6 +62,13 @@ class Truck extends SpriteComponent with HasGameReference<MGame>, HasWorldRefere
 
   bool isGoingToDepot = false;
   late final TruckSmoke truckSmoke;
+
+  Map<WasteType, int> mapWastePriorities = {
+    WasteType.garbageCan: 1,
+    WasteType.recyclable: 1,
+    WasteType.organic: 1,
+    WasteType.toxic: 1,
+  };
 
   ///
   ///
@@ -157,6 +165,8 @@ class Truck extends SpriteComponent with HasGameReference<MGame>, HasWorldRefere
   bool isNextTileOccupied() {
     if (pathListCoordinates.length <= 1) return false;
     Tile? nextTile = world.gridController.getRealTileAtDimetricCoordinates(pathListCoordinates[1]);
+
+    if (nextTile?.isGarageTile ?? false) return false;
 
     List<Truck>? listTrucksonTile = nextTile?.listTrucksOnTile;
 
@@ -260,6 +270,9 @@ class Truck extends SpriteComponent with HasGameReference<MGame>, HasWorldRefere
       isCompletingTask = true;
       world.taskController.completeTask(truck: this, task: currentTask!);
     }
+    if (currentTile.isGarageTile && loadQuantity != 0) {
+      world.taskController.dumpLoad(truck: this);
+    }
   }
 
   ///
@@ -276,7 +289,7 @@ class Truck extends SpriteComponent with HasGameReference<MGame>, HasWorldRefere
   void update(double dt) {
     super.update(dt);
 
-    timerGoToDepot.update(dt);
+    //timerGoToDepot.update(dt);
 
     if (!isTruckMoving) {
       if (currentTask != null) {
@@ -284,11 +297,20 @@ class Truck extends SpriteComponent with HasGameReference<MGame>, HasWorldRefere
           timerGoToDepot.stop();
         }
       } else {
-        if (!timerGoToDepot.finished) timerGoToDepot.resume();
+        goToDepot();
+        //if (!timerGoToDepot.finished) timerGoToDepot.resume();
       }
     }
 
     if (isTruckMoving) {
+      /// If is going to depot but can achieve is task, stop and go to task
+      if (isGoingToDepot && currentTask != null) {
+        if (world.taskController.doesTruckSatisfyRestriction(truck: this, restrictions: currentTask!.taskRestrictions) &&
+            world.aStarController.findPathAStar(currentTile.dimetricCoordinates, currentTask!.taskCoordinate).isNotEmpty) {
+          stopMovement();
+        }
+      }
+
       /// If is moving without purpose, immediatly go to depot
       if (!isGoingToDepot && currentTask == null) {
         timerGoToDepot.stop();

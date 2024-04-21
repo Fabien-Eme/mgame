@@ -9,6 +9,7 @@ import 'package:mgame/flame_game/buildings/garage/garage_outline.dart';
 
 import '../../game.dart';
 import '../../truck/truck.dart';
+import '../../ui/show_pollution_tick.dart';
 import '../../utils/convert_coordinates.dart';
 import '../../utils/convert_rotations.dart';
 import 'garage_back.dart';
@@ -23,6 +24,8 @@ class Garage extends Building with HoverCallbacks {
   late final GarageDoor garageDoor;
   late final GarageOutline garageOutline;
   late final Vector2 offset;
+
+  Vector2 showTickPosition = Vector2.zero();
 
   Point<int> spawnPointDimetric = const Point<int>(0, 0);
   late Timer timer;
@@ -79,6 +82,8 @@ class Garage extends Building with HoverCallbacks {
           ],
       }
     ];
+
+    showTickPosition = updatedPosition + convertDimetricVectorToWorldCoordinates(Vector2(-4, 5)) + Vector2(0, -10);
   }
 
   @override
@@ -131,6 +136,14 @@ class Garage extends Building with HoverCallbacks {
     garageFront.opacity = 0.8;
     garageBack.opacity = 0.8;
     garageDoor.opacity = 0.8;
+  }
+
+  void showPollutionTick({required int quantity}) {
+    if (isMounted) {
+      world.add(ShowPollutionTick(quantity: quantity)
+        ..position = showTickPosition
+        ..priority = 1000);
+    }
   }
 
   @override

@@ -2,6 +2,9 @@ import 'dart:math';
 
 import 'package:flame/components.dart';
 import 'package:flame_riverpod/flame_riverpod.dart';
+import 'package:flutter/material.dart';
+import 'package:mgame/flame_game/menu/menu_garage/priority_box.dart';
+import 'package:mgame/flame_game/waste/waste.dart';
 
 import '../../../gen/assets.gen.dart';
 import '../../game.dart';
@@ -23,30 +26,51 @@ class AllTrucksContent extends Component with HasGameReference<MGame>, RiverpodC
   void onLoad() {
     super.onLoad();
     add(TextComponent(
-      text: "ALL TRUCKS",
+      text: "TRUCKS PRIORITIES",
       textRenderer: MyTextStyle.title,
       anchor: Anchor.topCenter,
       position: Vector2(0, -boxSize.y / 2 + 20),
+    ));
+
+    add(TextBoxComponent(
+      text: "Each truck will prioritize waste with the highest number.\n0 means the trucks doesn't pick this type of waste.",
+      textRenderer: MyTextStyle.text,
+      anchor: Anchor.topCenter,
+      align: Anchor.topCenter,
+      position: Vector2(0, -boxSize.y / 2 + 65),
+      boxConfig: const TextBoxConfig(maxWidth: 600),
     ));
 
     add(TextComponent(
       text: 'Truck',
       textRenderer: MyTextStyle.header,
       anchor: Anchor.center,
-      position: Vector2(-boxSize.x / 2 + 75, -boxSize.y / 2 + 100),
+      position: Vector2(-boxSize.x / 2 + 75, -boxSize.y / 2 + 135),
     ));
 
     add(TextComponent(
-      text: 'Task affected',
+      text: 'Unsorted',
       textRenderer: MyTextStyle.header,
       anchor: Anchor.center,
-      position: Vector2(-boxSize.x / 2 + 250, -boxSize.y / 2 + 100),
+      position: Vector2(-boxSize.x / 2 + 200, -boxSize.y / 2 + 135),
     ));
     add(TextComponent(
-      text: 'State',
+      text: 'Recyclable',
       textRenderer: MyTextStyle.header,
       anchor: Anchor.center,
-      position: Vector2(-boxSize.x / 2 + 550, -boxSize.y / 2 + 100),
+      position: Vector2(-boxSize.x / 2 + 350, -boxSize.y / 2 + 135),
+    ));
+    add(TextComponent(
+      text: 'Organic',
+      textRenderer: MyTextStyle.header,
+      anchor: Anchor.center,
+      position: Vector2(-boxSize.x / 2 + 500, -boxSize.y / 2 + 135),
+    ));
+    add(TextComponent(
+      text: 'Toxic',
+      textRenderer: MyTextStyle.header,
+      anchor: Anchor.center,
+      position: Vector2(-boxSize.x / 2 + 650, -boxSize.y / 2 + 135),
     ));
 
     Map<String, Truck> mapAllTrucks = ref.read(allTrucksControllerProvider).trucksOwned;
@@ -123,19 +147,27 @@ class AllTrucksContent extends Component with HasGameReference<MGame>, RiverpodC
         sprite: Sprite(game.images.fromCache(getTruckAssetPath(truckType: truck.truckType, truckAngle: Directions.E.angle))),
         anchor: Anchor.center,
         size: Vector2(50, 50),
-        position: Vector2(-boxSize.x / 2 + 80, -boxSize.y / 2 + 150 + index * 50),
+        position: Vector2(-boxSize.x / 2 + 80, -boxSize.y / 2 + 185 + index * 50),
       ));
-      listComponents.add(TextComponent(
-        text: truck.currentTask?.taskType.name ?? "No task",
-        textRenderer: MyTextStyle.header,
-        anchor: Anchor.center,
-        position: Vector2(-boxSize.x / 2 + 250, -boxSize.y / 2 + 150 + index * 50),
+      listComponents.add(PriorityBox(
+        truck: truck,
+        wasteType: WasteType.garbageCan,
+        position: Vector2(-boxSize.x / 2 + 200, -boxSize.y / 2 + 183 + index * 50),
       ));
-      listComponents.add(TextComponent(
-        text: (truck.isTruckMoving) ? "Going to task" : "Idling",
-        textRenderer: MyTextStyle.header,
-        anchor: Anchor.center,
-        position: Vector2(-boxSize.x / 2 + 550, -boxSize.y / 2 + 150 + index * 50),
+      listComponents.add(PriorityBox(
+        truck: truck,
+        wasteType: WasteType.recyclable,
+        position: Vector2(-boxSize.x / 2 + 350, -boxSize.y / 2 + 183 + index * 50),
+      ));
+      listComponents.add(PriorityBox(
+        truck: truck,
+        wasteType: WasteType.organic,
+        position: Vector2(-boxSize.x / 2 + 500, -boxSize.y / 2 + 183 + index * 50),
+      ));
+      listComponents.add(PriorityBox(
+        truck: truck,
+        wasteType: WasteType.toxic,
+        position: Vector2(-boxSize.x / 2 + 650, -boxSize.y / 2 + 183 + index * 50),
       ));
 
       index++;

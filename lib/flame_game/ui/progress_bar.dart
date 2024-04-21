@@ -1,16 +1,20 @@
 import 'dart:async';
 
 import 'package:flame/components.dart';
+import 'package:flame_riverpod/flame_riverpod.dart';
 import 'package:flutter/material.dart';
+import 'package:mgame/flame_game/riverpod_controllers/score_controller.dart';
 import 'package:mgame/flame_game/utils/my_text_style.dart';
 
 import '../../gen/assets.gen.dart';
 import '../game.dart';
+import '../level.dart';
+import 'snackbar.dart';
 
 const double barWidth = 500.0;
 const double barHeight = 40.0;
 
-class ProgressBar extends PositionComponent with HasGameReference<MGame> {
+class ProgressBar extends PositionComponent with HasGameReference<MGame>, RiverpodComponentMixin {
   double totalBarValue;
   String title;
   ProgressBarType progressBarType;
@@ -35,6 +39,9 @@ class ProgressBar extends PositionComponent with HasGameReference<MGame> {
   double valueAdded = 0.0;
 
   double currentBarValue = 0.0;
+
+  bool hasCalledOnComplete = false;
+  bool hasCalledOnThreeQuarterComplete = false;
 
   @override
   FutureOr<void> onLoad() {
@@ -122,8 +129,25 @@ class ProgressBar extends PositionComponent with HasGameReference<MGame> {
     barProgress = barProgress.clamp(0, 1);
     updateBarProgress();
 
+    if (barProgress >= 0.75) {
+      if (!hasCalledOnThreeQuarterComplete) {
+        hasCalledOnThreeQuarterComplete = true;
+        if (progressBarType == ProgressBarType.pollution) {
+          if (game.currentLevel != 0) {
+            if (ref.read(scoreControllerProvider.notifier).pollutionHasGoneOverTreshold()) {
+              (game.findByKeyName('level') as Level?)?.snackbarController.addSnackbar(snackbarType: SnackbarType.starLost);
+              (game.findByKeyName('level') as Level?)?.snackbarController.addSnackbar(snackbarType: SnackbarType.pollutionOverTreshold);
+            }
+          }
+        }
+      }
+    }
+
     if (barProgress >= 1) {
-      onComplete?.call();
+      if (!hasCalledOnComplete) {
+        hasCalledOnComplete = true;
+        onComplete?.call();
+      }
     }
   }
 

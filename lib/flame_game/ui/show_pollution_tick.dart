@@ -16,7 +16,7 @@ class ShowPollutionTick extends PositionComponent with HasGameReference<MGame>, 
   FutureOr<void> onLoad() {
     textComponent = TextComponent(
       text: '+$quantity pollution',
-      textRenderer: MyTextStyle.text,
+      textRenderer: MyTextStyle.textBold,
       anchor: Anchor.center,
     );
     add(textComponent);
@@ -26,10 +26,10 @@ class ShowPollutionTick extends PositionComponent with HasGameReference<MGame>, 
   @override
   void update(double dt) {
     if (!mustBeRemoved) {
-      textComponent.position.y -= 100 * dt / 2;
+      textComponent.position.y -= 100 * dt / 3;
       textComponent.textRenderer = TextPaint(
         style: (textComponent.textRenderer as TextPaint).style.copyWith(
-              color: (textComponent.textRenderer as TextPaint).style.color?.withOpacity((1 + textComponent.position.y / 50).clamp(0, 1)),
+              color: (textComponent.textRenderer as TextPaint).style.color?.withOpacity((1 + textComponent.position.y / 100).clamp(0, 1)),
             ),
       );
       if (textComponent.position.y <= -100) {

@@ -142,7 +142,8 @@ class City extends Building {
     for (WasteType wasteType in WasteType.values) {
       if (wasteType != WasteType.ultimate) {
         if (cityType.wasteRate(wasteType) > 0) {
-          world.wasteController.createWasteStack(building: this, wasteRate: cityType.wasteRate(wasteType) * reductionRate, wasteType: wasteType);
+          world.wasteController
+              .createWasteStack(building: this, wasteRate: cityType.wasteRate(wasteType) * reductionRate, wasteType: wasteType, startingValue: cityType.wasteStartingValue(wasteType) ?? 0);
         }
       }
     }
@@ -170,7 +171,11 @@ Point<int> getCityLoadTileCoordinate({required Point<int> anchorTile, required D
 enum CityType {
   tutorial,
   normal,
-  polluting;
+  pollutingWithRecyclable,
+  recycleALot,
+  pollutingWithToxic,
+  pollutingWithOrganic,
+  classicCity;
 
   double wasteRate(WasteType? wasteType) {
     switch (this) {
@@ -206,16 +211,79 @@ enum CityType {
             return 1;
         }
 
-      case CityType.polluting:
+      case CityType.pollutingWithRecyclable:
         switch (wasteType) {
           case WasteType.garbageCan:
             return 1;
           case WasteType.recyclable:
-            return 0.1;
+            return 0.2;
           case WasteType.organic:
-            return 0.1;
+            return 0.0;
           case WasteType.toxic:
-            return 0.03;
+            return 0.0;
+          case WasteType.ultimate:
+            return 0;
+          default:
+            return 1;
+        }
+      case CityType.pollutingWithOrganic:
+        switch (wasteType) {
+          case WasteType.garbageCan:
+            return 0.5;
+          case WasteType.recyclable:
+            return 0.0;
+          case WasteType.organic:
+            return 0.5;
+          case WasteType.toxic:
+            return 0.0;
+          case WasteType.ultimate:
+            return 0;
+          default:
+            return 1;
+        }
+
+      case CityType.pollutingWithToxic:
+        switch (wasteType) {
+          case WasteType.garbageCan:
+            return 1;
+          case WasteType.recyclable:
+            return 0.0;
+          case WasteType.organic:
+            return 0.0;
+          case WasteType.toxic:
+            return 0.25;
+          case WasteType.ultimate:
+            return 0;
+          default:
+            return 1;
+        }
+
+      case CityType.recycleALot:
+        switch (wasteType) {
+          case WasteType.garbageCan:
+            return 0.2;
+          case WasteType.recyclable:
+            return 1.0;
+          case WasteType.organic:
+            return 0.0;
+          case WasteType.toxic:
+            return 0.0;
+          case WasteType.ultimate:
+            return 0;
+          default:
+            return 1;
+        }
+
+      case CityType.classicCity:
+        switch (wasteType) {
+          case WasteType.garbageCan:
+            return 0.5;
+          case WasteType.recyclable:
+            return 0.2;
+          case WasteType.organic:
+            return 0.2;
+          case WasteType.toxic:
+            return 0.1;
           case WasteType.ultimate:
             return 0;
           default:
@@ -230,8 +298,16 @@ enum CityType {
         return "TUTORIAL CITY";
       case CityType.normal:
         return "ECO-FRIENDLY CITY";
-      case CityType.polluting:
+      case CityType.pollutingWithRecyclable:
         return "POLLUTING CITY";
+      case CityType.recycleALot:
+        return "RECYCLE CITY";
+      case CityType.pollutingWithToxic:
+        return "TOXIC CITY";
+      case CityType.pollutingWithOrganic:
+        return "GREEN CITY";
+      case CityType.classicCity:
+        return "CLASSIC CITY";
     }
   }
 
@@ -241,8 +317,39 @@ enum CityType {
         return "This city produce only basic waste.";
       case CityType.normal:
         return "This city produce mainly organic and recyclable waste.";
-      case CityType.polluting:
-        return "This city produce mainly unsorted waste.";
+      case CityType.pollutingWithRecyclable:
+        return "This city produce mainly unsorted waste plus some recyclable.";
+      case CityType.recycleALot:
+        return "This city produce mainly recyclable waste plus some unsorted.";
+      case CityType.pollutingWithToxic:
+        return "This city produce mainly unsorted waste plus some toxic.";
+      case CityType.pollutingWithOrganic:
+        return "This city produce an equal amount of unsorted waste and organic waste.";
+      case CityType.classicCity:
+        return "This city produce a bit of everything.";
+    }
+  }
+
+  int? wasteStartingValue(WasteType wasteType) {
+    switch (this) {
+      case CityType.pollutingWithToxic:
+        switch (wasteType) {
+          case WasteType.garbageCan:
+            return 20;
+          case WasteType.toxic:
+            return 10;
+          default:
+            return null;
+        }
+      case CityType.classicCity:
+        switch (wasteType) {
+          case WasteType.toxic:
+            return 10;
+          default:
+            return null;
+        }
+      default:
+        return null;
     }
   }
 }

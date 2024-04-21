@@ -1,12 +1,14 @@
 import 'dart:async';
 
 import 'package:flame/components.dart';
+import 'package:mgame/flame_game/ui/snackbar.dart';
 
 import 'package:mgame/flame_game/utils/my_text_style.dart';
 
 import '../game.dart';
+import '../level.dart';
 
-class Money extends PositionComponent {
+class Money extends PositionComponent with HasGameReference<MGame> {
   double startingAmount;
   bool isHidden;
   Money({required this.startingAmount, this.isHidden = false});
@@ -92,6 +94,7 @@ class Money extends PositionComponent {
       return true;
     } else {
       isBlinking = true;
+      (game.findByKeyName('level') as Level?)?.snackbarController.addSnackbar(snackbarType: SnackbarType.notEnoughMoney);
       return false;
     }
   }

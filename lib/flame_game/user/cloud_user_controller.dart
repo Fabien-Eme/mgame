@@ -22,13 +22,13 @@ Future<GameUser?> getCloudUser({required String userEmail}) async {
 
 Future<void> updateCloudUser({required String userEmail, int? ecoCredits, String? levelToUpdate, bool? isCompleted, bool? isAvailable, int? score, Map<String, dynamic>? mapLevelUser}) async {
   final doc = await FirebaseFirestore.instance.collection('users').doc(userEmail).get();
-  final map = doc.data();
-  if (map == null) return;
+  Map<String, dynamic> map = Map<String, dynamic>.from(doc.data() as Map<String, dynamic>);
 
   if (ecoCredits != null) await FirebaseFirestore.instance.collection('users').doc(userEmail).update({'ecoCredits': ecoCredits});
 
   if (levelToUpdate != null) {
     Map<String, dynamic> cloudMapLevelUser = Map.from(map['mapLevelUser'] as Map<String, dynamic>? ?? {});
+    if (!cloudMapLevelUser.containsKey(levelToUpdate)) cloudMapLevelUser[levelToUpdate] = {};
     if (isCompleted != null) cloudMapLevelUser[levelToUpdate]['isCompleted'] = isCompleted;
     if (isAvailable != null) cloudMapLevelUser[levelToUpdate]['isAvailable'] = isAvailable;
     if (score != null) cloudMapLevelUser[levelToUpdate]['score'] = score;

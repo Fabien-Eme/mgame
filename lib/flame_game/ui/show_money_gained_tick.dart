@@ -5,9 +5,9 @@ import 'package:flame/components.dart';
 import '../game.dart';
 import '../utils/my_text_style.dart';
 
-class ShowGarbageProcessedTick extends PositionComponent with HasGameReference<MGame>, IgnoreEvents {
+class ShowMoneyGainedTick extends PositionComponent with HasGameReference<MGame>, IgnoreEvents {
   int quantity;
-  ShowGarbageProcessedTick({required this.quantity, super.position});
+  ShowMoneyGainedTick({required this.quantity, super.position});
 
   late TextComponent textComponent;
   bool mustBeRemoved = false;
@@ -15,8 +15,8 @@ class ShowGarbageProcessedTick extends PositionComponent with HasGameReference<M
   @override
   FutureOr<void> onLoad() {
     textComponent = TextComponent(
-      text: '+$quantity garbage processed',
-      textRenderer: MyTextStyle.textGreenBold,
+      text: '+${(quantity / 1000).toStringAsFixed(2)} K\$',
+      textRenderer: MyTextStyle.textMoneyBold,
       anchor: Anchor.center,
     );
     add(textComponent);
