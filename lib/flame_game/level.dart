@@ -145,7 +145,7 @@ class Level extends PositionComponent with HasGameReference<MGame> {
     }
   }
 
-  static int totalNumberOfLevel = 8;
+  static int totalNumberOfLevel = 7;
 
   // static Map<String, Map<String, dynamic>> getMapLevel([double globalAirQualityValue = 0]) {
   //   return {
@@ -188,43 +188,43 @@ class Level extends PositionComponent with HasGameReference<MGame> {
         "levelTitle": "Level 1 - Tutorial",
         "pollutionLimit": 12000.0 - (1 - globalAirQualityValue / 100) * 2000,
         "garbageTarget": 30.0,
-        "startingMoney": 65000.0,
+        "startingMoney": 65200.0,
       },
       "2": {
         "levelTitle": "Level 2 - Two cities",
         "pollutionLimit": 15000.0 - (1 - globalAirQualityValue / 100) * 4000,
         "garbageTarget": 120.0,
-        "startingMoney": 78000.0,
+        "startingMoney": 78200.0,
       },
       "3": {
         "levelTitle": "Level 3 - Public Composters",
         "pollutionLimit": 33000.0 - (1 - globalAirQualityValue / 100) * 4000,
         "garbageTarget": 260.0,
-        "startingMoney": 58000.0,
+        "startingMoney": 58200.0,
       },
       "4": {
         "levelTitle": "Level 4 - Toxic waste?",
         "pollutionLimit": 22000.0 - (1 - globalAirQualityValue / 100) * 4000,
         "garbageTarget": 200.0,
-        "startingMoney": 68000.0,
+        "startingMoney": 68200.0,
       },
       "5": {
         "levelTitle": "Level 5 - 3 Towns, 3 Processes",
         "pollutionLimit": 28000.0 - (1 - globalAirQualityValue / 100) * 4000,
         "garbageTarget": 260.0,
-        "startingMoney": 88000.0,
+        "startingMoney": 88200.0,
       },
       "6": {
         "levelTitle": "Level 6 - Everybody composts",
         "pollutionLimit": 30000.0 - (1 - globalAirQualityValue / 100) * 4000,
         "garbageTarget": 300.0,
-        "startingMoney": 98000.0,
+        "startingMoney": 98200.0,
       },
       "7": {
-        "levelTitle": "Level 7 - Ultimate",
-        "pollutionLimit": 25000.0 - (1 - globalAirQualityValue / 100) * 4000,
-        "garbageTarget": 200.0,
-        "startingMoney": 400000.0,
+        "levelTitle": "Level 7 - Free play",
+        "pollutionLimit": 100000.0 - (1 - globalAirQualityValue / 100) * 4000,
+        "garbageTarget": 1000.0,
+        "startingMoney": 200200.0,
       },
     };
   }

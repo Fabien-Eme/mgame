@@ -94,7 +94,10 @@ class MenuLevelWon extends MenuWithoutTabs with RiverpodComponentMixin {
     int currentScore = ref.read(scoreControllerProvider);
     int score = max(previousScore, currentScore);
 
-    await ref.read(gameUserControllerProvider.notifier).updateGameUser(ecoCredits: ecoCredits + 5, levelToUpdate: game.currentLevel.toString(), isCompleted: true, score: score);
+    int ecoCreditsToAdd = 0;
+    if (!ref.read(gameUserControllerProvider.notifier).isLevelAlreadyCompleted(game.currentLevel)) ecoCreditsToAdd = 5;
+
+    await ref.read(gameUserControllerProvider.notifier).updateGameUser(ecoCredits: ecoCredits + ecoCreditsToAdd, levelToUpdate: game.currentLevel.toString(), isCompleted: true, score: score);
     await ref.read(gameUserControllerProvider.notifier).updateGameUser(levelToUpdate: (game.currentLevel + 1).toString(), isAvailable: true);
   }
 

@@ -67,6 +67,8 @@ class Briefing extends MenuWithoutTabs {
         return "3 Towns, 3 Processes";
       case 6:
         return "Everybody composts";
+      case 7:
+        return "Free play?";
       default:
         return "";
     }
@@ -84,6 +86,8 @@ class Briefing extends MenuWithoutTabs {
         return "Well it seems that here, every town has a different way of dealing with their waste.\n\nGood luck processing all of that!";
       case 6:
         return "Managing composters is a fine skill. Build just the right amount of composters so that when one is filled up, another one is ready, otherwise you will be overwhelmed quickly!";
+      case 7:
+        return "High pollution limit, hig starting money, but a huge amount of garbage to process!\n\nGood luck!";
       default:
         return "";
     }
@@ -102,7 +106,7 @@ class Briefing extends MenuWithoutTabs {
       case 6:
         return Vector2(800, 275);
       default:
-        return Vector2(800, 500);
+        return Vector2(800, 250);
     }
   }
 }

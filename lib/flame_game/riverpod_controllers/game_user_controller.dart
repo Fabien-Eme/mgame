@@ -65,6 +65,10 @@ class GameUserController extends _$GameUserController {
     return state.value!.mapLevelUser[level.toString()]['score'] as int? ?? 0;
   }
 
+  bool isLevelAlreadyCompleted(int level) {
+    return state.value!.mapLevelUser[level.toString()]['isCompleted'] as bool? ?? false;
+  }
+
   String? getUserEmail() {
     return state.value!.email;
   }
