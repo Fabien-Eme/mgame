@@ -22,7 +22,7 @@ import '../utils/convert_rotations.dart';
 import '../waste/waste.dart';
 import 'truck_model.dart';
 
-class Truck extends SpriteComponent with HasGameReference<MGame>, HasWorldReference<LevelWorld>, RiverpodComponentMixin {
+class Truck extends SpriteComponent with HasGameReference<MGame>, HasWorldReference<LevelWorld>, RiverpodComponentMixin, IgnoreEvents {
   TruckType truckType;
   Directions truckDirection;
 
