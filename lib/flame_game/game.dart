@@ -11,7 +11,6 @@ import 'package:flame_audio/flame_audio.dart';
 import 'package:flame_riverpod/flame_riverpod.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart' hide Route;
-import 'package:mgame/flame_game/buildings/city/city.dart';
 import 'package:mgame/flame_game/dialog/dialog_window.dart';
 import 'package:mgame/flame_game/level_world.dart';
 
@@ -22,7 +21,6 @@ import 'package:mgame/flame_game/utils/game_assets.dart';
 import 'package:mgame/flame_game/router/game_router.dart';
 
 import 'buildings/building.dart';
-import 'buildings/incinerator/incinerator.dart';
 import 'controller/audio_controller.dart';
 
 import 'level.dart';
@@ -124,7 +122,7 @@ class MGame extends FlameGame with MouseMovementDetector, ScrollDetector, MultiT
     add(router = GameRouter());
 
     /// Debug
-    add(FpsTextComponent());
+    //add(FpsTextComponent());
 
     return super.onLoad();
   }
@@ -156,12 +154,9 @@ class MGame extends FlameGame with MouseMovementDetector, ScrollDetector, MultiT
   KeyEventResult onKeyEvent(KeyEvent event, Set<LogicalKeyboardKey> keysPressed) {
     super.onKeyEvent(event, keysPressed);
 
-    if (event is KeyDownEvent && keysPressed.contains(LogicalKeyboardKey.keyD)) {
-      (findByKeyName('level') as Level?)?.levelWorld.showHideDebugGrid();
-    }
-    if (event is KeyDownEvent && keysPressed.contains(LogicalKeyboardKey.keyW)) {
-      router.pushNamed('levelWon');
-    }
+    // if (event is KeyDownEvent && keysPressed.contains(LogicalKeyboardKey.keyD)) {
+    //   (findByKeyName('level') as Level?)?.levelWorld.showHideDebugGrid();
+    // }
 
     // Return handled to prevent macOS noises.
     return KeyEventResult.handled;

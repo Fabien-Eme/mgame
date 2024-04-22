@@ -3,6 +3,7 @@ import 'dart:math';
 import 'package:flame/components.dart' hide Timer;
 import 'package:flame_riverpod/flame_riverpod.dart';
 import 'package:mgame/flame_game/buildings/city/city.dart';
+import 'package:mgame/flame_game/buildings/garbage_loader/garbage_loader_front.dart';
 import 'package:mgame/flame_game/tile/tile_helper.dart';
 import 'package:mgame/flame_game/truck/truck_model.dart';
 
@@ -218,7 +219,7 @@ class LevelWorld extends World with HasGameReference<MGame>, IgnoreEvents, River
     }
     if (isMounted) await Future.delayed(const Duration(seconds: 10));
     if (isMounted) {
-      gridController.internalBuildOnTile(coordinates: const Point<int>(34, -1), buildingType: BuildingType.city, direction: Directions.W, hideMoney: true, cityType: CityType.normal);
+      gridController.internalBuildOnTile(coordinates: const Point<int>(34, -1), buildingType: BuildingType.city, direction: Directions.W, hideMoney: true, cityType: CityType.classicCity);
     }
     if (isMounted) await Future.delayed(const Duration(seconds: 1));
     if (isMounted) {
@@ -263,8 +264,63 @@ class LevelWorld extends World with HasGameReference<MGame>, IgnoreEvents, River
       Future.delayed(const Duration(milliseconds: 100)).then((value) => add(ref.read(allTrucksControllerProvider).trucksOwned[ref.read(allTrucksControllerProvider).lastTruckAddedId]!));
     }
     if (isMounted) await Future.delayed(const Duration(seconds: 5));
-    //if (isMounted) (gridController.getBuildingOnTile(const Point<int>(10, -4)) as Incinerator).upgradeToRecycler();
-    if (isMounted) await Future.delayed(const Duration(seconds: 20));
+    if (isMounted) gridController.internalBuildOnTile(coordinates: const Point<int>(28, 7), buildingType: BuildingType.buryer, direction: Directions.S, hideMoney: true);
+    if (isMounted) await Future.delayed(const Duration(milliseconds: 100));
+
+    if (isMounted) {
+      gridController.internalBuildOnTile(
+          coordinates: const Point<int>(28, 6), buildingType: BuildingType.garbageLoader, direction: Directions.N, garbageLoaderFlow: GarbageLoaderFlow.flowMirror, hideMoney: true);
+    }
+    if (isMounted) await Future.delayed(const Duration(milliseconds: 100));
+    if (isMounted) constructionController.construct(posDimetric: const Point<int>(28, 5), tileType: TileType.road);
+    if (isMounted) await Future.delayed(const Duration(seconds: 5));
+    if (isMounted) ref.read(allTrucksControllerProvider.notifier).addTruck(TruckType.blue, const Point<int>(14, -11));
+    if (isMounted) {
+      Future.delayed(const Duration(milliseconds: 100)).then((value) => add(ref.read(allTrucksControllerProvider).trucksOwned[ref.read(allTrucksControllerProvider).lastTruckAddedId]!));
+    }
+    if (isMounted) await Future.delayed(const Duration(seconds: 5));
+    if (isMounted) ref.read(allTrucksControllerProvider.notifier).addTruck(TruckType.blue, const Point<int>(14, -11));
+    if (isMounted) Future.delayed(const Duration(milliseconds: 100)).then((value) => add(ref.read(allTrucksControllerProvider).trucksOwned[ref.read(allTrucksControllerProvider).lastTruckAddedId]!));
+
+    if (isMounted) gridController.internalBuildOnTile(coordinates: const Point<int>(16, 9), buildingType: BuildingType.recycler, direction: Directions.E, hideMoney: true);
+    if (isMounted) await Future.delayed(const Duration(milliseconds: 100));
+    if (isMounted) constructionController.construct(posDimetric: const Point<int>(17, 10), tileType: TileType.road);
+    if (isMounted) await Future.delayed(const Duration(milliseconds: 100));
+    if (isMounted) constructionController.construct(posDimetric: const Point<int>(18, 10), tileType: TileType.road);
+    if (isMounted) await Future.delayed(const Duration(milliseconds: 100));
+    if (isMounted) constructionController.construct(posDimetric: const Point<int>(18, 9), tileType: TileType.road);
+    if (isMounted) await Future.delayed(const Duration(milliseconds: 100));
+    if (isMounted) constructionController.construct(posDimetric: const Point<int>(19, 9), tileType: TileType.road);
+    if (isMounted) await Future.delayed(const Duration(milliseconds: 100));
+    if (isMounted) constructionController.construct(posDimetric: const Point<int>(19, 8), tileType: TileType.road);
+    if (isMounted) await Future.delayed(const Duration(milliseconds: 100));
+    if (isMounted) constructionController.construct(posDimetric: const Point<int>(20, 8), tileType: TileType.road);
+
+    if (isMounted) await Future.delayed(const Duration(seconds: 3));
+    if (isMounted) gridController.internalBuildOnTile(coordinates: const Point<int>(24, 10), buildingType: BuildingType.composter, direction: Directions.S, hideMoney: true);
+    if (isMounted) await Future.delayed(const Duration(milliseconds: 100));
+    if (isMounted) {
+      gridController.internalBuildOnTile(
+          coordinates: const Point<int>(24, 9), buildingType: BuildingType.garbageLoader, direction: Directions.N, garbageLoaderFlow: GarbageLoaderFlow.flowMirror, hideMoney: true);
+    }
+    if (isMounted) await Future.delayed(const Duration(milliseconds: 100));
+    if (isMounted) constructionController.construct(posDimetric: const Point<int>(24, 8), tileType: TileType.road);
+
+    if (isMounted) await Future.delayed(const Duration(seconds: 5));
+    if (isMounted) ref.read(allTrucksControllerProvider.notifier).addTruck(TruckType.blue, const Point<int>(14, -11));
+    if (isMounted) Future.delayed(const Duration(milliseconds: 100)).then((value) => add(ref.read(allTrucksControllerProvider).trucksOwned[ref.read(allTrucksControllerProvider).lastTruckAddedId]!));
+
+    if (isMounted) await Future.delayed(const Duration(seconds: 3));
+    if (isMounted) gridController.internalBuildOnTile(coordinates: const Point<int>(18, -9), buildingType: BuildingType.composter, direction: Directions.E, hideMoney: true);
+    if (isMounted) await Future.delayed(const Duration(milliseconds: 100));
+    if (isMounted) {
+      gridController.internalBuildOnTile(
+          coordinates: const Point<int>(19, -9), buildingType: BuildingType.garbageLoader, direction: Directions.W, garbageLoaderFlow: GarbageLoaderFlow.flowMirror, hideMoney: true);
+    }
+    if (isMounted) await Future.delayed(const Duration(milliseconds: 100));
+    if (isMounted) constructionController.construct(posDimetric: const Point<int>(20, -9), tileType: TileType.road);
+
+    if (isMounted) await Future.delayed(const Duration(seconds: 5));
     if (isMounted) ref.read(allTrucksControllerProvider.notifier).addTruck(TruckType.blue, const Point<int>(14, -11));
     if (isMounted) {
       Future.delayed(const Duration(milliseconds: 100)).then((value) => add(ref.read(allTrucksControllerProvider).trucksOwned[ref.read(allTrucksControllerProvider).lastTruckAddedId]!));

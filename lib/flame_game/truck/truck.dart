@@ -2,7 +2,6 @@ import 'dart:async';
 import 'dart:math';
 
 import 'package:flame/components.dart' hide Timer;
-import 'package:flame/events.dart';
 import 'package:flame_riverpod/flame_riverpod.dart';
 import 'package:flutter/widgets.dart';
 import 'package:mgame/flame_game/controller/task_controller.dart';
@@ -23,7 +22,7 @@ import '../utils/convert_rotations.dart';
 import '../waste/waste.dart';
 import 'truck_model.dart';
 
-class Truck extends SpriteComponent with HasGameReference<MGame>, HasWorldReference<LevelWorld>, RiverpodComponentMixin, HoverCallbacks {
+class Truck extends SpriteComponent with HasGameReference<MGame>, HasWorldReference<LevelWorld>, RiverpodComponentMixin {
   TruckType truckType;
   Directions truckDirection;
 
@@ -366,18 +365,5 @@ class Truck extends SpriteComponent with HasGameReference<MGame>, HasWorldRefere
       if (value != globalPriority) return true;
     }
     return false;
-  }
-
-  /// TODO Fix ONHOVER (thinking this might be canceled by cursorcontroller)
-  @override
-  void onHoverEnter() {
-    game.myMouseCursor.hoverEnterButton();
-    super.onHoverEnter();
-  }
-
-  @override
-  void onHoverExit() {
-    game.myMouseCursor.hoverExitButton();
-    super.onHoverExit();
   }
 }
