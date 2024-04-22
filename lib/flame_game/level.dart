@@ -198,8 +198,8 @@ class Level extends PositionComponent with HasGameReference<MGame> {
       },
       "3": {
         "levelTitle": "Level 3 - Public Composters",
-        "pollutionLimit": 33000.0 - (1 - globalAirQualityValue / 100) * 4000,
-        "garbageTarget": 260.0,
+        "pollutionLimit": 30000.0 - (1 - globalAirQualityValue / 100) * 4000,
+        "garbageTarget": 220.0,
         "startingMoney": 58200.0,
       },
       "4": {
