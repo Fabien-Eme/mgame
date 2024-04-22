@@ -35,6 +35,8 @@ class Buryer extends Building {
 
   bool isBuryerFull = false;
 
+  bool capacityUpgrade = false;
+
   @override
   FutureOr<void> onLoad() async {
     updateOffset(direction);
@@ -190,6 +192,13 @@ class Buryer extends Building {
 
   @override
   bool get isRefundable => false;
+
+  void upgradeCapacity() {
+    buryerComponent.fillCapacity = 100;
+    capacityUpgrade = true;
+    fillIndicator.changeFillAmount(buryerComponent.fillAmount / buryerComponent.fillCapacity);
+    isBuryerFull = false;
+  }
 }
 
 Point<int> getBuryerUnLoadTileCoordinate({required Point<int> anchorTile, required Directions direction}) {

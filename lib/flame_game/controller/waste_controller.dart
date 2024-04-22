@@ -103,16 +103,6 @@ class WasteController extends Component with HasGameReference<MGame>, HasWorldRe
     }
   }
 
-  ///
-  ///
-  /// Interpolate movement
-  void moveWasteFromTo(Waste waste, Vector2 startingPosition, Vector2 targetPosition, double progress) {
-    Vector2 offset = Vector2(
-      ((targetPosition.x - startingPosition.x) * pow(progress, 5)),
-      ((targetPosition.y - startingPosition.y) * pow(progress, 5)),
-    );
-    waste.position = startingPosition + offset;
-  }
   // }
 }
 

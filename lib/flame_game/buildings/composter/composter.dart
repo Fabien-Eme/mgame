@@ -38,6 +38,10 @@ class Composter extends Building {
 
   double moneyBonus = 1;
 
+  int compostingSpeed = 1;
+  bool capacityUpgrade = false;
+  bool compostingUpgrade = false;
+
   @override
   FutureOr<void> onLoad() async {
     offset = convertDimetricVectorToWorldCoordinates(Vector2(0, 1)) + Vector2(0, 15);
@@ -183,8 +187,8 @@ class Composter extends Building {
 
     if (timer >= 5) {
       timer = 0;
-      if (composterComponent.fillAmount > 0) {
-        composterComponent.fillAmount -= 1;
+      if (composterComponent.fillAmount >= compostingSpeed) {
+        composterComponent.fillAmount -= compostingSpeed;
         fillIndicator.changeFillAmount(composterComponent.fillAmount / composterComponent.fillCapacity);
       }
     }
@@ -196,6 +200,17 @@ class Composter extends Building {
     }
 
     super.update(dt);
+  }
+
+  void upgradeCapacity() {
+    composterComponent.fillCapacity = 50;
+    capacityUpgrade = true;
+    fillIndicator.changeFillAmount(composterComponent.fillAmount / composterComponent.fillCapacity);
+  }
+
+  void upgradeComposting() {
+    compostingSpeed = 2;
+    compostingUpgrade = true;
   }
 }
 

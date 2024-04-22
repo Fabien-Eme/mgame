@@ -447,9 +447,10 @@ class TaskController extends Component with HasGameReference<MGame>, HasWorldRef
           int loadMax = truck.maxLoad;
           int load = min(stackMax, loadMax);
 
-          world.wasteController.mapWasteStack[wasteStack.id]?.changeStackQuantity(-load);
+          world.wasteController.mapWasteStack[wasteStack.id]?.component.animateWasteTo(quantity: -load, to: task.taskCoordinate);
 
           await Future.delayed(const Duration(seconds: 1));
+          world.wasteController.mapWasteStack[wasteStack.id]?.changeStackQuantity(-load);
           truck.loadQuantity = load;
           truck.loadType = wasteStack.wasteType;
 
@@ -478,7 +479,8 @@ class TaskController extends Component with HasGameReference<MGame>, HasWorldRef
             truck.isCompletingTask = false;
 
             if (loadQuantityRefused > 0) {
-              removeTask(taskId: task.id);
+              task.taskBuilding?.changeWasteAcceptance(false);
+              (game.findByKeyName('level') as Level?)?.snackbarController.addSnackbar(snackbarType: SnackbarType.buryerFull);
             }
 
             Future.delayed(const Duration(seconds: 1)).then((_) => task.taskBuilding?.isProcessingWaste = false);
@@ -507,7 +509,9 @@ class TaskController extends Component with HasGameReference<MGame>, HasWorldRef
             truck.isCompletingTask = false;
 
             if (loadQuantityRefused > 0) {
-              removeTask(taskId: task.id);
+              task.taskBuilding?.changeWasteAcceptance(false);
+              (game.findByKeyName('level') as Level?)?.snackbarController.addSnackbar(snackbarType: SnackbarType.composterFull);
+              (game.findByKeyName('level') as Level?)?.snackbarController.addSnackbar(snackbarType: SnackbarType.composterDesactivated);
             }
 
             Future.delayed(const Duration(seconds: 1)).then((_) => task.taskBuilding?.isProcessingWaste = false);
@@ -535,7 +539,7 @@ class TaskController extends Component with HasGameReference<MGame>, HasWorldRef
                 (_) => (task.taskBuilding as Incinerator).showMoneyGainedTick(quantity: (truck.loadQuantity.toDouble() * baseMoneyPerWaste * (task.taskBuilding as Incinerator).moneyBonus).toInt()));
 
             await Future.delayed(const Duration(seconds: 1));
-            if (!(game.currentIncinerator?.isRecycler ?? false)) {
+            if (!(task.taskBuilding as Incinerator).isRecycler) {
               (task.taskBuilding as Incinerator).showPollutionTick(quantity: (truck.loadQuantity.toDouble() * 50).round());
             }
             truck.loadQuantity = 0;

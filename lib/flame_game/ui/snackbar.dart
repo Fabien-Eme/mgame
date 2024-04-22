@@ -123,7 +123,10 @@ enum SnackbarType {
   dumpWasteInGarage,
   starLost,
   pollutionOverTreshold,
-  cityGenreatePollution;
+  cityGenreatePollution,
+  composterFull,
+  composterDesactivated,
+  buryerFull;
 
   String get text {
     switch (this) {
@@ -139,6 +142,12 @@ enum SnackbarType {
         return 'Pollution reached 75%';
       case SnackbarType.cityGenreatePollution:
         return 'A city generated pollution';
+      case SnackbarType.composterFull:
+        return 'A composter is full';
+      case SnackbarType.composterDesactivated:
+        return 'Reactivate it when you can';
+      case SnackbarType.buryerFull:
+        return 'A buryer is full';
     }
   }
 }

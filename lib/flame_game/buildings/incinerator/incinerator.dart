@@ -41,6 +41,10 @@ class Incinerator extends Building {
   double pollutionReduction = 1;
   double moneyBonus = 1;
 
+  bool pollutionReductionUpgrade = false;
+  bool moneyBonusUpgrade = false;
+  bool filterUpgrade = false;
+
   @override
   FutureOr<void> onLoad() {
     offset = convertDimetricVectorToWorldCoordinates(Vector2(3, 1)) + Vector2(0, 2);
@@ -277,4 +281,19 @@ class Incinerator extends Building {
 
   @override
   bool get isRefundable => true;
+
+  void upgradePollutionReduction() {
+    pollutionReduction = pollutionReduction * 0.75;
+    pollutionReductionUpgrade = true;
+  }
+
+  void upgradeMoneyBonus(double ratio) {
+    moneyBonus = moneyBonus * ratio;
+    moneyBonusUpgrade = true;
+  }
+
+  void upgradeFilter() {
+    pollutionReduction = pollutionReduction * 0.5;
+    filterUpgrade = true;
+  }
 }

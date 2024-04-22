@@ -6,6 +6,7 @@ import 'package:flame/components.dart';
 import 'package:flame/effects.dart';
 import 'package:flame_riverpod/flame_riverpod.dart';
 import 'package:mgame/flame_game/level_world.dart';
+import 'package:mgame/flame_game/utils/convert_coordinates.dart';
 
 import '../../gen/assets.gen.dart';
 import '../buildings/building.dart';
@@ -99,20 +100,61 @@ class Waste extends PositionComponent with HasGameReference<MGame>, HasWorldRefe
     // circleBackground.priority = priority;
     // numberDisplay?.priority = priority + 2;
   }
+
+  void animateWasteTo({required int quantity, required Point<int> to}) async {
+    for (int i = 0; i < -quantity; i++) {
+      world.add(WasteComponent(wasteType: wasteType, isAnimated: true, from: position, to: convertDimetricPointToWorldCoordinates(world.convertRotations.rotateCoordinates(to)) + Vector2(25, 25))
+        ..priority = 900);
+      await Future.delayed(const Duration(milliseconds: 60));
+    }
+  }
 }
 
 class WasteComponent extends SpriteComponent with HasGameReference {
   WasteType wasteType;
+  bool isAnimated;
+  Vector2? from;
+  Vector2? to;
 
-  WasteComponent({required this.wasteType});
+  WasteComponent({required this.wasteType, this.isAnimated = false, this.from, this.to});
+
+  double progress = 0;
+
   @override
   FutureOr<void> onLoad() {
     anchor = Anchor.center;
     sprite = Sprite(game.images.fromCache(wasteType.asset));
 
+    if (isAnimated) scale = Vector2.all(0.7);
+
     paint = Paint()..filterQuality = FilterQuality.low;
 
     return super.onLoad();
+  }
+
+  @override
+  void update(double dt) {
+    if (isAnimated && progress < 1) {
+      progress += 2 * dt;
+      if (progress >= 1) progress = 1;
+      moveWasteFromTo(from!, to!, progress);
+    }
+
+    if (progress == 1) {
+      removeFromParent();
+    }
+    super.update(dt);
+  }
+
+  ///
+  ///
+  /// Interpolate movement
+  void moveWasteFromTo(Vector2 startingPosition, Vector2 targetPosition, double progress) {
+    Vector2 offset = Vector2(
+      ((targetPosition.x - startingPosition.x) * pow(progress, 5)),
+      ((targetPosition.y - startingPosition.y) * pow(progress, 5)),
+    );
+    position = startingPosition + offset;
   }
 }
 

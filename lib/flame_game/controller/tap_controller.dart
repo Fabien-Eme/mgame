@@ -29,11 +29,9 @@ class TapController extends Component with HasGameReference<MGame>, HasWorldRefe
             game.router.pushNamed('menuGarage');
             break;
           case BuildingType.city:
-            game.currentCity = (game.isMouseHoveringBuilding! as City);
             game.router.pushNamed('menuCity');
             break;
           case BuildingType.incinerator:
-            game.currentIncinerator = (game.isMouseHoveringBuilding! as Incinerator);
             game.router.pushNamed('menuIncinerator');
             break;
           case BuildingType.recycler:

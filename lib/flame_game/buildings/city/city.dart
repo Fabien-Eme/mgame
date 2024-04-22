@@ -29,6 +29,10 @@ class City extends Building {
 
   double reductionRate = 1;
 
+  bool reductionRateUpgrade = false;
+  bool reductionPollutionUpgrade = false;
+  bool stopPollutionGenerationUpgrade = false;
+
   @override
   FutureOr<void> onLoad() async {
     offset = convertDimetricVectorToWorldCoordinates(Vector2(0, 1)) + Vector2(0, -3);
@@ -154,6 +158,11 @@ class City extends Building {
   @override
   Truck? isOccupiedByTruck() {
     return null;
+  }
+
+  void upgradeReductionRate() {
+    reductionRate = reductionRate * 0.75;
+    reductionRateUpgrade = true;
   }
 }
 

@@ -2,6 +2,8 @@ import 'dart:math';
 
 import 'package:flame/components.dart';
 import 'package:flame_riverpod/flame_riverpod.dart';
+import 'package:mgame/flame_game/buildings/building.dart';
+import 'package:mgame/flame_game/buildings/garbage_loader/garbage_loader_front.dart';
 import 'package:mgame/flame_game/level_world.dart';
 import 'package:mgame/flame_game/riverpod_controllers/construction_mode_controller.dart';
 
@@ -31,7 +33,8 @@ class CursorController extends Component with HasGameRef<MGame>, HasWorldReferen
     /// Trigger only if cursor is on World grid
     if (world.gridController.checkIfWithinGridBoundaries(newMouseTilePos)) {
       /// Change mouse cursor appearance
-      if (world.gridController.getTileAtDimetricCoordinates(newMouseTilePos)?.buildingOnTile != null) {
+      if (world.gridController.getTileAtDimetricCoordinates(newMouseTilePos)?.buildingOnTile != null &&
+          world.gridController.getTileAtDimetricCoordinates(newMouseTilePos)?.buildingOnTile?.buildingType != BuildingType.garbageLoader) {
         if (constructionState.status != ConstructionMode.construct && constructionState.status != ConstructionMode.destruct) {
           game.isMouseHoveringBuilding = world.gridController.getTileAtDimetricCoordinates(newMouseTilePos)?.buildingOnTile;
           game.myMouseCursor.hoverEnterButton();

@@ -30,6 +30,9 @@ class Garage extends Building with HoverCallbacks {
   Point<int> spawnPointDimetric = const Point<int>(0, 0);
   late Timer timer;
 
+  bool gasTruckUpgrade = false;
+  bool electricTruckUpgrade = false;
+
   @override
   FutureOr<void> onLoad() {
     offset = convertDimetricVectorToWorldCoordinates(Vector2(-1, 2)) + Vector2(0, -4);

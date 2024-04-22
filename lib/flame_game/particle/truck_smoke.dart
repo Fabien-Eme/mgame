@@ -46,9 +46,11 @@ class TruckSmoke extends PositionComponent with HasGameReference<MGame>, HasWorl
 
   void resumeSmoke() {
     if (!(spawnSmokeTimer?.isActive ?? false)) {
-      spawnSmokeTimer = Timer.periodic(Duration(milliseconds: Random().nextInt((5000 / rate).round()) + 200), (_) {
-        spawnParticles();
-      });
+      if (rate != 0) {
+        spawnSmokeTimer = Timer.periodic(Duration(milliseconds: Random().nextInt((5000 / rate).round()) + 200), (_) {
+          spawnParticles();
+        });
+      }
     }
   }
 

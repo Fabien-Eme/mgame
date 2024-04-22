@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flame/components.dart';
 import 'package:flame_riverpod/flame_riverpod.dart';
 
+import '../../buildings/garage/garage.dart';
 import '../../game.dart';
 import '../../level.dart';
 
@@ -22,6 +23,9 @@ class UpgradeTrucksContent extends Component with HasGameReference<MGame>, River
   @override
   FutureOr<void> onLoad() {
     super.onLoad();
+
+    Garage thisGarage = game.currentlySelectedBuilding as Garage;
+
     add(TextComponent(
       text: "UPGRADE TRUCKS",
       textRenderer: MyTextStyle.title,
@@ -36,37 +40,49 @@ class UpgradeTrucksContent extends Component with HasGameReference<MGame>, River
       position: Vector2(-boxSize.x / 2 + 50, -boxSize.y / 2 + 180),
     ));
 
-    add(upgradeNaturalGasTruck = DialogButton(
-      text: 'Buy upgrade',
-      onPressed: () async {
-        if (!isFetchingData) {
-          isFetchingData = true;
-          String upgradeText = "";
+    if (thisGarage.gasTruckUpgrade) {
+      add(TextComponent(
+        text: 'Upgrade Bought',
+        textRenderer: MyTextStyle.text,
+        anchor: Anchor.center,
+        position: Vector2(boxSize.x / 2 - 150, -boxSize.y / 2 + 180),
+      ));
+    } else {
+      add(upgradeNaturalGasTruck = DialogButton(
+        text: 'Buy upgrade',
+        onPressed: () async {
+          if (!isFetchingData) {
+            isFetchingData = true;
+            upgradeNaturalGasTruck.textComponent.text = "Loading";
 
-          int ecoCredits = ref.read(gameUserControllerProvider.notifier).getUserEcoCredits();
-          if (ecoCredits >= 2) {
-            upgradeText = 'Upgrade Bought';
-            ref.read(gameUserControllerProvider.notifier).updateGameUser(ecoCredits: ecoCredits - 2);
+            String upgradeText = "";
 
-            (game.findByKeyName('level') as Level).isPurpleTruckAvailable = true;
-          } else {
-            upgradeText = 'Insufficient EcoCredits';
+            int ecoCredits = ref.read(gameUserControllerProvider.notifier).getUserEcoCredits();
+            if (ecoCredits >= 2) {
+              upgradeText = 'Upgrade Bought';
+              ref.read(gameUserControllerProvider.notifier).updateGameUser(ecoCredits: ecoCredits - 2);
+
+              (game.findByKeyName('level') as Level).isPurpleTruckAvailable = true;
+              thisGarage.gasTruckUpgrade = true;
+            } else {
+              upgradeText = 'Insufficient EcoCredits';
+            }
+            if (upgradeNaturalGasTruck.isMounted) {
+              remove(upgradeNaturalGasTruck);
+            }
+            add(TextComponent(
+              text: upgradeText,
+              textRenderer: MyTextStyle.text,
+              anchor: Anchor.center,
+              position: Vector2(boxSize.x / 2 - 150, -boxSize.y / 2 + 180),
+            ));
+            isFetchingData = false;
           }
-          if (upgradeNaturalGasTruck.isMounted) {
-            remove(upgradeNaturalGasTruck);
-          }
-          add(TextComponent(
-            text: upgradeText,
-            textRenderer: MyTextStyle.text,
-            anchor: Anchor.center,
-            position: Vector2(boxSize.x / 2 - 150, -boxSize.y / 2 + 180),
-          ));
-          isFetchingData = false;
-        }
-      },
-      buttonSize: Vector2(200, 50),
-      position: Vector2(boxSize.x / 2 - 150, -boxSize.y / 2 + 180),
-    ));
+        },
+        buttonSize: Vector2(200, 50),
+        position: Vector2(boxSize.x / 2 - 150, -boxSize.y / 2 + 180),
+      ));
+    }
 
     add(TextComponent(
       text: 'Electric truck   5 EcoCredits\nAbility to purchase Electric truck ',
@@ -75,35 +91,45 @@ class UpgradeTrucksContent extends Component with HasGameReference<MGame>, River
       position: Vector2(-boxSize.x / 2 + 50, -boxSize.y / 2 + 280),
     ));
 
-    add(upgradeElectricTruck = DialogButton(
-      text: 'Buy upgrade',
-      onPressed: () async {
-        if (!isFetchingData) {
-          isFetchingData = true;
-          String upgradeText = "";
+    if (thisGarage.electricTruckUpgrade) {
+      add(TextComponent(
+        text: 'Upgrade Bought',
+        textRenderer: MyTextStyle.text,
+        anchor: Anchor.center,
+        position: Vector2(boxSize.x / 2 - 150, -boxSize.y / 2 + 280),
+      ));
+    } else {
+      add(upgradeElectricTruck = DialogButton(
+        text: 'Buy upgrade',
+        onPressed: () async {
+          if (!isFetchingData) {
+            isFetchingData = true;
+            String upgradeText = "";
 
-          int ecoCredits = ref.read(gameUserControllerProvider.notifier).getUserEcoCredits();
-          if (ecoCredits >= 5) {
-            upgradeText = 'Upgrade Bought';
-            ref.read(gameUserControllerProvider.notifier).updateGameUser(ecoCredits: ecoCredits - 5);
-            (game.findByKeyName('level') as Level).isBlueTruckAvailable = true;
-          } else {
-            upgradeText = 'Insufficient EcoCredits';
+            int ecoCredits = ref.read(gameUserControllerProvider.notifier).getUserEcoCredits();
+            if (ecoCredits >= 5) {
+              upgradeText = 'Upgrade Bought';
+              ref.read(gameUserControllerProvider.notifier).updateGameUser(ecoCredits: ecoCredits - 5);
+              (game.findByKeyName('level') as Level).isBlueTruckAvailable = true;
+              thisGarage.electricTruckUpgrade = true;
+            } else {
+              upgradeText = 'Insufficient EcoCredits';
+            }
+            if (upgradeElectricTruck.isMounted) {
+              remove(upgradeElectricTruck);
+            }
+            add(TextComponent(
+              text: upgradeText,
+              textRenderer: MyTextStyle.text,
+              anchor: Anchor.center,
+              position: Vector2(boxSize.x / 2 - 150, -boxSize.y / 2 + 280),
+            ));
+            isFetchingData = false;
           }
-          if (upgradeElectricTruck.isMounted) {
-            remove(upgradeElectricTruck);
-          }
-          add(TextComponent(
-            text: upgradeText,
-            textRenderer: MyTextStyle.text,
-            anchor: Anchor.center,
-            position: Vector2(boxSize.x / 2 - 150, -boxSize.y / 2 + 280),
-          ));
-          isFetchingData = false;
-        }
-      },
-      buttonSize: Vector2(200, 50),
-      position: Vector2(boxSize.x / 2 - 150, -boxSize.y / 2 + 280),
-    ));
+        },
+        buttonSize: Vector2(200, 50),
+        position: Vector2(boxSize.x / 2 - 150, -boxSize.y / 2 + 280),
+      ));
+    }
   }
 }

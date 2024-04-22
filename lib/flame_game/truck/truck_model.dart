@@ -55,7 +55,7 @@ class TruckModel {
       buyCost: 20000,
       costPerTick: 8,
       buyPollution: 250,
-      pollutionPerTile: 1,
+      pollutionPerTile: 0,
       maxLoad: 10,
     );
   }
