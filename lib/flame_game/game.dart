@@ -58,8 +58,8 @@ class MGame extends FlameGame with MouseMovementDetector, ScrollDetector, MultiT
   Vector2 mousePosition = Vector2.zero();
 
   bool hasAudioBeenActivatedOnWeb = false;
-  double musicVolume = 0.0;
-  double soundVolume = 0.1;
+  double musicVolume = 0.3;
+  double soundVolume = 0.6;
 
   bool isMouseDragging = false;
   bool isMouseHoveringUI = false;
@@ -77,7 +77,7 @@ class MGame extends FlameGame with MouseMovementDetector, ScrollDetector, MultiT
   int lastLevelCompleted = 0;
   int currentLevel = 0;
 
-  bool isAudioEnabled = false;
+  bool isAudioEnabled = true;
 
   double globalAirQualityValue = 0;
   String globalAirQualityString = "";
